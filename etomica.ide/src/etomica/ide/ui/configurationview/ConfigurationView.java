@@ -15,6 +15,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import etomica.Phase;
 import etomica.Simulation;
+import etomica.ide.ui.propertiesview.PropertySourceWrapper;
 
 /**
  * @author kofke
@@ -67,19 +68,24 @@ public class ConfigurationView extends ViewPart {
 	}
 	
 	/**
-	 * Changes root of tree with change of simulation selected in another view.
+	 * Changes displayed configuration with change of simulation selected in another view.
 	 */
 	protected void pageSelectionChanged(IWorkbenchPart part, ISelection selection) {
 		if(part == this) return;
 //		System.out.println("ConfigurationView Selection "+selection.toString());
 		if(!(selection instanceof IStructuredSelection)) return;
 		IStructuredSelection sel = (IStructuredSelection)selection;
-		if(sel.getFirstElement() instanceof Phase) {
-			Phase phase = (Phase)sel.getFirstElement();
+		if(sel.getFirstElement() == null) {
+			canvas.setPhase(null);
+			return;
+		}
+		Object obj = ((PropertySourceWrapper)sel.getFirstElement()).getObject();
+		if(obj instanceof Phase) {
+			Phase phase = (Phase)obj;
 //			System.out.println("ConfigurationView phase "+phase.toString());
 			canvas.setPhase(phase);
-		} else if(sel.getFirstElement() instanceof Simulation) {
-			Simulation sim = (Simulation)sel.getFirstElement();
+		} else if(obj instanceof Simulation) {
+			Simulation sim = (Simulation)obj;
 			Phase phase = (Phase)lastPhase.get(sim);//get phase last viewed with selected simulation
 			if(phase == null) {
 				phase = sim.phase(0);

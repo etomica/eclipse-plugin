@@ -21,6 +21,7 @@ import etomica.ide.actions.ResumeSimulationAction;
 import etomica.ide.actions.RunSimulationAction;
 import etomica.ide.actions.SuspendSimulationAction;
 import etomica.ide.actions.TerminateSimulationAction;
+import etomica.ide.ui.propertiesview.PropertySourceWrapper;
 
 /**
  * @author kofke
@@ -96,11 +97,11 @@ public class SimulationView extends ViewPart implements ISelectionChangedListene
 //		System.out.println("SimulationView selection changed");
 //		if(event == null) return;
 		IStructuredSelection selection = (IStructuredSelection)viewer.getSelection();
-		if(selection == null || !(selection.getFirstElement() instanceof Simulation)) {
+		if(selection == null) {
 			setSimulation(null);
 			return;
 		}
-		Simulation sim = (Simulation)selection.getFirstElement();
+		Simulation sim = (Simulation)((PropertySourceWrapper)selection.getFirstElement()).getObject();
 		setSimulation(sim);
 //		System.out.println("SimulationView simulation:"+sim);
 	}
@@ -140,11 +141,14 @@ public class SimulationView extends ViewPart implements ISelectionChangedListene
 		ContentProvider() {
 			Simulation.instantiationEventManager.addListener(this);	
 		}
-		/* (non-Javadoc)
-		 * @see org.eclipse.jface.viewers.IStructuredContentProvider#getElements(java.lang.Object)
+		/**
+		 * @param inputElement a linked list containing the simulation instances,
+		 * coming from Simulation.getInstances
 		 */
 		public Object[] getElements(Object inputElement) {
-			return ((etomica.utility.java2.LinkedList)inputElement).toArray();
+			Object[] elements = ((etomica.utility.java2.LinkedList)inputElement).toArray();
+			PropertySourceWrapper[] wrappedElements = PropertySourceWrapper.wrapArrayElements(elements);
+			return wrappedElements;
 		}
 
 		/* (non-Javadoc)

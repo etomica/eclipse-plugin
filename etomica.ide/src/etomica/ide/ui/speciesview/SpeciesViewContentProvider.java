@@ -7,7 +7,13 @@ package etomica.ide.ui.speciesview;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
-import etomica.*;
+
+import etomica.Atom;
+import etomica.AtomTreeNodeGroup;
+import etomica.Phase;
+import etomica.Simulation;
+import etomica.SpeciesAgent;
+import etomica.ide.ui.propertiesview.PropertySourceWrapper;
 
 /**
  * @author kofke
@@ -22,24 +28,30 @@ public class SpeciesViewContentProvider implements ITreeContentProvider {
 	 * Phases are children of simulation.
 	 * Agents are children of phases, and rest of hierarchy follows from there.
 	 */
-	public Object[] getChildren(Object parentElement) {
+	public Object[] getChildren(Object wrappedElement) {
+		Object parentElement = ((PropertySourceWrapper)wrappedElement).getObject();
 		if(parentElement instanceof Atom) {
-			Atom atom = (Atom)parentElement;
-			if(atom.node instanceof AtomTreeNodeGroup) {
-				return ((AtomTreeNodeGroup)atom.node).childList.toArray();
-			} else return new Object[0];
+			return getAtomChildren((Atom)parentElement);
 		} else if(parentElement instanceof Simulation) {
 			Simulation sim = (Simulation)parentElement;
-			return sim.phaseList().toArray();
+			return PropertySourceWrapper.wrapArrayElements(sim.phaseList().toArray());
 		} else if(parentElement instanceof Phase) {
-			return getChildren(((Phase)parentElement).speciesMaster());
-		} else return new Object[0];
+			return getAtomChildren(((Phase)parentElement).speciesMaster());
+		} else return new PropertySourceWrapper[0];
+	}
+
+	//used by getChildren
+	private Object[] getAtomChildren(Atom atom) {
+		if(atom.node instanceof AtomTreeNodeGroup) {
+			return PropertySourceWrapper.wrapArrayElements(((AtomTreeNodeGroup)atom.node).childList.toArray());
+		} else return new PropertySourceWrapper[0];
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.viewers.ITreeContentProvider#getParent(java.lang.Object)
 	 */
 	public Object getParent(Object element) {
+		System.out.println("SpeciesViewContentProvide.getParent");
 		if(element instanceof Phase) return ((Phase)element).simulation();
 		else if(element instanceof SpeciesAgent) return ((SpeciesAgent)element).node.parentPhase();
 		else if(element instanceof Atom) return ((Atom)element).node.parentGroup();
@@ -49,17 +61,22 @@ public class SpeciesViewContentProvider implements ITreeContentProvider {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.viewers.ITreeContentProvider#hasChildren(java.lang.Object)
 	 */
-	public boolean hasChildren(Object element) {
+	public boolean hasChildren(Object wrappedElement) {
+		Object element = ((PropertySourceWrapper)wrappedElement).getObject();
 		if(element instanceof Atom) {
-			Atom atom = (Atom)element;
-			if(atom.node.isLeaf()) return false;
-			return (((AtomTreeNodeGroup)atom.node).childList.size() > 0);
+			return atomHasChildren((Atom)element);
 		} else if(element instanceof Simulation) {
 			Simulation sim = (Simulation)element;
 			return sim.phaseList().size() > 0;
 		} else if(element instanceof Phase) {
-			return hasChildren(((Phase)element).speciesMaster);
+			return atomHasChildren(((Phase)element).speciesMaster);
 		} else return false;
+	}
+	
+	//used by hasChildren
+	private boolean atomHasChildren(Atom atom) {
+		if(atom.node.isLeaf()) return false;
+		return (((AtomTreeNodeGroup)atom.node).childList.size() > 0);
 	}
 
 	/* (non-Javadoc)

@@ -16,6 +16,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import etomica.Phase;
 import etomica.Simulation;
+import etomica.ide.ui.propertiesview.PropertySourceWrapper;
 
 /**
  * View for listing the species hierarchy via a tree.
@@ -31,10 +32,10 @@ public class SpeciesView extends ViewPart {
 	 */
 	public void createPartControl(Composite parent) {
 		viewer = new TreeViewer(parent);
-		setViewer(viewer);
+//		setViewer(viewer);
 		vcp = new SpeciesViewContentProvider();
-		getViewer().setContentProvider(vcp);
-		getViewer().setLabelProvider(new LabelProvider());
+		viewer.setContentProvider(vcp);
+		viewer.setLabelProvider(new LabelProvider());
 		hookPageSelection();
 		createActions();
 		createToolBarButtons();
@@ -65,10 +66,11 @@ public class SpeciesView extends ViewPart {
 //		System.out.println("SpeciesView selection "+selection.toString());
 		if(!(selection instanceof IStructuredSelection)) return;
 		IStructuredSelection sel = (IStructuredSelection)selection;
-		if(!(sel.getFirstElement() instanceof Simulation)) return;
-		Simulation sim = (Simulation)sel.getFirstElement();
+		if(sel.getFirstElement() == null) return;
+		Object obj = ((PropertySourceWrapper)sel.getFirstElement()).getObject();
+		if(!(obj instanceof Simulation)) return;
 //		System.out.println("SpeciesView simulation "+sim.toString());
-		viewer.setInput(sim);
+		viewer.setInput(sel.getFirstElement());
 //		try {
 //			if(sim.phase(0) == null) return;
 //			System.out.println("Phase "+sim.phase(0).toString());
@@ -95,9 +97,9 @@ public class SpeciesView extends ViewPart {
 	public TreeViewer getViewer() {
 		return viewer;
 	}
-	public void setViewer(TreeViewer viewer) {
-		this.viewer = viewer;
-	}
+//	public void setViewer(TreeViewer viewer) {
+//		this.viewer = viewer;
+//	}
 	
 	public void dispose() {
 		if(pageSelectionListener != null) {
