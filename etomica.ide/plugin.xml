@@ -92,14 +92,14 @@
    		</view>
      <view
            class="etomica.ide.ui.simulationview.SimulationView"
-           category="etomica.ide/etomica.ide.simulation"
-           name="Simulation Instances"
+           category="etomica.ide.ui/etomica.ide.simulation"
+           name="Simulation View"
            id="etomica.ide.ui.simulationview.SimulationView"/>
      <view
            allowMultiple="true"
            class="etomica.ide.ui.configurationview.ConfigurationView"
            category="etomica.ide.ui"
-           name="Configuration"
+           name="Configuration View"
            id="etomica.ide.ui.configurationview.ConfigurationView"/>
    	</extension>
    <extension
@@ -116,6 +116,16 @@
                icon="icons/collapseall.gif"
                class="etomica.ide.ui.speciesview.CollapseAllAction"
                id="etomica.ide.ui.speciesview.collapseall"/>
+      </viewContribution>
+      <viewContribution
+            targetID="etomica.ide.ui.simulationview.SimulationView"
+            id="etomica.ide.simulationview">
+         <action
+               toolbarPath="additions"
+               label="Pause/Resume"
+               tooltip="Pause/Resume"
+               class="etomica.ide.ui.simulationview.SimulationPauseResumeAction"
+               id="etomica.ide.ui.simulationview.pauseresume"/>
       </viewContribution>
    </extension>
 
