@@ -4,5 +4,7 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="/etomica CVS"/>
+	<classpathentry kind="lib" path="C:/etomica/lib/gl4java/gl4java.jar"/>
+	<classpathentry kind="lib" path="C:/etomica/lib/gl4java/gl4java-glutfonts.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

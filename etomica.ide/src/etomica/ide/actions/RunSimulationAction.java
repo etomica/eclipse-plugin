@@ -14,15 +14,15 @@ import etomica.ide.ui.simulationview.SimulationView;
 /**
  * Action that causes simulation to resume execution.  
  */
-public class ResumeSimulationAction extends Action {
+public class RunSimulationAction extends Action {
 
 	/**
 	 * Constructs action and associates "resume" icon.
 	 */
-	public ResumeSimulationAction(SimulationView view) {
-		super("Resume simulation");
-		ImageDescriptor eImage = ImageDescriptor.createFromFile(ResumeSimulationAction.class, "enabled/resume_co.gif");
-		ImageDescriptor dImage = ImageDescriptor.createFromFile(ResumeSimulationAction.class, "disabled/resume_co.gif");
+	public RunSimulationAction(SimulationView view) {
+		super("Run simulation");
+		ImageDescriptor eImage = ImageDescriptor.createFromFile(RunSimulationAction.class, "enabled/run_exc.gif");
+		ImageDescriptor dImage = ImageDescriptor.createFromFile(RunSimulationAction.class, "disabled/run_exc.gif");
 		setImageDescriptor(eImage);
 		setDisabledImageDescriptor(dImage);
 		this.view = view;
@@ -37,10 +37,8 @@ public class ResumeSimulationAction extends Action {
 	public void setSimulation(Simulation simulation) {
 		this.simulation = simulation;
 		boolean enabled = (simulation != null)
-		&& simulation.getController().isActive()
-		&& simulation.getController().isPaused();
+		&& !simulation.getController().isActive();  //remove not
 		setEnabled(enabled);
-//		System.out.println("ResumeSimulationAction setsimulation "+simulation);
 	}
 	
 	/**
@@ -48,12 +46,10 @@ public class ResumeSimulationAction extends Action {
 	 * Performs no action if simulation has not be set, or is null.
 	 */
 	public void run() {
-//		System.out.println("ResumeSimulationAction run");
 		if(simulation == null) return;
 		Controller controller = simulation.getController();
-		if(controller == null) return;
-		if(controller.isActive()) controller.unPause();
-//		else controller.start();	
+		if(controller == null || controller.isActive()) return;
+		controller.start();	
 		view.setSimulation(simulation);//update all buttons
 	}
 	

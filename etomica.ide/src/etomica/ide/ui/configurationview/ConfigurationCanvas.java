@@ -150,14 +150,14 @@ public abstract class ConfigurationCanvas implements ControlListener {
 		gcImage = null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.swt.events.ControlListener#controlMoved(org.eclipse.swt.events.ControlEvent)
+	/**
+	 * Causes image to be resized and redrawn if window is moved.
 	 */
 	public void controlMoved(ControlEvent e) {
 		disposeImage();
 	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.swt.events.ControlListener#controlResized(org.eclipse.swt.events.ControlEvent)
+	/**
+	 * Causes image to be resized and redrawn if window is resized.
 	 */
 	public void controlResized(ControlEvent e) {
 		disposeImage();

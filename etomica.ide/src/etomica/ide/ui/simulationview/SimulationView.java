@@ -18,6 +18,9 @@ import etomica.Simulation;
 import etomica.SimulationEvent;
 import etomica.SimulationListener;
 import etomica.ide.actions.ResumeSimulationAction;
+import etomica.ide.actions.RunSimulationAction;
+import etomica.ide.actions.SuspendSimulationAction;
+import etomica.ide.actions.TerminateSimulationAction;
 
 /**
  * @author kofke
@@ -31,6 +34,7 @@ public class SimulationView extends ViewPart implements ISelectionChangedListene
 	 * 
 	 */
 	public SimulationView() {
+		System.out.println("SimulationView constructor");
 	}
 
 	/* (non-Javadoc)
@@ -46,8 +50,15 @@ public class SimulationView extends ViewPart implements ISelectionChangedListene
 	
 	private void createToolbarButtons() {
 		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
-		resume = new ResumeSimulationAction();
+		run = new RunSimulationAction(this);
+		resume = new ResumeSimulationAction(this);
+		suspend = new SuspendSimulationAction(this);
+		terminate = new TerminateSimulationAction(this);
+		toolBarManager.add(run);
 		toolBarManager.add(resume);
+		toolBarManager.add(suspend);
+		toolBarManager.add(terminate);
+		setSimulation(null);
 	}
 
 	/* (non-Javadoc)
@@ -56,19 +67,20 @@ public class SimulationView extends ViewPart implements ISelectionChangedListene
 	public void setFocus() {
 		viewer.getControl().setFocus();
 		getSite().setSelectionProvider(viewer);
-//		etomica.utility.java2.LinkedList instances = Simulation.getInstances();
-//		java.util.LinkedList list = new java.util.LinkedList();
-//		Iterator iterator = instances.iterator();
-//		while(iterator.hasNext()) {
-//			list.add(iterator.next());
-//			System.out.println("iterate");
-//		}
-//		viewer.setInput(list);
 	}
 
+	/**
+	 * @return the ListViewer used to display data for this view.
+	 */
 	public ListViewer getViewer() {
 		return viewer;
 	}
+	
+	/**
+	 * Sets the given list viewer as the control for this view,
+	 * and registers this as a listener for selection changes.
+	 * @param viewer
+	 */
 	public void setViewer(ListViewer viewer) {
 		if(this.viewer != null) this.viewer.removeSelectionChangedListener(this);
 		this.viewer = viewer;
@@ -76,29 +88,49 @@ public class SimulationView extends ViewPart implements ISelectionChangedListene
 	}
 	
 	/**
-	 * Action performed when user changes selected simulation in viewer's list
+	 * Action performed when user changes selected simulation 
+	 * in viewer's list.  Implementation of ISelectionChangedListener
+	 * interface.
 	 */
 	public void selectionChanged(SelectionChangedEvent event) {
-		System.out.println("SimulationView selection changed");
+//		System.out.println("SimulationView selection changed");
 //		if(event == null) return;
 		IStructuredSelection selection = (IStructuredSelection)viewer.getSelection();
 		if(selection == null || !(selection.getFirstElement() instanceof Simulation)) {
-			resume.setSimulation(null);
+			setSimulation(null);
 			return;
 		}
 		Simulation sim = (Simulation)selection.getFirstElement();
+		setSimulation(sim);
+//		System.out.println("SimulationView simulation:"+sim);
+	}
+	
+	/**
+	 * Identifies the given simulation as the one currently
+	 * selected in this view.  Updates enablement of simulation 
+	 * control buttons for the selection.
+	 * @param sim
+	 */
+	public void setSimulation(Simulation sim) {
+		run.setSimulation(sim);
 		resume.setSimulation(sim);
-		if(sim == null) return;
-		System.out.println("SimulationView simulation:"+sim);
+		suspend.setSimulation(sim);	
+		terminate.setSimulation(sim);
 	}
 	
 	public void dispose() {
+		run.dispose();
 		resume.dispose();
+		suspend.dispose();
+		terminate.dispose();
 		super.dispose();
 	}
 
 	private ListViewer viewer;
+	private RunSimulationAction run;
 	private ResumeSimulationAction resume;
+	private SuspendSimulationAction suspend;
+	private TerminateSimulationAction terminate;
 
 	/**
 	 * Content provider for ListViewer.

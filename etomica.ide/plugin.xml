@@ -57,38 +57,6 @@
             <separator name="simulationGroup"/>
          </menu>
          <action
-               disabledIcon="icons/disabled/terminate_co.gif"
-               toolbarPath="simulationGroup"
-               label="Terminate"
-               tooltip="Terminate simulation"
-               class="etomica.ide.MakeSimulation"
-               icon="icons/enabled/terminate_co.gif"
-               id="etomica.ide.terminate"/>
-         <action
-               disabledIcon="icons/disabled/suspend_co.gif"
-               toolbarPath="simulationGroup"
-               label="Suspend"
-               tooltip="Suspend simulation"
-               class="etomica.ide.MakeSimulation"
-               icon="icons/enabled/suspend_co.gif"
-               id="etomica.ide.suspend"/>
-         <action
-               disabledIcon="icons/disabled/resume_co.gif"
-               toolbarPath="simulationGroup"
-               label="Resume"
-               tooltip="Resume simulation"
-               icon="icons/enabled/resume_co.gif"
-               class="etomica.ide.MakeSimulation"
-               id="etomica.ide.resume"/>
-         <action
-               disabledIcon="icons/disabled/run_exc.gif"
-               toolbarPath="simulationGroup"
-               label="Run"
-               class="etomica.ide.MakeSimulation"
-               tooltip="Run simulation"
-               icon="icons/enabled/run_exc.gif"
-               id="etomica.ide.run"/>
-         <action
                toolbarPath="simulationGroup"
                label="&amp;New Simulation"
                class="etomica.ide.MakeSimulation"

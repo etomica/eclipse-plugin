@@ -12,17 +12,17 @@ import etomica.Simulation;
 import etomica.ide.ui.simulationview.SimulationView;
 
 /**
- * Action that causes simulation to resume execution.  
- */
-public class ResumeSimulationAction extends Action {
+ * Action that causes simulation to suspend execution.  
+  */
+public class SuspendSimulationAction extends Action {
 
 	/**
-	 * Constructs action and associates "resume" icon.
+	 * Constructs action and associates "suspend" icon.
 	 */
-	public ResumeSimulationAction(SimulationView view) {
-		super("Resume simulation");
-		ImageDescriptor eImage = ImageDescriptor.createFromFile(ResumeSimulationAction.class, "enabled/resume_co.gif");
-		ImageDescriptor dImage = ImageDescriptor.createFromFile(ResumeSimulationAction.class, "disabled/resume_co.gif");
+	public SuspendSimulationAction(SimulationView view) {
+		super("Suspend simulation");
+		ImageDescriptor eImage = ImageDescriptor.createFromFile(SuspendSimulationAction.class, "enabled/suspend_co.gif");
+		ImageDescriptor dImage = ImageDescriptor.createFromFile(SuspendSimulationAction.class, "disabled/suspend_co.gif");
 		setImageDescriptor(eImage);
 		setDisabledImageDescriptor(dImage);
 		this.view = view;
@@ -37,8 +37,8 @@ public class ResumeSimulationAction extends Action {
 	public void setSimulation(Simulation simulation) {
 		this.simulation = simulation;
 		boolean enabled = (simulation != null)
-		&& simulation.getController().isActive()
-		&& simulation.getController().isPaused();
+			&& simulation.getController().isActive()
+			&& !simulation.getController().isPaused();
 		setEnabled(enabled);
 //		System.out.println("ResumeSimulationAction setsimulation "+simulation);
 	}
@@ -52,9 +52,8 @@ public class ResumeSimulationAction extends Action {
 		if(simulation == null) return;
 		Controller controller = simulation.getController();
 		if(controller == null) return;
-		if(controller.isActive()) controller.unPause();
-//		else controller.start();	
-		view.setSimulation(simulation);//update all buttons
+		controller.pause();
+		view.setSimulation(simulation);//notify other buttons
 	}
 	
 	//may not need this
