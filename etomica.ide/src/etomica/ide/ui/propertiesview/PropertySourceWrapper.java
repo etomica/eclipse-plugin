@@ -6,32 +6,25 @@ package etomica.ide.ui.propertiesview;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Label;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
 import java.beans.PropertyEditor;
-import java.beans.PropertyEditorManager;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 
 import javax.swing.JLabel;
 
+import org.eclipse.ui.views.properties.ComboBoxPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
-
-import etomica.graphics.DimensionedDoubleEditor;
-import etomica.graphics.PropertyText;
-import etomica.units.Meter;
-import etomica.units.Unit;
+import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 
 /**
- * @author kofke
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * Wraps an object with an implementation of IPropertySource so that
+ * it may be displayed and edited in the eclipse property sheet.  Properties
+ * associated with wrapped object are determined through Java reflection.
  */
 
 //take care not to confuse java.beans.PropertyDescriptor and org.eclipse.ui.view.properties.PropertyDescriptor
@@ -39,13 +32,16 @@ import etomica.units.Unit;
 public class PropertySourceWrapper implements IPropertySource {
 
 	/**
-	 * 
+	 * Constructs new instance, wrapping the given object.
 	 */
 	public PropertySourceWrapper(Object object) {
 		super();
 		this.object = object;
 	}
 	
+	/**
+	 * @return the wrapped object
+	 */
 	public Object getObject() {
 		return object;
 	}
@@ -54,13 +50,12 @@ public class PropertySourceWrapper implements IPropertySource {
 	 * @see org.eclipse.ui.views.properties.IPropertySource#getEditableValue()
 	 */
 	public Object getEditableValue() {
-		// TODO Auto-generated method stub
-		return null;
+		return object;
 	}
 
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.views.properties.IPropertySource#getPropertyValue(java.lang.Object)
+	/**
+	 * We use the java.beans.PropertyDescriptor as the key for the property.
 	 */
 	public Object getPropertyValue(Object arg0) {
 		java.beans.PropertyDescriptor pd = (java.beans.PropertyDescriptor)arg0;
@@ -71,7 +66,18 @@ public class PropertySourceWrapper implements IPropertySource {
 		catch(NullPointerException ex) {value = null;}
 		catch(InvocationTargetException ex) {value = null;}
 		catch(IllegalAccessException ex) {value = null;}
-		return value;
+		//See if object can have child objects in tree (cannot if it is primitive)
+		if(!(value == null || 
+				value instanceof Number || 
+				value instanceof Boolean ||
+				value instanceof Character ||
+				value instanceof String ||
+				value instanceof Color ||
+				value instanceof etomica.Constants.TypedConstant)) {
+			return new PropertySourceWrapper(value);
+		} else {
+			return value;
+		}
 	}
 
 	/* (non-Javadoc)
@@ -94,10 +100,21 @@ public class PropertySourceWrapper implements IPropertySource {
 	 * @see org.eclipse.ui.views.properties.IPropertySource#setPropertyValue(java.lang.Object, java.lang.Object)
 	 */
 	public void setPropertyValue(Object arg0, Object arg1) {
-		// TODO Auto-generated method stub
-
+		java.beans.PropertyDescriptor pd = (java.beans.PropertyDescriptor)arg0;
+		Method setter = pd.getWriteMethod(); //method used to read value of property in this object
+		if(setter == null) return;
+		try {
+			setter.invoke(object, new Object[] {arg1});
+		} 
+		catch(IllegalAccessException ex) {error("Cannot set value", ex);}
+		catch(InvocationTargetException ex) {error("Cannot set value", ex);}
 	}
 	
+	/**
+	 * toString for the wrapper is just the toString for the wrapped object.
+	 * This ensures the object's label is displayed when in views other than
+	 * the PropertySheet.
+	 */
 	public String toString() {
 		return object.toString();
 	}
@@ -139,29 +156,42 @@ public class PropertySourceWrapper implements IPropertySource {
 		if (property.isHidden() || property.isExpert())
 		return null;
 		
-		Object value = null;
 		Component view = null;
 		Component unitView = null;
 		JLabel label = null;
 		PropertyEditor editor = null;
 		
 		String name = property.getDisplayName();  //Localized display name 
-		if(name.equals("dimension") || name.equals("class")) return null;//skip getDimension(), getClass()
+		if(name.equals("class")) return null;//skip getDimension(), getClass()
 		
-		org.eclipse.ui.views.properties.PropertyDescriptor pd = new org.eclipse.ui.views.properties.TextPropertyDescriptor(property, name);
+		Class type = property.getPropertyType();  //Type (class) of this property
+		Method getter = property.getReadMethod(); //method used to read value of property in this object
+		Method setter = property.getWriteMethod();//method used to set value of property
 
-//		Class type = property.getPropertyType();  //Type (class) of this property
-//		Method getter = property.getReadMethod(); //method used to read value of property in this object
-//		Method setter = property.getWriteMethod();//method used to set value of property
-//		// Display only read/write properties.
-//		if (getter == null) {
-//			return null;
-//		}
-//		try {
+		// Display only read/write properties.
+		if (getter == null) return null;
+		
+		// Do not display dimension specifications as properties
+		if(etomica.units.Dimension.class.isAssignableFrom(type)) return null;
+		
+		IPropertyDescriptor pd = null;
+		try {
 //			//read the current value of the property
-//			Object args[] = { };
-//			try {value = getter.invoke(parentNode.object(), args);}
-//			catch(NullPointerException ex) {value = null;}
+			Object value = null;
+			Object args[] = { };
+			value = getter.invoke(object, args);
+						
+			if(type == boolean.class) {
+				pd = new CheckboxPropertyDescriptor(property, name);
+			}
+			else if(etomica.Constants.TypedConstant.class.isAssignableFrom(type) && value != null) {
+				pd = new ComboBoxPropertyDescriptor(property,name,new String[] {"test A", "test B"});
+			}
+			else if(String.class.isAssignableFrom(type)) {
+				pd = new TextPropertyDescriptor(property, name);
+			} else {
+				pd = new org.eclipse.ui.views.properties.PropertyDescriptor(property, name);
+			}
 //		
 //			//find and instantiate the editor used to modify value of the property
 //			if(property.isConstrained())
@@ -249,17 +279,17 @@ public class PropertySourceWrapper implements IPropertySource {
 //				((PropertyText)view).setEditable(false);
 //			}
 //			else unitView = new EmptyPanel();
-//		} //end of try
-//		catch (InvocationTargetException ex) {
-//			System.err.println("Skipping property " + name + " ; exception on target: " + ex.getTargetException());
-//			ex.getTargetException().printStackTrace();
-//			return null;
-//		} 
-//		catch (Exception ex) {
-//			System.err.println("Skipping property " + name + " ; exception: " + ex);
-//			ex.printStackTrace();
-//			return null;
-//		}
+		} //end of try
+		catch (InvocationTargetException ex) {
+			System.err.println("Skipping property " + name + " ; exception on target: " + ex.getTargetException());
+			ex.getTargetException().printStackTrace();
+			return null;
+		} 
+		catch (Exception ex) {
+			System.err.println("Skipping property " + name + " ; exception: " + ex);
+			ex.printStackTrace();
+			return null;
+		}
 //		
 //		MyLabel newLabel = new MyLabel(name, Label.LEFT);
 //		
@@ -289,7 +319,12 @@ public class PropertySourceWrapper implements IPropertySource {
 	    th.printStackTrace();
     }
 
-	
+	/**
+	 * Convenience method that wraps all elements of a given array with 
+	 * a PropertySourceWrapper.
+	 * @param array the input array with elements to be wrapped
+	 * @return the array of wrapped elements
+	 */
 	public static PropertySourceWrapper[] wrapArrayElements(Object[] array) {
 		PropertySourceWrapper[] wrappedArray = new PropertySourceWrapper[array.length];
 		for(int i=0; i<array.length; i++) {
@@ -298,6 +333,6 @@ public class PropertySourceWrapper implements IPropertySource {
 		return wrappedArray;
 	}
 
-	Object object;
-	IPropertyDescriptor[] descriptors;
+	private Object object;
+	private IPropertyDescriptor[] descriptors;
 }
