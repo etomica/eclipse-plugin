@@ -21,6 +21,9 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 
+import etomica.Constants;
+import etomica.Space;
+
 /**
  * Wraps an object with an implementation of IPropertySource so that
  * it may be displayed and edited in the eclipse property sheet.  Properties
@@ -185,11 +188,14 @@ public class PropertySourceWrapper implements IPropertySource {
 				pd = new CheckboxPropertyDescriptor(property, name);
 			}
 			else if(etomica.Constants.TypedConstant.class.isAssignableFrom(type) && value != null) {
-				pd = new ComboBoxPropertyDescriptor(property,name,new String[] {"test A", "test B"});
+				pd = new EnumeratedTypePropertyDescriptor(property,name,((Constants.TypedConstant)value).choices());
 			}
 			else if(String.class.isAssignableFrom(type)) {
 				pd = new TextPropertyDescriptor(property, name);
-			} else {
+			} else if(Space.Boundary.class.isAssignableFrom(type)) {
+				pd = new ComboBoxPropertyDescriptor(property,name,new String[] {"test A", "test B"});
+			}
+			else {
 				pd = new org.eclipse.ui.views.properties.PropertyDescriptor(property, name);
 			}
 //		
