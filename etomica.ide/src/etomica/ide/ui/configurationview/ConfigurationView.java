@@ -77,6 +77,10 @@ public class ConfigurationView extends ViewPart {
 		if(!(selection instanceof IStructuredSelection)) return;
 		IStructuredSelection sel = (IStructuredSelection)selection;
 		if(sel.getFirstElement() == null) {
+			if(selectionSource == part) {
+				canvas.setSelectedAtoms(new Atom[0]);
+				selectionSource = null;
+			}
 			return;
 		}
 		Object obj = ((PropertySourceWrapper)sel.getFirstElement()).getObject();
@@ -96,6 +100,7 @@ public class ConfigurationView extends ViewPart {
 			//selection of one or more atoms
 			int nAtom = sel.size();
 			Atom[] selectedAtoms = new Atom[nAtom];
+			selectionSource = part;
 			Object[] objects = sel.toArray();
 			for(int i=0; i<nAtom; i++) {
 				selectedAtoms[i] = (Atom)((PropertySourceWrapper)objects[i]).getObject();
@@ -119,5 +124,5 @@ public class ConfigurationView extends ViewPart {
     private ISelectionListener pageSelectionListener;
 	private ConfigurationCanvas canvas;
 	private final HashMap lastPhase = new HashMap(8);//store last phase viewed for each simulation
-
+	private IWorkbenchPart selectionSource;
 }
