@@ -34,8 +34,8 @@ public class PropertySheet extends ViewPart {
 	public void createPartControl(Composite parent) {
 		viewer = new TableTreeViewer(parent, SWT.NONE);
 //		TableTree viewer = new TableTree(parent);
-		contentProvider = new PropertySheetContentProvider();
-		viewer.setContentProvider(contentProvider);
+//		contentProvider = new PropertySheetContentProvider();
+//		viewer.setContentProvider(contentProvider);
 
 		tableTree = viewer.getTableTree();
 		Table table = tableTree.getTable();
@@ -76,6 +76,6 @@ public class PropertySheet extends ViewPart {
 	
 	private TableTreeViewer viewer;
 	private TableTree tableTree;
-	private PropertySheetContentProvider contentProvider;
+//	private PropertySheetContentProvider contentProvider;
 
 }

@@ -70,7 +70,7 @@ public abstract class ConfigurationCanvas implements ControlListener {
         setAtomFilter(AtomFilter.ACCEPT_ALL);
         setScale(1.0);
         
-        Simulation sim = new Simulation(new Space2D());
+//        Simulation sim = new Simulation(new Space2D());
 //        Phase phase = new Phase(sim);
 //        SpeciesSpheresMono species = new SpeciesSpheresMono(sim);
 //        sim.elementCoordinator.go();

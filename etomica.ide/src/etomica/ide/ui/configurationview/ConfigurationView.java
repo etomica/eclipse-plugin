@@ -76,7 +76,7 @@ public class ConfigurationView extends ViewPart {
 		if(!(selection instanceof IStructuredSelection)) return;
 		IStructuredSelection sel = (IStructuredSelection)selection;
 		if(sel.getFirstElement() == null) {
-			canvas.setPhase(null);
+//			canvas.setPhase(null);
 			return;
 		}
 		Object obj = ((PropertySourceWrapper)sel.getFirstElement()).getObject();
