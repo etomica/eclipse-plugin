@@ -9,7 +9,7 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 
 import etomica.Atom;
-import etomica.AtomTreeNodeGroup;
+import etomica.atom.AtomTreeNodeGroup;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.SpeciesAgent;

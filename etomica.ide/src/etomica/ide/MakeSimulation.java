@@ -25,13 +25,16 @@ public class MakeSimulation implements IWorkbenchWindowActionDelegate {
 	 */
 	public MakeSimulation() {
 		super();
+        System.err.println("MakeSimulation constructor");
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
 	 */
 	public void run(IAction action) {
+        System.out.println("MakeSimulation.run");
 		simulation = new HSMD2D();
+        System.out.println("MakeSimulation.run out");
 	}
 
 	/* (non-Javadoc)

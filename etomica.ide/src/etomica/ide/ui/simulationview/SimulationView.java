@@ -44,7 +44,7 @@ public class SimulationView extends ViewPart implements ISelectionChangedListene
 		viewer = new TreeViewer(parent);
 		viewer.setContentProvider(new SimulationViewContentProvider());
         viewer.setLabelProvider(new LabelProvider());
-        java.util.LinkedList instances = Simulation.getInstances();
+        java.util.LinkedList instances = Simulation.getInstances(); 
 		viewer.setInput(Simulation.getInstances());
 		setViewer(viewer);
 		createToolbarButtons();

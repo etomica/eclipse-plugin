@@ -18,9 +18,9 @@ import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 
 import etomica.Atom;
-import etomica.AtomFilter;
-import etomica.AtomIteratorLeafAtoms;
+import etomica.atom.AtomFilter;
 import etomica.Phase;
+import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.ColorSchemeByType;
 import etomica.ide.ui.propertiesview.PropertySourceWrapper;

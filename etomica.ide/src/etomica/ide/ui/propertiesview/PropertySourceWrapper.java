@@ -22,7 +22,7 @@ import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 
 import etomica.Constants;
-import etomica.Space;
+import etomica.space.Boundary;
 
 /**
  * Wraps an object with an implementation of IPropertySource so that
@@ -158,8 +158,9 @@ public class PropertySourceWrapper implements IPropertySource {
     private IPropertyDescriptor makeDescriptor(java.beans.PropertyDescriptor property, BeanInfo bi) {
 
 		// Don't display hidden or expert properties.
-		if (property.isHidden() || property.isExpert())
-		return null;
+		if (property.isHidden() || property.isExpert()) {
+		    return null;
+        }
 		
 		Component view = null;
 		Component unitView = null;
@@ -199,7 +200,7 @@ public class PropertySourceWrapper implements IPropertySource {
 			}
 			else if(String.class.isAssignableFrom(type)) {
 				pd = new TextPropertyDescriptor(property, name);
-			} else if(Space.Boundary.class.isAssignableFrom(type)) {
+			} else if(Boundary.class.isAssignableFrom(type)) {
 				pd = new ComboBoxPropertyDescriptor(property,name,new String[] {"test A", "test B"});
 			}
 			else {

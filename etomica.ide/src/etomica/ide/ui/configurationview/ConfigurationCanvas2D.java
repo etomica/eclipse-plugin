@@ -9,9 +9,10 @@ import etomica.Atom;
 import etomica.AtomType;
 import etomica.Space;
 import etomica.Species;
-import etomica.AtomTypeSphere;
+import etomica.atom.AtomTypeSphere;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.ColorSchemeByType;
+import etomica.space.Vector;
 
     /* History of changes
      * 7/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.
@@ -30,7 +31,7 @@ public class ConfigurationCanvas2D extends ConfigurationCanvas {
     
     private void drawAtom(GC gcImage, Atom a) {
         if(!atomFilter.accept(a)) return;
-        Space.Vector r = a.coord.position();
+        Vector r = a.coord.position();
         int sigmaP, xP, yP, baseXP, baseYP;
 
 //        g.setColor(displayPhase.getColorScheme().atomColor(a));
@@ -100,7 +101,7 @@ public class ConfigurationCanvas2D extends ConfigurationCanvas {
         Rectangle rect = gcImage.getClipping();
         int drawWidth = rect.width;
         int drawHeight = rect.height;
-        Space.Vector dimensions = getPhase().boundary().dimensions();
+        Vector dimensions = getPhase().boundary().dimensions();
         double phaseWidth = dimensions.x(0);
         double phaseHeight = dimensions.x(1);
         toPixels = 0.9*scale*Math.min(drawWidth/phaseWidth, drawHeight/phaseHeight);
