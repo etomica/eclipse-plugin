@@ -295,12 +295,12 @@ public class PropertySourceWrapper implements IPropertySource {
 		} //end of try
 		catch (InvocationTargetException ex) {
 			System.err.println("Skipping property " + name + " ; exception on target: " + ex.getTargetException());
-			ex.getTargetException().printStackTrace();
+//			ex.getTargetException().printStackTrace();
 			return null;
 		} 
 		catch (Exception ex) {
 			System.err.println("Skipping property " + name + " ; exception: " + ex);
-			ex.printStackTrace();
+//			ex.printStackTrace();
 			return null;
 		}
 

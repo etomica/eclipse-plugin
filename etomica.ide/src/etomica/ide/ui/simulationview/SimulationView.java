@@ -10,8 +10,9 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.ListViewer;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
@@ -40,8 +41,9 @@ public class SimulationView extends ViewPart implements ISelectionChangedListene
 	 * @see org.eclipse.ui.IWorkbenchPart#createPartControl(org.eclipse.swt.widgets.Composite)
 	 */
 	public void createPartControl(Composite parent) {
-		viewer = new ListViewer(parent);
-		viewer.setContentProvider(new ContentProvider());
+		viewer = new TreeViewer(parent);
+		viewer.setContentProvider(new SimulationViewContentProvider());
+        viewer.setLabelProvider(new LabelProvider());
         java.util.LinkedList instances = Simulation.getInstances();
 		viewer.setInput(Simulation.getInstances());
 		setViewer(viewer);
@@ -73,7 +75,7 @@ public class SimulationView extends ViewPart implements ISelectionChangedListene
 	/**
 	 * @return the ListViewer used to display data for this view.
 	 */
-	public ListViewer getViewer() {
+	public TreeViewer getViewer() {
 		return viewer;
 	}
 	
@@ -82,7 +84,7 @@ public class SimulationView extends ViewPart implements ISelectionChangedListene
 	 * and registers this as a listener for selection changes.
 	 * @param viewer
 	 */
-	public void setViewer(ListViewer viewer) {
+	public void setViewer(TreeViewer viewer) {
 		if(this.viewer != null) this.viewer.removeSelectionChangedListener(this);
 		this.viewer = viewer;
 		viewer.addSelectionChangedListener(this);
@@ -102,9 +104,10 @@ public class SimulationView extends ViewPart implements ISelectionChangedListene
 			return;
 		}
 		PropertySourceWrapper propertySource = (PropertySourceWrapper)selection.getFirstElement();
-		if(propertySource == null) return;
-		Simulation sim = (Simulation)propertySource.getObject();
-		setSimulation(sim);
+		if(propertySource != null && propertySource.getObject() instanceof Simulation) {
+    		Simulation sim = (Simulation)propertySource.getObject();
+    		setSimulation(sim);
+        }
 //		System.out.println("SimulationView simulation:"+sim);
 	}
 	
@@ -132,7 +135,7 @@ public class SimulationView extends ViewPart implements ISelectionChangedListene
 	public void propertyChange(PropertyChangeEvent event) {
 		viewer.refresh();
 	}
-	private ListViewer viewer;
+	private TreeViewer viewer;
 	private RunSimulationAction run;
 	private ResumeSimulationAction resume;
 	private SuspendSimulationAction suspend;
