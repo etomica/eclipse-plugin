@@ -49,8 +49,9 @@ public class PropertySourceWrapper implements IPropertySource {
 		return object;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.views.properties.IPropertySource#getEditableValue()
+	/**
+	 * Returns the wrapped object, which is the editable value of 
+	 * this PropertySource.
 	 */
 	public Object getEditableValue() {
 		return object;
@@ -58,10 +59,11 @@ public class PropertySourceWrapper implements IPropertySource {
 
 
 	/**
-	 * We use the java.beans.PropertyDescriptor as the key for the property.
+	 * Returns the one of this source's properties as specified by the key.
+	 * We use the java.beans.PropertyDescriptor as the key for the properties.
 	 */
-	public Object getPropertyValue(Object arg0) {
-		java.beans.PropertyDescriptor pd = (java.beans.PropertyDescriptor)arg0;
+	public Object getPropertyValue(Object key) {
+		java.beans.PropertyDescriptor pd = (java.beans.PropertyDescriptor)key;
 		Method getter = pd.getReadMethod(); //method used to read value of property in this object
 		Object value = null;
 		Object args[] = { };
@@ -142,15 +144,15 @@ public class PropertySourceWrapper implements IPropertySource {
 	        error("PropertySheet: Couldn't introspect", ex);
 	        return;
 	    }
-
+	    //loop through properties and generate descriptors
 	    LinkedList list = new LinkedList();
 	    for (int i = 0; i < properties.length; i++) {
 	        IPropertyDescriptor pd = makeDescriptor(properties[i], bi);
 	        if(pd != null) list.add(pd);
 	    }//end of loop over properties
-	    Object[] array = list.toArray();
-	    descriptors = new IPropertyDescriptor[array.length];
-	    for(int i=0; i<array.length; i++) descriptors[i] = (IPropertyDescriptor)array[i];
+	    
+	    //make array of descriptors from list
+	    descriptors = (IPropertyDescriptor[])list.toArray(new IPropertyDescriptor[list.size()]);
 	}
 		
     private IPropertyDescriptor makeDescriptor(java.beans.PropertyDescriptor property, BeanInfo bi) {
@@ -186,6 +188,10 @@ public class PropertySourceWrapper implements IPropertySource {
 						
 			if(type == boolean.class) {
 				pd = new CheckboxPropertyDescriptor(property, name);
+			} else if(type == int.class) {
+				pd = new IntegerPropertyDescriptor(property, name);
+			} else if(type == double.class) {
+				pd = new DecimalPropertyDescriptor(property, name);
 			}
 			else if(etomica.Constants.TypedConstant.class.isAssignableFrom(type) && value != null) {
 				pd = new EnumeratedTypePropertyDescriptor(property,name,((Constants.TypedConstant)value).choices());
@@ -296,26 +302,7 @@ public class PropertySourceWrapper implements IPropertySource {
 			ex.printStackTrace();
 			return null;
 		}
-//		
-//		MyLabel newLabel = new MyLabel(name, Label.LEFT);
-//		
-//		PropertyNode child = new PropertyNode(value, newLabel, view, unitView, editor, property);
-//		
-//		//See if object can have child objects in tree (cannot if it is primitive)
-//		if(!(value == null || 
-//		value instanceof Number || 
-//		value instanceof Boolean ||
-//		value instanceof Character ||
-//		value instanceof String ||
-//		value instanceof Color ||
-//		value instanceof etomica.Constants.TypedConstant ||
-//		value instanceof java.awt.Font)) {/*add dummy child*/
-//		child.add(new PropertyNode(null,new JLabel(),new EmptyPanel(), new EmptyPanel(), null, null));
-//		}
-//		
-//		parentNode.add(child);
-//		
-//		return child;
+
 		return pd;
 	}//end of processProperty
 

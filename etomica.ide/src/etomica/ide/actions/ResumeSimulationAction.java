@@ -25,6 +25,7 @@ public class ResumeSimulationAction extends Action {
 		ImageDescriptor dImage = ImageDescriptor.createFromFile(ResumeSimulationAction.class, "disabled/resume_co.gif");
 		setImageDescriptor(eImage);
 		setDisabledImageDescriptor(dImage);
+		setToolTipText("Resume Simulation");
 		this.view = view;
 	}
 

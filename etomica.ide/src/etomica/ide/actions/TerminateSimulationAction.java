@@ -25,6 +25,7 @@ public class TerminateSimulationAction extends Action {
 		ImageDescriptor dImage = ImageDescriptor.createFromFile(TerminateSimulationAction.class, "disabled/terminate_co.gif");
 		setImageDescriptor(eImage);
 		setDisabledImageDescriptor(dImage);
+		setToolTipText("Terminate Simulation");
 		this.view = view;
 	}
 

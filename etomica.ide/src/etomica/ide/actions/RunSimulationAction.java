@@ -25,6 +25,7 @@ public class RunSimulationAction extends Action {
 		ImageDescriptor dImage = ImageDescriptor.createFromFile(RunSimulationAction.class, "disabled/run_exc.gif");
 		setImageDescriptor(eImage);
 		setDisabledImageDescriptor(dImage);
+		setToolTipText("Start Simulation");
 		this.view = view;
 	}
 

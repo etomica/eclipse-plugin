@@ -25,6 +25,7 @@ public class SuspendSimulationAction extends Action {
 		ImageDescriptor dImage = ImageDescriptor.createFromFile(SuspendSimulationAction.class, "disabled/suspend_co.gif");
 		setImageDescriptor(eImage);
 		setDisabledImageDescriptor(dImage);
+		setToolTipText("Suspend Simulation");
 		this.view = view;
 	}
 

@@ -24,18 +24,14 @@ import etomica.ide.actions.TerminateSimulationAction;
 import etomica.ide.ui.propertiesview.PropertySourceWrapper;
 
 /**
- * @author kofke
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * View that presents instantiated simulations in a list, and
+ * provides buttons to start/suspend/resume/terminate them.
  */
 public class SimulationView extends ViewPart implements ISelectionChangedListener {
 
-	/**
-	 * 
-	 */
 	public SimulationView() {
-		System.out.println("SimulationView constructor");
+		super();
+//		System.out.println("SimulationView constructor");
 	}
 
 	/* (non-Javadoc)
