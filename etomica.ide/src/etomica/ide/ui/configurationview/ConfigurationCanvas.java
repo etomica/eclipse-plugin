@@ -1,7 +1,9 @@
 package etomica.ide.ui.configurationview;
 
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
@@ -15,24 +17,26 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 
+import etomica.Atom;
 import etomica.AtomFilter;
 import etomica.AtomIteratorLeafAtoms;
 import etomica.Phase;
-import etomica.Simulation;
-import etomica.Space2D;
-import etomica.SpeciesSpheresMono;
+import etomica.graphics.ColorScheme;
+import etomica.graphics.ColorSchemeByType;
+import etomica.ide.ui.propertiesview.PropertySourceWrapper;
 
 /**
  * Superclass for classes that display information from simulation by painting to a canvas.
  * Defines methods useful for dealing with mouse and key events targeted at the display.
  * Much of the class is involved with defining event handling methods to permit display 
  * to be moved or resized; in the future these functions will be handled instead using awt component functions.
- * 
- * @see DisplayPhase.Canvas
  */
 public abstract class ConfigurationCanvas implements ControlListener {
 
-    /**
+    protected ColorScheme colorScheme;
+    protected Atom[] selectedAtoms = new Atom[1];
+
+   /**
     * Variable specifying whether a line tracing the boundary of the display should be drawn
     * Default value is <code>BOUNDARY_OUTLINE</code>
     */
@@ -69,6 +73,9 @@ public abstract class ConfigurationCanvas implements ControlListener {
         parent.getDisplay().timerExec(timerInterval, runner);
         setAtomFilter(AtomFilter.ACCEPT_ALL);
         setScale(1.0);
+    	colorScheme = new ColorSchemeByType();
+    	
+
         
 //        Simulation sim = new Simulation(new Space2D());
 //        Phase phase = new Phase(sim);
@@ -104,7 +111,14 @@ public abstract class ConfigurationCanvas implements ControlListener {
     public boolean isVisible() {
     	return true;
     }
- 
+    
+	public ColorScheme getColorScheme() {
+		return colorScheme;
+	}
+	public void setColorScheme(ColorScheme colorScheme) {
+		this.colorScheme = colorScheme;
+	}
+	
     public void setAtomFilter(AtomFilter filter) {atomFilter = filter;} 
 
     public void setWriteScale(boolean s) {writeScale = s;}
@@ -141,7 +155,13 @@ public abstract class ConfigurationCanvas implements ControlListener {
 	public void setScale(double scale) {
 		this.scale = scale;
 	}
-
+	
+	public Atom[] getSelectedAtoms() {
+		return selectedAtoms;
+	}
+	public void setSelectedAtoms(Atom[] selectedAtoms) {
+		this.selectedAtoms = selectedAtoms;
+	}
 	public void dispose() {
 		display.timerExec(-1, runner);
 		if(image != null) image.dispose();
@@ -196,6 +216,7 @@ public abstract class ConfigurationCanvas implements ControlListener {
     private Runnable runner;
     private Image image;
     private GC gcImage;
+    
 
 } //end of ConfigurationCanvas class
 

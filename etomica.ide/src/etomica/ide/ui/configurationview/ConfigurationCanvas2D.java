@@ -1,21 +1,16 @@
 package etomica.ide.ui.configurationview;
 
-import java.util.Iterator;
-
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 
 import etomica.Atom;
-import etomica.AtomIteratorLeafAtoms;
-import etomica.AtomIteratorList;
 import etomica.AtomType;
 import etomica.Space;
 import etomica.Species;
-import etomica.graphics.ColorSchemeCollective;
-import etomica.graphics.Drawable;
+import etomica.graphics.ColorScheme;
+import etomica.graphics.ColorSchemeByType;
 
     /* History of changes
      * 7/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.
@@ -38,7 +33,10 @@ public class ConfigurationCanvas2D extends ConfigurationCanvas {
         int sigmaP, xP, yP, baseXP, baseYP;
 
 //        g.setColor(displayPhase.getColorScheme().atomColor(a));
-   		gcImage.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_RED));
+//	   		gcImage.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_RED));
+   		int swtColor = etomica.ide.swt.Color.awt2swt(colorScheme.atomColor(a));
+   		for(int i=0; i<selectedAtoms.length; i++) if(a.node.isDescendedFrom(selectedAtoms[i])) swtColor = SWT.COLOR_GREEN;
+   		gcImage.setBackground(parent.getDisplay().getSystemColor(swtColor));
    	             
         baseXP = phaseOrigin[0] + (int)(toPixels*r.x(0));
         baseYP = phaseOrigin[1] + (int)(toPixels*r.x(1));

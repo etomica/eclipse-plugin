@@ -13,6 +13,7 @@ import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
 
+import etomica.Atom;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.ide.ui.propertiesview.PropertySourceWrapper;
@@ -76,7 +77,6 @@ public class ConfigurationView extends ViewPart {
 		if(!(selection instanceof IStructuredSelection)) return;
 		IStructuredSelection sel = (IStructuredSelection)selection;
 		if(sel.getFirstElement() == null) {
-//			canvas.setPhase(null);
 			return;
 		}
 		Object obj = ((PropertySourceWrapper)sel.getFirstElement()).getObject();
@@ -92,6 +92,15 @@ public class ConfigurationView extends ViewPart {
 				if(phase != null) lastPhase.put(sim, phase);
 			}
 			canvas.setPhase(phase);	
+		} else if(obj instanceof Atom) {
+			//selection of one or more atoms
+			int nAtom = sel.size();
+			Atom[] selectedAtoms = new Atom[nAtom];
+			Object[] objects = sel.toArray();
+			for(int i=0; i<nAtom; i++) {
+				selectedAtoms[i] = (Atom)((PropertySourceWrapper)objects[i]).getObject();
+			}
+			canvas.setSelectedAtoms(selectedAtoms);
 		}
 
 	}

@@ -5,6 +5,8 @@
 package etomica.ide.ui.simulationview;
 
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -27,7 +29,7 @@ import etomica.ide.ui.propertiesview.PropertySourceWrapper;
  * View that presents instantiated simulations in a list, and
  * provides buttons to start/suspend/resume/terminate them.
  */
-public class SimulationView extends ViewPart implements ISelectionChangedListener {
+public class SimulationView extends ViewPart implements ISelectionChangedListener, IPropertyChangeListener {
 
 	public SimulationView() {
 		super();
@@ -43,6 +45,7 @@ public class SimulationView extends ViewPart implements ISelectionChangedListene
 		viewer.setInput(Simulation.getInstances());
 		setViewer(viewer);
 		createToolbarButtons();
+//		getSite().getPage().getWorkbenchWindow().getWorkbench().getPreferenceStore().addPropertyChangeListener(this);
 	}
 	
 	private void createToolbarButtons() {
@@ -97,7 +100,9 @@ public class SimulationView extends ViewPart implements ISelectionChangedListene
 			setSimulation(null);
 			return;
 		}
-		Simulation sim = (Simulation)((PropertySourceWrapper)selection.getFirstElement()).getObject();
+		PropertySourceWrapper propertySource = (PropertySourceWrapper)selection.getFirstElement();
+		if(propertySource == null) return;
+		Simulation sim = (Simulation)propertySource.getObject();
 		setSimulation(sim);
 //		System.out.println("SimulationView simulation:"+sim);
 	}
@@ -122,7 +127,10 @@ public class SimulationView extends ViewPart implements ISelectionChangedListene
 		terminate.dispose();
 		super.dispose();
 	}
-
+	
+	public void propertyChange(PropertyChangeEvent event) {
+		viewer.refresh();
+	}
 	private ListViewer viewer;
 	private RunSimulationAction run;
 	private ResumeSimulationAction resume;
@@ -141,6 +149,8 @@ public class SimulationView extends ViewPart implements ISelectionChangedListene
 		 * @param inputElement a linked list containing the simulation instances,
 		 * coming from Simulation.getInstances
 		 */
+		//the call to viewer.setInput in createPartControl causes the list of
+		//simulation instances to be the input element in this method
 		public Object[] getElements(Object inputElement) {
 			Object[] elements = ((etomica.utility.java2.LinkedList)inputElement).toArray();
 			PropertySourceWrapper[] wrappedElements = PropertySourceWrapper.wrapArrayElements(elements);
@@ -163,9 +173,11 @@ public class SimulationView extends ViewPart implements ISelectionChangedListene
 		 */
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 			this.viewer = viewer;
+			currentSelection = newInput;
 		}
 		
 		private Viewer viewer;
+		Object currentSelection;
 	}
 
 }
