@@ -149,16 +149,27 @@
                class="etomica.ide.ui.speciesview.CollapseAllAction"
                id="etomica.ide.ui.speciesview.collapseall"/>
       </viewContribution>
+      <!--
       <viewContribution
             targetID="etomica.ide.ui.simulationview.SimulationView"
             id="etomica.ide.simulationview">
          <action
+               disabledIcon="icons/disabled/suspend_co.gif"
                toolbarPath="additions"
-               label="Pause/Resume"
-               tooltip="Pause/Resume"
-               class="etomica.ide.ui.simulationview.SimulationPauseResumeAction"
-               id="etomica.ide.ui.simulationview.pauseresume"/>
-      </viewContribution>
+               label="Suspend"
+               tooltip="Suspend"
+               icon="icons/enabled/suspend_co.gif"
+               class="etomica.ide.ui.simulationview.SimulationControlAction"
+               id="etomica.ide.ui.simulationview.suspend"/>
+         <action
+               disabledIcon="icons/disabled/resume_co.gif"
+               toolbarPath="additions"
+               label="Resume"
+               icon="icons/enabled/resume_co.gif"
+               class="etomica.ide.ui.simulationview.SimulationControlAction"
+               tooltip="Resume"
+               id="etomica.ide.ui.simulationview.resume"/>
+      </viewContribution>  -->
    </extension>
 
 </plugin>

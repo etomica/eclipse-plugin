@@ -71,12 +71,12 @@ public class ConfigurationView extends ViewPart {
 	 */
 	protected void pageSelectionChanged(IWorkbenchPart part, ISelection selection) {
 		if(part == this) return;
-		System.out.println("Configuration Selection "+selection.toString());
+//		System.out.println("ConfigurationView Selection "+selection.toString());
 		if(!(selection instanceof IStructuredSelection)) return;
 		IStructuredSelection sel = (IStructuredSelection)selection;
 		if(sel.getFirstElement() instanceof Phase) {
 			Phase phase = (Phase)sel.getFirstElement();
-			System.out.println("Phase "+phase.toString());
+//			System.out.println("ConfigurationView phase "+phase.toString());
 			canvas.setPhase(phase);
 		} else if(sel.getFirstElement() instanceof Simulation) {
 			Simulation sim = (Simulation)sel.getFirstElement();

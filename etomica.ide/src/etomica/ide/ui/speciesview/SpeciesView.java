@@ -62,12 +62,12 @@ public class SpeciesView extends ViewPart {
 	 */
 	protected void pageSelectionChanged(IWorkbenchPart part, ISelection selection) {
 		if(part == this) return;
-		System.out.println("Selection "+selection.toString());
+//		System.out.println("SpeciesView selection "+selection.toString());
 		if(!(selection instanceof IStructuredSelection)) return;
 		IStructuredSelection sel = (IStructuredSelection)selection;
 		if(!(sel.getFirstElement() instanceof Simulation)) return;
 		Simulation sim = (Simulation)sel.getFirstElement();
-		System.out.println("Simulation "+sim.toString());
+//		System.out.println("SpeciesView simulation "+sim.toString());
 		viewer.setInput(sim);
 //		try {
 //			if(sim.phase(0) == null) return;

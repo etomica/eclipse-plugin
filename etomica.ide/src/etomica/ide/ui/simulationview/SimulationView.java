@@ -4,8 +4,12 @@
  */
 package etomica.ide.ui.simulationview;
 
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ListViewer;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
@@ -13,6 +17,7 @@ import org.eclipse.ui.part.ViewPart;
 import etomica.Simulation;
 import etomica.SimulationEvent;
 import etomica.SimulationListener;
+import etomica.ide.actions.ResumeSimulationAction;
 
 /**
  * @author kofke
@@ -20,7 +25,7 @@ import etomica.SimulationListener;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class SimulationView extends ViewPart {
+public class SimulationView extends ViewPart implements ISelectionChangedListener {
 
 	/**
 	 * 
@@ -36,6 +41,13 @@ public class SimulationView extends ViewPart {
 		viewer.setContentProvider(new ContentProvider());
 		viewer.setInput(Simulation.getInstances());
 		setViewer(viewer);
+		createToolbarButtons();
+	}
+	
+	private void createToolbarButtons() {
+		IToolBarManager toolBarManager = getViewSite().getActionBars().getToolBarManager();
+		resume = new ResumeSimulationAction();
+		toolBarManager.add(resume);
 	}
 
 	/* (non-Javadoc)
@@ -58,10 +70,35 @@ public class SimulationView extends ViewPart {
 		return viewer;
 	}
 	public void setViewer(ListViewer viewer) {
+		if(this.viewer != null) this.viewer.removeSelectionChangedListener(this);
 		this.viewer = viewer;
+		viewer.addSelectionChangedListener(this);
 	}
 	
+	/**
+	 * Action performed when user changes selected simulation in viewer's list
+	 */
+	public void selectionChanged(SelectionChangedEvent event) {
+		System.out.println("SimulationView selection changed");
+//		if(event == null) return;
+		IStructuredSelection selection = (IStructuredSelection)viewer.getSelection();
+		if(selection == null || !(selection.getFirstElement() instanceof Simulation)) {
+			resume.setSimulation(null);
+			return;
+		}
+		Simulation sim = (Simulation)selection.getFirstElement();
+		resume.setSimulation(sim);
+		if(sim == null) return;
+		System.out.println("SimulationView simulation:"+sim);
+	}
+	
+	public void dispose() {
+		resume.dispose();
+		super.dispose();
+	}
+
 	private ListViewer viewer;
+	private ResumeSimulationAction resume;
 
 	/**
 	 * Content provider for ListViewer.
