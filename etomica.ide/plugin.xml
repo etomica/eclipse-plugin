@@ -68,49 +68,54 @@
    </extension>
    
    <extension
-   		id="etomica.SpeciesTreeView"
-   		name="Species Tree"
+   		id="etomica.ide.ui.views"
+   		name="Views"
    		point="org.eclipse.ui.views">
       <category
             name="Etomica"
-            id="etomica.ide"/>
+            id="etomica.ide.ui"/>
       <category
-           parentCategory="etomica.ide"
+           parentCategory="etomica.ide.ui"
            name="Simulation"
            id="etomica.ide.simulation"/>
    		<category
-           parentCategory="etomica.ide"
+           parentCategory="etomica.ide.ui"
            name="Species"
-           id="etomica.species">
+           id="etomica.ide.species">
    		</category>
    		<view
-   			name="Species Tree"
+   			name="Species View"
    			icon="sections.gif"
-   			category="etomica.ide/etomica.ide.species"
+   			category="etomica.ide.ui/etomica.ide.species"
    			class="etomica.ide.ui.speciesview.SpeciesView"
    			id="etomica.ide.ui.speciesview.SpeciesView">
    		</view>
      <view
-           class="etomica.ide.SimulationInstancesView"
+           class="etomica.ide.ui.simulationview.SimulationView"
            category="etomica.ide/etomica.ide.simulation"
            name="Simulation Instances"
-           id="etomica.ide.SimulationInstancesView"/>
+           id="etomica.ide.ui.simulationview.SimulationView"/>
      <view
            allowMultiple="true"
            class="etomica.ide.ui.configurationview.ConfigurationView"
-           category="etomica.ide"
+           category="etomica.ide.ui"
            name="Configuration"
            id="etomica.ide.ui.configurationview.ConfigurationView"/>
    	</extension>
    <extension
+         id="etomica.ide.ui.viewActions"
+         name="View Actions"
          point="org.eclipse.ui.viewActions">
       <viewContribution
-            targetID="etomica.ide.viewContribution1"
-            id="etomica.ide.viewContribution1">
+            targetID="etomica.ide.ui.speciesview.SpeciesView"
+            id="etomica.ide.speciesview">
          <action
-               label="etomica.ide.action1"
-               class="etomica.ide.ViewActionDelegate1"
-               id="etomica.ide.action1"/>
+               toolbarPath="additions"
+               label="Collapse All"
+               tooltip="Collapse All"
+               icon="icons/collapseall.gif"
+               class="etomica.ide.ui.speciesview.CollapseAllAction"
+               id="etomica.ide.ui.speciesview.collapseall"/>
       </viewContribution>
    </extension>
 

@@ -2,28 +2,34 @@
 
 package etomica.ide.ui.speciesview;
 
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.ui.IViewActionDelegate;
+import org.eclipse.ui.IViewPart;
 
 /**
- * Collapse all nodes.
+ * Collapses all nodes in species view.
  */
-class CollapseAllAction extends Action {
+public class CollapseAllAction implements IViewActionDelegate {
 	
 	private SpeciesView view;
 	
-	CollapseAllAction(SpeciesView view) {
-		super("Collapse All");
-		setDescription("Collapse all of tree");
-		setToolTipText("Collapse All");
-//		JavaPluginImages.setLocalImageDescriptors(this, "collapseall.gif");
-		ImageDescriptor image = ImageDescriptor.createFromFile(etomica.ide.ui.speciesview.SpeciesView.class,"collapseall.gif");
-		this.setImageDescriptor(image);
-		this.view= view;
-//		WorkbenchHelp.setHelp(this, IJavaHelpContextIds.COLLAPSE_ALL_ACTION);
+	/* (non-Javadoc)
+	 * @see org.eclipse.ui.IViewActionDelegate#init(org.eclipse.ui.IViewPart)
+	 */
+	public void init(IViewPart view) {
+		this.view = (SpeciesView)view;
 	}
- 
-	public void run() { 
+	/* (non-Javadoc)
+	 * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
+	 */
+	public void run(IAction action) {
 		view.getViewer().collapseAll();
+	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.ui.IActionDelegate#selectionChanged(org.eclipse.jface.action.IAction, org.eclipse.jface.viewers.ISelection)
+	 */
+	public void selectionChanged(IAction action, ISelection selection) {
+		//do nothing
 	}
 }

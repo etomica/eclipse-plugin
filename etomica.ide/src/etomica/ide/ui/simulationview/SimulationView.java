@@ -2,7 +2,7 @@
  * History
  * Created on Sep 26, 2004 by kofke
  */
-package etomica.ide;
+package etomica.ide.ui.simulationview;
 
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ListViewer;
@@ -20,12 +20,12 @@ import etomica.SimulationListener;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class SimulationInstancesView extends ViewPart {
+public class SimulationView extends ViewPart {
 
 	/**
 	 * 
 	 */
-	public SimulationInstancesView() {
+	public SimulationView() {
 	}
 
 	/* (non-Javadoc)

@@ -43,7 +43,7 @@ public class SpeciesView extends ViewPart {
 	}
 	
 	private void createToolBarButtons() {
-		getViewSite().getActionBars().getToolBarManager().add(collapseAction);
+//		getViewSite().getActionBars().getToolBarManager().add(collapseAction);
 	}
 	
 	private void hookPageSelection() {
@@ -107,7 +107,7 @@ public class SpeciesView extends ViewPart {
 	}
 	
 	private void createActions() {
-		collapseAction = new CollapseAllAction(this);
+//		collapseAction = new CollapseAllAction(this);
 	}
 		
 	private TreeViewer viewer;
