@@ -53,4 +53,5 @@ public class SimulationPauseResumeAction implements IViewActionDelegate {
 	}
 
 	SimulationView simulationView;
+
 }
