@@ -42,10 +42,11 @@ public class SimulationView extends ViewPart implements ISelectionChangedListene
 	public void createPartControl(Composite parent) {
 		viewer = new ListViewer(parent);
 		viewer.setContentProvider(new ContentProvider());
+        java.util.LinkedList instances = Simulation.getInstances();
 		viewer.setInput(Simulation.getInstances());
 		setViewer(viewer);
 		createToolbarButtons();
-//		getSite().getPage().getWorkbenchWindow().getWorkbench().getPreferenceStore().addPropertyChangeListener(this);
+		getSite().getPage().getWorkbenchWindow().getWorkbench().getPreferenceStore().addPropertyChangeListener(this);
 	}
 	
 	private void createToolbarButtons() {
@@ -152,7 +153,7 @@ public class SimulationView extends ViewPart implements ISelectionChangedListene
 		//the call to viewer.setInput in createPartControl causes the list of
 		//simulation instances to be the input element in this method
 		public Object[] getElements(Object inputElement) {
-			Object[] elements = ((etomica.utility.java2.LinkedList)inputElement).toArray();
+			Object[] elements = ((java.util.LinkedList)inputElement).toArray();
 			PropertySourceWrapper[] wrappedElements = PropertySourceWrapper.wrapArrayElements(elements);
 			return wrappedElements;
 		}

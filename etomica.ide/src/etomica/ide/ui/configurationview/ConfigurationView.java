@@ -92,7 +92,7 @@ public class ConfigurationView extends ViewPart {
 			Simulation sim = (Simulation)obj;
 			Phase phase = (Phase)lastPhase.get(sim);//get phase last viewed with selected simulation
 			if(phase == null) {
-				phase = sim.phase(0);
+				phase = (Phase)sim.getPhaseList().get(0);
 				if(phase != null) lastPhase.put(sim, phase);
 			}
 			canvas.setPhase(phase);	

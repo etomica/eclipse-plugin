@@ -9,6 +9,7 @@ import etomica.Atom;
 import etomica.AtomType;
 import etomica.Space;
 import etomica.Species;
+import etomica.AtomTypeSphere;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.ColorSchemeByType;
 
@@ -40,9 +41,9 @@ public class ConfigurationCanvas2D extends ConfigurationCanvas {
    	             
         baseXP = phaseOrigin[0] + (int)(toPixels*r.x(0));
         baseYP = phaseOrigin[1] + (int)(toPixels*r.x(1));
-        if(a.type instanceof AtomType.Sphere) {
+        if(a.type instanceof AtomTypeSphere) {
             /* Draw the core of the atom, specific to the dimension */
-            sigmaP = (int)(toPixels*((AtomType.Sphere)a.type).diameter(a));
+            sigmaP = (int)(toPixels*((AtomTypeSphere)a.type).diameter(a));
             sigmaP = (sigmaP == 0) ? 1 : sigmaP;
             xP = baseXP - (sigmaP>>1);
             yP = baseYP - (sigmaP>>1);

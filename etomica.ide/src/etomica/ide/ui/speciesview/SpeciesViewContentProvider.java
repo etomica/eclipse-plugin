@@ -34,7 +34,7 @@ public class SpeciesViewContentProvider implements ITreeContentProvider {
 			return getAtomChildren((Atom)parentElement);
 		} else if(parentElement instanceof Simulation) {
 			Simulation sim = (Simulation)parentElement;
-			return PropertySourceWrapper.wrapArrayElements(sim.phaseList().toArray());
+			return PropertySourceWrapper.wrapArrayElements(sim.getPhaseList().toArray());
 		} else if(parentElement instanceof Phase) {
 			return getAtomChildren(((Phase)parentElement).speciesMaster());
 		} else return new PropertySourceWrapper[0];
@@ -52,7 +52,7 @@ public class SpeciesViewContentProvider implements ITreeContentProvider {
 	 */
 	public Object getParent(Object element) {
 		System.out.println("SpeciesViewContentProvide.getParent");
-		if(element instanceof Phase) return ((Phase)element).simulation();
+		if(element instanceof Phase) return null;//((Phase)element).simulation();
 		else if(element instanceof SpeciesAgent) return ((SpeciesAgent)element).node.parentPhase();
 		else if(element instanceof Atom) return ((Atom)element).node.parentGroup();
 		else return null;
@@ -67,7 +67,7 @@ public class SpeciesViewContentProvider implements ITreeContentProvider {
 			return atomHasChildren((Atom)element);
 		} else if(element instanceof Simulation) {
 			Simulation sim = (Simulation)element;
-			return sim.phaseList().size() > 0;
+			return sim.getPhaseList().size() > 0;
 		} else if(element instanceof Phase) {
 			return atomHasChildren(((Phase)element).speciesMaster);
 		} else return false;

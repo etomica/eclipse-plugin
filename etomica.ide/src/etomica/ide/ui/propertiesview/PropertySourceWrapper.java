@@ -177,7 +177,8 @@ public class PropertySourceWrapper implements IPropertySource {
 		if (getter == null) return null;
 		
 		// Do not display dimension specifications as properties
-		if(etomica.units.Dimension.class.isAssignableFrom(type)) return null;
+        if(etomica.units.Dimension.class.isAssignableFrom(type)) return null;
+        if(etomica.utility.java2.LinkedList.class.isAssignableFrom(type)) return null;
 		
 		IPropertyDescriptor pd = null;
 		try {
