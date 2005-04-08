@@ -48,6 +48,7 @@ public class MakeSimulation implements IWorkbenchWindowActionDelegate {
 	}
 	
 	public void init(IWorkbenchWindow window) {
+	
 	}
 
 	Simulation simulation;

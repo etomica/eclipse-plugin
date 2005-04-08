@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="etomica.ide" default="build.jars" basedir=".">
+
+	<property name="bootclasspath" value=""/>
+	<property name="basews" value="${ws}"/>
+	<property name="baseos" value="${os}"/>
+	<property name="basearch" value="${arch}"/>
+	<property name="basenl" value="${nl}"/>
+	<property name="javacFailOnError" value="false"/>
+	<property name="javacDebugInfo" value="on"/>
+	<property name="javacVerbose" value="true"/>
+	<property name="javacSource" value="1.3"/>
+	<property name="javacTarget" value="1.2"/>
+	<property name="compilerArg" value=""/>
+
+	<target name="init" depends="properties">
+		<condition property="pluginTemp" value="${buildTempFolder}/plugins">
+			<isset property="buildTempFolder"/>
+		</condition>
+		<property name="pluginTemp" value="${basedir}"/>
+		<condition property="build.result.folder" value="${pluginTemp}/etomica.ide">
+			<isset property="buildTempFolder"/>
+		</condition>
+		<property name="build.result.folder" value="${basedir}"/>
+		<property name="temp.folder" value="${basedir}/temp.folder"/>
+		<property name="plugin.destination" value="${basedir}"/>
+	</target>
+
+	<target name="properties" if="eclipse.running">
+		<property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+	</target>
+
+	<target name="build.update.jar" depends="init" description="Build the plug-in: etomica.ide for an update site.">
+		<delete dir="${temp.folder}"/>
+		<mkdir dir="${temp.folder}"/>
+		<antcall target="build.jars"/>
+		<antcall target="gather.bin.parts">
+			<param name="destination.temp.folder" value="${temp.folder}/"/>
+		</antcall>
+		<zip zipfile="${plugin.destination}/etomica.ide_1.0.0.jar" basedir="${temp.folder}/etomica.ide_1.0.0" filesonly="false" whenempty="skip" update="false"/>
+		<delete dir="${temp.folder}"/>
+	</target>
+
+	<target name="ide.jar" depends="init" unless="ide.jar" description="Create jar: ide.jar.">
+		<delete dir="${temp.folder}/ide.jar.bin"/>
+		<mkdir dir="${temp.folder}/ide.jar.bin"/>
+		<!-- compile the source code -->
+		<javac destdir="${temp.folder}/ide.jar.bin" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bootclasspath}" source="${javacSource}" target="${javacTarget}"		>
+			<compilerarg line="${compilerArg}"/>
+			<classpath>
+				<pathelement path="../../plugins/org.eclipse.ui_3.0.2/ui.jar"/>
+				<pathelement path="../../plugins/org.eclipse.core.runtime_3.0.2/runtime.jar"/>
+				<pathelement path="../../plugins/org.eclipse.osgi_3.0.1/core.jar"/>
+				<pathelement path="../../plugins/org.eclipse.osgi_3.0.1/console.jar"/>
+				<pathelement path="../../plugins/org.eclipse.osgi_3.0.1/osgi.jar"/>
+				<pathelement path="../../plugins/org.eclipse.osgi_3.0.1/resolver.jar"/>
+				<pathelement path="../../plugins/org.eclipse.osgi_3.0.1/defaultAdaptor.jar"/>
+				<pathelement path="../../plugins/org.eclipse.osgi_3.0.1/eclipseAdaptor.jar"/>
+				<pathelement path="../../plugins/org.eclipse.help_3.0.0/help.jar"/>
+				<pathelement path="../../plugins/org.eclipse.swt_3.0.2/ws/${basews}/swt.jar"/>
+				<pathelement path="../../plugins/org.eclipse.swt.win32_3.0.2/ws/${basews}/swt.jar"/>
+				<pathelement path="../../plugins/org.eclipse.swt.win32_3.0.2"/>
+				<pathelement path="../../plugins/org.eclipse.jface_3.0.2/jface.jar"/>
+				<pathelement path="../../plugins/org.eclipse.ui.workbench_3.0.2/compatibility.jar"/>
+				<pathelement path="../../plugins/org.eclipse.ui.workbench_3.0.2/workbench.jar"/>
+				<pathelement path="../../plugins/org.eclipse.ui.workbench.compatibility_3.0.0/compatibility.jar"/>
+				<pathelement path="../../plugins/org.eclipse.ui.workbench.compatibility_3.0.0/workbench.jar"/>
+				<pathelement path="../../plugins/org.eclipse.core.expressions_3.0.0/expressions.jar"/>
+				<pathelement path="../../plugins/org.eclipse.ui.views_3.0.0/views.jar"/>
+				<pathelement path="bin/"/>
+				<pathelement path="../research/lib/etomica142.jar"/>
+			</classpath>
+			<src path="src/"			/>
+			</javac>
+		<!-- Copy necessary resources -->
+		<copy todir="${temp.folder}/ide.jar.bin" failonerror="true">
+			<fileset dir="src/" excludes="**/*.java, **/package.htm*"			/>
+		</copy>
+		<mkdir dir="${build.result.folder}"/>
+		<jar jarfile="${build.result.folder}/ide.jar" basedir="${temp.folder}/ide.jar.bin"/>
+		<delete dir="${temp.folder}/ide.jar.bin"/>
+	</target>
+
+	<target name="idesrc.zip" depends="init" unless="idesrc.zip">
+		<mkdir dir="${build.result.folder}"/>
+		<zip zipfile="${build.result.folder}/idesrc.zip" filesonly="false" whenempty="skip" update="false">
+			<fileset dir="src/" includes="**/*.java"			/>
+		</zip>
+	</target>
+
+	<target name="build.jars" depends="init" description="Build all the jars for the plug-in: etomica.ide.">
+		<available property="ide.jar" file="${build.result.folder}/ide.jar"/>
+		<antcall target="ide.jar"/>
+	</target>
+
+	<target name="build.sources" depends="init">
+		<available property="idesrc.zip" file="${build.result.folder}/idesrc.zip"/>
+		<antcall target="idesrc.zip"/>
+	</target>
+
+	<target name="gather.bin.parts" depends="init" if="destination.temp.folder">
+		<mkdir dir="${destination.temp.folder}/etomica.ide_1.0.0"/>
+		<copy todir="${destination.temp.folder}/etomica.ide_1.0.0" failonerror="true">
+			<fileset dir="${build.result.folder}" includes="ide.jar"			/>
+		</copy>
+		<copy todir="${destination.temp.folder}/etomica.ide_1.0.0" failonerror="true">
+			<fileset dir="${basedir}" includes="plugin.xml,ide.jar"			/>
+		</copy>
+	</target>
+
+	<target name="build.zips" depends="init">
+	</target>
+
+	<target name="gather.sources" depends="init" if="destination.temp.folder">
+		<mkdir dir="${destination.temp.folder}/etomica.ide_1.0.0"/>
+		<copy file="${build.result.folder}/idesrc.zip" todir="${destination.temp.folder}/etomica.ide_1.0.0" failonerror="false"/>
+	</target>
+
+	<target name="gather.logs" depends="init" if="destination.temp.folder">
+		<mkdir dir="${destination.temp.folder}/etomica.ide_1.0.0"/>
+		<copy file="${temp.folder}/ide.jar.bin.log" todir="${destination.temp.folder}/etomica.ide_1.0.0" failonerror="false"/>
+	</target>
+
+	<target name="clean" depends="init" description="Clean the plug-in: etomica.ide of all the zips, jars and logs created.">
+		<delete file="${build.result.folder}/ide.jar"/>
+		<delete file="${build.result.folder}/idesrc.zip"/>
+		<delete file="${plugin.destination}/etomica.ide_1.0.0.jar"/>
+		<delete file="${plugin.destination}/etomica.ide_1.0.0.zip"/>
+		<delete dir="${temp.folder}"/>
+	</target>
+
+	<target name="refresh" depends="init" if="eclipse.running" description="Refresh this folder.">
+		<eclipse.convertPath fileSystemPath="E:/eclipse/workspace/etomica.ide" property="resourcePath"/>
+		<eclipse.refreshLocal resource="${resourcePath}" depth="infinite"/>
+	</target>
+
+	<target name="zip.plugin" depends="init" description="Create a zip containing all the elements for the plug-in: etomica.ide.">
+		<delete dir="${temp.folder}"/>
+		<mkdir dir="${temp.folder}"/>
+		<antcall target="build.jars"/>
+		<antcall target="build.sources"/>
+		<antcall target="gather.bin.parts">
+			<param name="destination.temp.folder" value="${temp.folder}/"/>
+		</antcall>
+		<antcall target="gather.sources">
+			<param name="destination.temp.folder" value="${temp.folder}/"/>
+		</antcall>
+		<delete>
+			<fileset dir="${temp.folder}" includes="**/*.bin.log"			/>
+		</delete>
+		<zip zipfile="${plugin.destination}/etomica.ide_1.0.0.zip" basedir="${temp.folder}" filesonly="true" whenempty="skip" update="false"/>
+		<delete dir="${temp.folder}"/>
+	</target>
+
+</project>

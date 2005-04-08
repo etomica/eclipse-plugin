@@ -8,10 +8,10 @@
    class="etomica.ide.IdePlugin">
 
    <runtime>
-      <library name="ide.jar">
+      <library name="bin/">
          <export name="*"/>
       </library>
-      <library name="bin/">
+      <library name="ide.jar">
          <export name="*"/>
       </library>
    </runtime>
@@ -43,6 +43,8 @@
                relationship="stack"
                id="org.eclipse.jdt.ui.PackageExplorer">
          </view>
+      </perspectiveExtension>
+      <perspectiveExtension targetID="etomica.ide.EtomicaRunExtension">
       </perspectiveExtension>
    </extension>
    
@@ -86,18 +88,20 @@
    		</category>
    		<view
    			name="Species View"
-   			icon="sections.gif"
+   			icon="src/etomica/ide/types.gif"
    			category="etomica.ide.ui/etomica.ide.species"
    			class="etomica.ide.ui.speciesview.SpeciesView"
    			id="etomica.ide.ui.speciesview.SpeciesView">
    		</view>
      <view
+           icon="src/etomica/ide/simulations.gif"
            class="etomica.ide.ui.simulationview.SimulationView"
            category="etomica.ide.ui/etomica.ide.simulation"
            name="Simulation View"
            id="etomica.ide.ui.simulationview.SimulationView"/>
      <view
            allowMultiple="true"
+           icon="src/etomica/ide/configuration.gif"
            class="etomica.ide.ui.configurationview.ConfigurationView"
            category="etomica.ide.ui"
            name="Configuration View"
@@ -139,6 +143,21 @@
                tooltip="Resume"
                id="etomica.ide.ui.simulationview.resume"/>
       </viewContribution>  -->
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            icon="bin/etomica/ide/actions/enabled/run_exc.gif"
+            class="etomica.ide.PerspectiveFactory"
+            fixed="false"
+            name="EtomicaRun"
+            id="etomica.ide.perspective.EtomicaRun"/>
+   </extension>
+   <extension id="PlatformMain"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run class="etomica.ide.PlatformMain"/>
+      </application>
    </extension>
 
 </plugin>
