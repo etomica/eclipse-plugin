@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin
+   id="etomica.plugin"
+   name="Etomica Plug-in"
+   version="1.0.0"
+   provider-name=""
+   class="etomica.plugin.EtomicaPlugin">
+
+   <runtime>
+      <library name="etomicaplugin.jar">
+         <export name="*"/>
+      </library>
+      <library name="resolver.jar">
+         <export name="*"/>
+      </library>
+      <library name="xercesImpl.jar">
+         <export name="*"/>
+      </library>
+      <library name="xml-apis.jar">
+         <export name="*"/>
+      </library>
+      <library name="etomica_core.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <requires>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.help"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.jface.text"/>
+      <import plugin="org.eclipse.ui.editors"/>
+      <import plugin="org.eclipse.ui.workbench.texteditor"/>
+      <import plugin="org.eclipse.ui.views"/>
+      <import plugin="org.eclipse.osgi.util"/>
+      <import plugin="org.eclipse.osgi.services"/>
+      <import plugin="org.eclipse.ve.swt"/>
+      <import plugin="com.ibm.etools.emf.event"/>
+   </requires>
+
+   <extension
+         point="org.eclipse.help.toc">
+      <toc
+            file="toc.xml"
+            primary="true">
+      </toc>
+      <toc
+            file="tocconcepts.xml">
+      </toc>
+      <toc
+            file="tocgettingstarted.xml">
+      </toc>
+      <toc
+            file="tocreference.xml">
+      </toc>
+      <toc
+            file="tocsamples.xml">
+      </toc>
+      <toc
+            file="toctasks.xml">
+      </toc>
+   </extension>
+   <extension
+         id="NewEtomicaDocWizard"
+         name="New Etomica Document Wizard"
+         point="org.eclipse.ui.newWizards">
+      <category
+            name="Etomica"
+            id="etomica.plugin">
+      </category>
+      <wizard
+            icon="icons/sample.gif"
+            class="etomica.plugin.wizards.NewEtomicaDocument"
+            descriptionImage="src/etomica/plugin/icons/element.gif"
+            category="etomica.plugin"
+            project="true"
+            preferredPerspectives="EtomicaRun"
+            name="Etomica Document"
+            id="etomica.plugin.wizards.NewEtomicaDocument">
+	        
+      </wizard>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.ui.resourcePerspective">
+         <newWizardShortcut
+               id="org.eclipse.jdt.ui.wizards.NewProjectCreationWizard">
+         </newWizardShortcut>
+         <viewShortcut
+               id="org.eclipse.jdt.ui.TypeHierarchy">
+         </viewShortcut>
+         <perspectiveShortcut
+               id="org.eclipse.debug.ui.DebugPerspective">
+         </perspectiveShortcut>
+         <actionSet
+               id="org.eclipse.jdt.ui.JavaActionSet">
+         </actionSet>
+         <view
+               relative="org.eclipse.ui.views.ResourceNavigator"
+               relationship="stack"
+               id="org.eclipse.jdt.ui.PackageExplorer">
+         </view>
+      </perspectiveExtension>
+      <perspectiveExtension
+            targetID="org.eclipse.ui.resourcePerspective">
+         <view
+               ratio="0.5"
+               relative="org.eclipse.ui.views.TaskList"
+               relationship="right"
+               id="etomica.plugin.views.MainView">
+         </view>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            name="Etomica Preferences"
+            class="etomica.plugin.preferences.EtomicaPreferencePage"
+            id="etomica.plugin.preferences.EtomicaPreferencePage">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            objectClass="org.eclipse.core.resources.IFile"
+            name="Etomica Property Page"
+            nameFilter="*.*"
+            class="etomica.plugin.properties.EtomicaPropertyPage"
+            id="etomica.plugin.properties.samplePropertyPage">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Etomica Views"
+            id="etomica.plugin">
+      </category>
+      <view
+            allowMultiple="false"
+            icon="icons/sample.gif"
+            class="etomica.plugin.views.SimulationView"
+            category="etomica.plugin"
+            name="Simulation View"
+            id="etomica.plugin.views.SimulationView"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="etomica.plugin.editors.EtomicaEditor"
+            icon="icons/sample.gif"
+            default="true"
+            name="Etomica Editor"
+            id="etomica.plugin.editors.EtomicaEditor"
+            extensions="etom"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editorActions">
+      <editorContribution
+            targetID="etomica.plugin.editors.EtomicaEditor"
+            id="etomica.plugin.editors.EtomicaEditorAction">
+         <menu
+               label="&amp;Etomica"
+               
+               id="EtomicaMenu">
+               <separator name="group1"/>
+         </menu>
+         <action
+               disabledIcon="src/etomica/plugin/actions/disabled/disabled_co.gif"
+               enablesFor="+"
+               toolbarPath="additions/Etomica"
+               label="&amp;Run simulation"
+               class="etomica.plugin.actions.RunSimulationActionDelegate"
+               icon="src/etomica/plugin/actions/enabled/run_exc.gif"
+               tooltip="Run Simulation"
+               style="push"
+               menubarPath="EtomicaMenu/group1"
+               id="RunSimulation"/>
+         <action
+               disabledIcon="src/etomica/plugin/actions/disabled/terminate_co.gif"
+               enablesFor="+"
+               toolbarPath="additions/Etomica"
+               label="&amp;Stop simulation"
+               class="etomica.plugin.actions.StopSimulationActionDelegate"
+               icon="src/etomica/plugin/actions/enabled/terminate_co.gif"
+               tooltip="Terminate simulation"
+               style="push"
+               menubarPath="EtomicaMenu/group1"
+               id="StopSimulation"/>
+         <action
+               disabledIcon="src/etomica/plugin/actions/disabled/suspend_co.gif"
+               toolbarPath="additions/Etomica"
+               label="&amp;Pause simulation"
+               icon="src/etomica/plugin/actions/enabled/suspend_co.gif"
+               class="etomica.plugin.actions.PauseSimulationActionDelegate"
+               style="push"
+               menubarPath="EtomicaMenu/group1"
+               id="PauseSimulation"/>
+      </editorContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.documentProviders">
+      <provider
+            class="etomica.plugin.persistence.EtomicaDocumentProvider"
+            id="etomica.plugin.persistence.EtomicaDocumentProvider"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            adaptable="true"
+            objectClass="org.eclipse.core.resources.IResource"
+            id="etomica.plugin.actions.MenuContribution">
+         <action
+               enablesFor="+"
+               label="Run Etomica Simulation"
+               class="etomica.plugin.actions.RunSimulationAction"
+               menubarPath="additions"
+               id="etomica.plugin.actions.MenuRunSimulation"/>
+      </objectContribution>
+   </extension>
+
+</plugin>
