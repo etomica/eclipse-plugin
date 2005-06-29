@@ -1,6 +1,8 @@
 package etomica.plugin.wizards;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -34,26 +36,26 @@ import etomica.Simulation;
 public class NewEtomicaDocumentPage extends WizardPage {
 	private ISelection selection;
 	private SpaceDimensionSelector sds;
+	
+	// These are to follow eclipse UI guidelines - not to present an error message while the user 
+	//   did not input anything yet
+	private boolean containerNameModified = false;
+	private boolean fileNameModified = false;
+	private boolean createProject = false;
+	private boolean simTypeModified = false;
 	/**
 	 * Constructor for SampleNewWizardPage.
 	 * @param pageName
 	 */
-	public NewEtomicaDocumentPage(ISelection selection) {
+	public NewEtomicaDocumentPage(ISelection selection, boolean new_project ) {
 		super("wizardPage");
+		createProject = new_project;
 		setTitle("Etomica New File Wizard");
-		setDescription("This wizard creates a new Etomica document.");
+		if ( createProject )
+			setDescription("This wizard creates a new Etomica project.");
+		else
+			setDescription("This wizard creates a new Etomica document.");
 		this.selection = selection;
-		
-		/*
-		 * 
-		URL url = null;
-		try {
-		url = new URL(MyPlugin.getInstance().getDescriptor().getInstallURL(),
-		              "icons/sample.gif");
-		    } catch (MalformedURLException e) {
-		    }
-		this.setImageDescriptor( ImageDescriptor.createFromURL(url) );
-		   */ 
 	}
 
 	public class ClassLabelProvider extends LabelProvider {
@@ -85,42 +87,62 @@ public class NewEtomicaDocumentPage extends WizardPage {
 		
 		sds.container_name.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
+				containerNameModified = true;
 				dialogChanged();
 			}
 		});
 		sds.browse_button.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				handleBrowse();
+				fileNameModified = true;
+				dialogChanged();
 			}
 		});
 		sds.file_name.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
+				fileNameModified = true;
 				dialogChanged();
 			}
 		});
 		
+		if ( createProject )
+		{
+			// If creating a project, dissable the browse button so the user has to input the name manually
+			sds.browse_button.setEnabled( false );
+			// Modify the create-project label to enforce that the user has to type in
+			sds.project_selection_label.setText( "Enter project name:" );
+		}
 		
 		sds.sim_types.addSelectionListener( new SelectionListener() {
 
 			public void widgetSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				int index = sds.sim_types.getSelectionIndex();
-				boolean custom = (index==0);
-				sds.space_list.setEnabled( custom );
-				sds.master_potential_list.setEnabled( custom );
+				simTypeModified = true;
+				updateCustomSimulationControls();
+				dialogChanged();
 			}
 
 			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
+				updateCustomSimulationControls();
 				
 			}} );
 		
 		
 		initialize();
 		dialogChanged();
+		updateCustomSimulationControls();
 		setControl(root_container);
 	}
-	
+
+	private void updateCustomSimulationControls()
+	{
+		// TODO Auto-generated method stub
+		int index = sds.sim_types.getSelectionIndex();
+		boolean custom = false;
+		if ( sds.sim_types.getItem(index).compareToIgnoreCase( "Custom...")==0 )
+			custom = true;
+		sds.space_list.setEnabled( custom );
+		sds.master_potential_list.setEnabled( custom );
+	}
 	/**
 	 * Tests if the current workbench selection is a suitable
 	 * container to use.
@@ -143,10 +165,6 @@ public class NewEtomicaDocumentPage extends WizardPage {
 		sds.file_name.setText("newfile.etom");
 	}
 	
-	public String getProjectName()
-	{
-		return sds.file_name.getText();
-	}
 	/**
 	 * Uses the standard container selection dialog to
 	 * choose the new value for the container field.
@@ -168,7 +186,7 @@ public class NewEtomicaDocumentPage extends WizardPage {
 		}
 		*/
 		 
-		
+		/*
 		ResourceSelectionDialog dialog =
 			new ResourceSelectionDialog(
 				shell,
@@ -176,21 +194,26 @@ public class NewEtomicaDocumentPage extends WizardPage {
 				"Select new file container");
 		if (dialog.open() == ResourceSelectionDialog.OK) {
 			Object[] result = dialog.getResult();
-			if (result.length == 1) {
+			int nfiles = result.length;
+			if (nfiles >= 1) {
 				sds.container_name.setText(((Path)result[0]).toOSString());
 			}
+			else
+			{
+				// leave it blank
+				sds.container_name.setText( "" ); 
+			}
 		}
+		*/
 		
-		
-		/*ContainerSelectionDialog dialog = new ContainerSelectionDialog
+		ContainerSelectionDialog dialog = new ContainerSelectionDialog
 			( shell, myroot, true, "Select new file container");
 		if ( dialog.open()==ContainerSelectionDialog.OK )
 		{
 			Object[] result = dialog.getResult();
-			if (result.length == 1) {
+			if (result.length == 1) 
 				sds.container_name.setText(((Path)result[0]).toOSString());
 		}
-		*/
 	}
 			
 	
@@ -200,26 +223,80 @@ public class NewEtomicaDocumentPage extends WizardPage {
 	 */
 
 	private void dialogChanged() {
+		if ( containerNameModified && !checkContainerName() ) return;
+		if ( fileNameModified && !checkFileName() ) return;
+		if ( simTypeModified && checkCustomControls() ) return;
+		// Everything went ok, just clean up the error bar
+		updateStatus(null);
+	}
+	
+	private boolean checkContainerName()
+	{
 		String container = getContainerName();
-		String fileName = getFileName();
-
-		if (container.length() == 0) {
-			updateStatus("File container must be specified");
-			return;
+		if ( ( container.length() == 0 )) {
+			updateStatus("File container is empty");
+			return false;
 		}
+		// Find out if this container is valid
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		IResource resource = root.findMember(new Path(container));
+		boolean container_exists = true;
+		if ( resource==null || !resource.exists() || !(resource instanceof IContainer)) 
+			container_exists = false;
+		
+		if ( createProject && container_exists ){
+			updateStatus("File container already exists");
+			return false;
+		}
+		else if ( !createProject && !container_exists ) {
+			updateStatus("File container does not exist");
+			return false;
+		}
+		
+		
+		return true;
+	}
+	
+	private boolean checkCustomControls()
+	{
+		// TODO Auto-generated method stub
+		int index = sds.sim_types.getSelectionIndex();
+		boolean custom = false;
+		if ( sds.sim_types.getItem(index).compareToIgnoreCase( "Custom...")==0 )
+			custom = true;
+		
+		if ( custom && simTypeModified )
+		{
+			// If there's nothing selected in the space/master potential boxes, signalize with an error
+			if ( sds.space_list.getSelectionIndex()==-1 )
+			{
+				updateStatus( "A space type is required for custom simulations but none selected");
+				return false;
+			}
+			if ( sds.master_potential_list.getSelectionIndex()==-1 );
+			{
+				updateStatus( "A master potential is required for custom simulations but none selected");
+				return false;
+			}
+		}
+		return true;
+	}
+	private boolean checkFileName()
+	{
+		String fileName = getFileName();
 		if (fileName.length() == 0) {
 			updateStatus("File name must be specified");
-			return;
+			return false;
 		}
 		int dotLoc = fileName.lastIndexOf('.');
 		if (dotLoc != -1) {
 			String ext = fileName.substring(dotLoc + 1);
 			if (ext.equalsIgnoreCase("etom") == false) {
-				updateStatus("File extension must be \"etom\"");
-				return;
+				updateStatus("File name should end with \".etom\"");
+				return false;
 			}
 		}
-		updateStatus(null);
+		return true;
 	}
 
 	private void updateStatus(String message) {
@@ -233,7 +310,6 @@ public class NewEtomicaDocumentPage extends WizardPage {
 	public String getFileName() {
 		return sds.file_name.getText();
 	}
-	
 
 }
 

@@ -73,15 +73,24 @@
       </category>
       <wizard
             icon="icons/sample.gif"
-            class="etomica.plugin.wizards.NewEtomicaDocument"
+            class="etomica.plugin.wizards.NewEtomicaProject"
             descriptionImage="src/etomica/plugin/icons/element.gif"
             category="etomica.plugin"
             project="true"
             preferredPerspectives="EtomicaRun"
-            name="Etomica Document"
-            id="etomica.plugin.wizards.NewEtomicaDocument">
+            name="Etomica Project"
+            id="etomica.plugin.wizards.NewEtomicaProject">
 	        
       </wizard>
+      <wizard
+            icon="icons/sample.gif"
+            class="etomica.plugin.wizards.NewEtomicaDocument"
+            descriptionImage="src/etomica/plugin/icons/element.gif"
+            category="etomica.plugin"
+            project="false"
+            preferredPerspectives="EtomicaRun"
+            name="Etomica Document"
+            id="etomica.plugin.wizards.NewEtomicaDocument"/>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
@@ -164,7 +173,7 @@
             id="etomica.plugin.editors.EtomicaEditorAction">
          <menu
                label="&amp;Etomica"
-               
+               path="additions"
                id="EtomicaMenu">
                <separator name="group1"/>
          </menu>

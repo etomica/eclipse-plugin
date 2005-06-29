@@ -37,7 +37,7 @@ import etomica.plugin.Registry;
  */
 public class SpaceDimensionSelector extends Composite {
 
-	private Label label = null;
+	public Label project_selection_label = null;
 	public Combo space_list = null;
 	public Text container_name = null;
 	public Button browse_button = null;
@@ -51,6 +51,7 @@ public class SpaceDimensionSelector extends Composite {
 	private HashMap spacemap = new HashMap();
 	private HashMap potmap = new HashMap();
 	
+	private Label label5 = null;
 	public Simulation createSimulation()
 	{
 		int item = sim_types.getSelectionIndex();
@@ -61,9 +62,11 @@ public class SpaceDimensionSelector extends Composite {
 				return (Simulation) simclass.newInstance();
 			} catch (InstantiationException e) {
 				// TODO Auto-generated catch block
+				System.err.println( "Could not instantiate class: " + e.getMessage() );
 				e.printStackTrace();
 			} catch (IllegalAccessException e) {
 				// TODO Auto-generated catch block
+				System.err.println( "Illegal access while creating class: " + e.getMessage() );
 				e.printStackTrace();
 			}
 			return new Simulation();
@@ -74,29 +77,6 @@ public class SpaceDimensionSelector extends Composite {
 		return new Simulation( space, pot );
 	}
 	
-	protected EtomicaInfo getInfo( Class myclass )
-	{
-		etomica.EtomicaInfo info = null;
-		if ( !etomica.EtomicaElement.class.isAssignableFrom( myclass ))
-			return new EtomicaInfo( myclass.getName() );
-		
-        try {
-            java.lang.reflect.Method method = myclass.getMethod("getEtomicaInfo",null);
-            if ( method==null )
-            	return new EtomicaInfo( myclass.getName() );
-            info = (etomica.EtomicaInfo)method.invoke(myclass, null);
-        }
-        catch ( Exception se ) {
-        	System.out.println("Exception retrieving info for class " + myclass.getName()+ ": " + se.getLocalizedMessage() );
-        }
-/*        catch(java.lang.SecurityException se){ System.out.println("Exception retrieving info for class " + myclass.getName()+ ": " + se.getLocalizedMessage() );}
-        catch(java.lang.IllegalAccessException iae){System.out.println("Exception retrieving info for class " + myclass.getName()+ ": "+ se.getLocalizedMessage() );}
-        catch(java.lang.IllegalArgumentException ia){System.out.println("Exception retrieving info for class " + myclass.getName()+ ": "+ se.getLocalizedMessage() );}
-        catch(java.lang.reflect.InvocationTargetException ite){System.out.println("Exception retrieving info for class " + myclass.getName()+ ": "+ se.getLocalizedMessage() );}
-        catch(java.lang.NoSuchMethodException nsme) {
-        }
-*/        return info;
-    }
 	
 	/**
 	 * @param parent
@@ -113,9 +93,9 @@ public class SpaceDimensionSelector extends Composite {
 		while( item.hasNext() )
 		{
 			Class spaceclass = (Class) item.next();
-			EtomicaInfo info = getInfo( spaceclass );
-			space_list.add( info.getDescription() );
-			spacemap.put( info.getDescription(), spaceclass );
+			EtomicaInfo info = EtomicaInfo.getInfo( spaceclass );
+			space_list.add( info.getShortDescription() );
+			spacemap.put( info.getShortDescription(), spaceclass );
 		}
 		int default_selection = space_list.indexOf( "etomica.spaces.Space2D");
 		space_list.select( default_selection );
@@ -126,23 +106,23 @@ public class SpaceDimensionSelector extends Composite {
 		while( item.hasNext() )
 		{
 			Class pmasterclass = (Class) item.next();
-			EtomicaInfo info = getInfo( pmasterclass );
-			master_potential_list.add( info.getDescription() );
-			potmap.put( info.getDescription(), pmasterclass );
+			EtomicaInfo info = EtomicaInfo.getInfo( pmasterclass );
+			master_potential_list.add( info.getShortDescription() );
+			potmap.put( info.getShortDescription(), pmasterclass );
 		}
 
 		// Add all types of stock simulations from registry
 		Collection stocksims = Registry.queryWhoExtends( Simulation.class );
-		sim_types.add( "Custom..." );
 		item = stocksims.iterator();
 		while ( item.hasNext() )
 		{
 			Class sim = (Class) item.next();
-			EtomicaInfo info = getInfo( sim );
-			sim_types.add( info.getDescription() );
-			simtypemap.put( info.getDescription(), sim );
+			EtomicaInfo info = EtomicaInfo.getInfo( sim );
+			sim_types.add( info.getShortDescription() );
+			simtypemap.put( info.getShortDescription(), sim );
 		}
-		default_selection = sim_types.indexOf( "Custom...");
+		sim_types.add( "Custom..." );
+		default_selection = 0;//sim_types.indexOf( "Custom...");
 		sim_types.select( default_selection );
 	}
 
@@ -181,12 +161,12 @@ public class SpaceDimensionSelector extends Composite {
 	private void createCombo2() {
 		GridData gridData12 = new org.eclipse.swt.layout.GridData();
 		sim_types = new Combo(this, SWT.READ_ONLY);		   
-		gridData12.horizontalSpan = 2;
+		gridData12.horizontalSpan = 1;
 		gridData12.horizontalAlignment = org.eclipse.swt.layout.GridData.FILL;
 		gridData12.verticalAlignment = org.eclipse.swt.layout.GridData.CENTER;
 		sim_types.setLayoutData(gridData12);
 	}
-      	public static void main(String[] args) {
+       	public static void main(String[] args) {
 		/* Before this is run, be sure to set up the following in the launch configuration 
 		 * (Arguments->VM Arguments) for the correct SWT library path. 
 		 * The following is a windows example:
@@ -214,11 +194,12 @@ public class SpaceDimensionSelector extends Composite {
 		GridData gridData4 = new org.eclipse.swt.layout.GridData();
 		GridData gridData3 = new org.eclipse.swt.layout.GridData();
 		GridLayout gridLayout2 = new GridLayout();
-		label = new Label(this, SWT.NONE);
-		container_name = new Text(this, SWT.BORDER);
-		browse_button = new Button(this, SWT.NONE);
 		label1 = new Label(this, SWT.NONE);
 		file_name = new Text(this, SWT.BORDER);
+		label5 = new Label(this, SWT.NONE);
+		project_selection_label = new Label(this, SWT.NONE);
+		container_name = new Text(this, SWT.BORDER);
+		browse_button = new Button(this, SWT.NONE);
 		label3 = new Label(this, SWT.NONE);
 		createCombo2();
 		label2 = new Label(this, SWT.NONE);
@@ -227,20 +208,20 @@ public class SpaceDimensionSelector extends Composite {
 		this.setLayout(gridLayout2);
 		gridLayout2.numColumns = 3;
 		gridLayout2.makeColumnsEqualWidth = false;
-		label.setText("Select a Container");
-		label.setLayoutData(gridData3);
-		gridData3.horizontalSpan = 3;
-		gridData4.horizontalSpan = 2;
+		project_selection_label.setText("Select a project:");
+		project_selection_label.setLayoutData(gridData3);
+		gridData3.horizontalSpan = 1;
+		gridData4.horizontalSpan = 1;
 		gridData4.grabExcessHorizontalSpace = true;
 		gridData4.horizontalAlignment = org.eclipse.swt.layout.GridData.FILL;
 		gridData4.verticalAlignment = org.eclipse.swt.layout.GridData.CENTER;
 		container_name.setLayoutData(gridData4);
 		browse_button.setText("Browse...");
 		browse_button.setLayoutData(gridData7);
-		label1.setText("File name");
+		label1.setText("Simulation name:");
 		label1.setLayoutData(gridData5);
-		gridData5.horizontalSpan = 3;
-		gridData6.horizontalSpan = 2;
+		gridData5.horizontalSpan = 1;
+		gridData6.horizontalSpan = 1;
 		gridData6.horizontalAlignment = org.eclipse.swt.layout.GridData.FILL;
 		gridData6.verticalAlignment = org.eclipse.swt.layout.GridData.CENTER;
 		gridData6.grabExcessHorizontalSpace = true;
@@ -252,7 +233,8 @@ public class SpaceDimensionSelector extends Composite {
 		gridData8.horizontalSpan = 3;
 		label3.setText("Simulation Type");
 		label3.setLayoutData(gridData13);
-		gridData13.horizontalSpan = 3;
-		setSize(new org.eclipse.swt.graphics.Point(380,308));
+		gridData13.horizontalSpan = 1;
+		label5.setText("");
+		setSize(new org.eclipse.swt.graphics.Point(364,162));
 	}
 }  //  @jve:decl-index=0:visual-constraint="38,24"

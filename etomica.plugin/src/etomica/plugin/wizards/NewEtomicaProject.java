@@ -29,14 +29,14 @@ import etomica.Simulation;
  * be able to open it.
  */
 
-public class NewEtomicaDocument extends Wizard implements INewWizard {
+public class NewEtomicaProject extends Wizard implements INewWizard {
 	private NewEtomicaDocumentPage page;
 	private ISelection selection;
 
 	/**
 	 * Constructor for NewEtomicaDocument.
 	 */
-	public NewEtomicaDocument() {
+	public NewEtomicaProject() {
 		super();
 		setNeedsProgressMonitor(true);
 	}
@@ -45,7 +45,7 @@ public class NewEtomicaDocument extends Wizard implements INewWizard {
 	 * Adding the page to the wizard.
 	 */
 	public void addPages() {
-		page = new NewEtomicaDocumentPage(selection,false);
+		page = new NewEtomicaDocumentPage(selection,true);
 		addPage(page);
 	}
 
@@ -60,7 +60,7 @@ public class NewEtomicaDocument extends Wizard implements INewWizard {
 	  	IRunnableWithProgress op = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
 				try {
-					doFinish( monitor );
+					doFinish( monitor);
 				} catch (CoreException e) {
 					throw new InvocationTargetException(e);
 				} finally {
@@ -86,16 +86,12 @@ public class NewEtomicaDocument extends Wizard implements INewWizard {
 	 * the editor on the newly created file.
 	 */
 
-	private void doFinish(
-		IProgressMonitor monitor)
+	private void doFinish( IProgressMonitor monitor)
 		throws CoreException {
-		try
-		{
-			
 		  	// Create simulation based on user's choices
 		  	Simulation sim = page.createSimulation();
 		  	if ( sim==null )
-		  		return; // failed for some reason.. :(
+				throwCoreException("Could not create simulation.");
 		  	
 		  	// copy simulation to local variable
 	  		newsim = sim;
@@ -106,12 +102,18 @@ public class NewEtomicaDocument extends Wizard implements INewWizard {
 
 			// Get the workspace root
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			monitor.subTask("Creating directories...");
+
+			// Create a project
+			IProject project = root.getProject( containerName );
+			IProjectDescription description = ResourcesPlugin.getWorkspace().newProjectDescription(project.getName());
+			project.create(description,monitor);
+			monitor.worked(10);
+			
 			IResource resource = root.findMember(new Path(containerName));
 			if ( resource==null || !resource.exists() || !(resource instanceof IContainer)) {
 				throwCoreException("Container \"" + containerName + "\" does not exist.");
 			}
-
-			// Create a new file in the container
 			IContainer container = (IContainer) resource;
 			final IFile file = container.getFile(new Path(fileName));
 			try {
@@ -136,10 +138,6 @@ public class NewEtomicaDocument extends Wizard implements INewWizard {
 					}
 				} 
 			} );
-		}
-		catch ( Exception e )
-		{
-		}
 	}
 	
 	/**

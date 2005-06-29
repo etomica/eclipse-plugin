@@ -1,8 +1,5 @@
 /*
  * Created on Apr 26, 2005
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 package etomica.plugin;
 
@@ -23,8 +20,10 @@ import etomica.Species;
 /**
  * @author Henrique
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * The etomica.plugin.Registry class maintains a list of important class information to be used by the etomica.plugin UI. 
+ * The bulk of the work is done by the ClassDiscovery class, which does the traversal of both CLASSPATH and the plugin itself.
+ * Use of this class must be done through the Registry::getInstance() call since this follows the Singleton pattern with private constructors. 
+ * Additionally this class registers itself with the plugin workspace to receive POST changes so to dinamically receive updates on changes.
  */
 public class Registry {
 
@@ -48,7 +47,6 @@ public class Registry {
 		class_discovery.addClass( etomica.Simulation.class );
 		class_discovery.addClass( etomica.PotentialMaster.class );
 		class_discovery.addClass( etomica.graphics.Device.class );
-
 	}
 
 	private ClassDiscovery class_discovery = new ClassDiscovery();
@@ -77,6 +75,9 @@ public class Registry {
 		return typename;
 	}
 
+	/** Thanslate the IResourceDelta object - in fact a tree of subdirectory changes - into a more meaningfull list with leaves only. 
+	 * Example: if the fiole /home/john/eclipse/workspace/my.file was altered delta would contain 5 different objects, one for each subdirectory. 
+	 * This routine just filter what matters - my.file. */
 	protected LinkedList getDeltaLeaves( IResourceDelta delta )
 	{
 		LinkedList listofchanges = new LinkedList();
@@ -95,7 +96,7 @@ public class Registry {
 		}
 		return listofchanges;
 	}
-	/** The routine that handles notifications in the workspace */
+	/** The routine that handles notifications from the etomica.plugin workspace */
 	private void handleNotification( IResourceChangeEvent event ){
 		if ( event==null )
 			return; // nothing to notify
@@ -149,11 +150,10 @@ public class Registry {
 	    */
 		public static Collection queryWhoExtends( Class class_to_search )
 		{
-			LinkedList results = new LinkedList();
 			return instance.class_discovery.queryWhoExtends( class_to_search );
 		}
 		
-	    public static Class[] introspect(String t, boolean b){
+	    /*public static Class[] introspect(String t, boolean b){
 	        return introspect(etomica.Default.CLASS_DIRECTORY, t, b);
 	    }
 	    
@@ -222,4 +222,5 @@ public class Registry {
 	        catch(java.lang.reflect.InvocationTargetException ite){System.out.println("invocation target exception");return false;}
 	        catch(java.lang.NoSuchMethodException nsme){return false;}
 	    }
+	    */
 }
