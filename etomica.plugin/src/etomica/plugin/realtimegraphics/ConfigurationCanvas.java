@@ -1,6 +1,5 @@
 package etomica.plugin.realtimegraphics;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.PaintEvent;
@@ -8,8 +7,6 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 
 import etomica.Atom;
 import etomica.Phase;
@@ -17,7 +14,6 @@ import etomica.atom.AtomFilter;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.ColorSchemeByType;
-import etomica.plugin.realtimegraphics.RenderDeviceAdapter;
 
 /**
  * Superclass for classes that display information from simulation by painting to a canvas.
@@ -25,44 +21,51 @@ import etomica.plugin.realtimegraphics.RenderDeviceAdapter;
  * Much of the class is involved with defining event handling methods to permit display 
  * to be moved or resized; in the future these functions will be handled instead using awt component functions.
  */
-public abstract class ConfigurationCanvas 
-implements ControlListener 
+public final class ConfigurationCanvas 
+implements ControlListener, PaintListener, java.io.Serializable
 {
     
-    public ConfigurationCanvas(final Composite parent) {
-    	this.parent = parent;
-    	display = parent.getDisplay();
-    	canvas = new Canvas(parent, SWT.NO_BACKGROUND);
+    public ConfigurationCanvas(final Canvas canvas) 
+    {
+    	
         setTimerInterval(10);
         createContents();
         runner = new Runnable() {
         	public void run() {
         		if ( !canvas.isDisposed() ) 
         			canvas.redraw();
-        		display.timerExec(timerInterval, this);
+        		canvas.getDisplay().timerExec(timerInterval, this);
         	}
         };
-    	canvas.addControlListener(this);
-        parent.getDisplay().timerExec(timerInterval, runner);
+        canvas.getDisplay().timerExec(timerInterval, runner);
         setAtomFilter(AtomFilter.ACCEPT_ALL);
         setScale(1.0);
     	colorScheme = new ColorSchemeByType();
     }
     
     private void createContents() {
-    	canvas.addPaintListener(new PaintListener() {
-    		public void paintControl(PaintEvent event) {
-    			if(image == null) image = new Image(display, canvas.getBounds());
+    	canvas.addControlListener(this);
+    	canvas.addPaintListener(this);
+    }
+	public void paintControl(PaintEvent event) {
+    			if(image == null) image = new Image(canvas.getDisplay(), canvas.getBounds());
     			if(gcImage == null) gcImage = new GC(image);
     			gcImage.setBackground(event.gc.getBackground());
     			gcImage.fillRectangle(image.getBounds());
-    			doPaint();
+    			doPaint( event );
     			event.gc.drawImage(image, 0, 0);
-    		}
-    	});
+
     }
-    double t = 0;
-    public abstract void doPaint();
+    
+    /** Function that others should implement */
+    public void doPaint( PaintEvent event ) {
+        if(!isVisible() || getPhase() == null) {return;}
+        renderer.render( 1.0 );
+        atomIterator.reset();
+        while(atomIterator.hasNext()) {
+            renderer.addAtom(atomIterator.nextAtom() );
+        }
+    }
     
     public void setPhase(Phase phase) {
     	this.phase = phase;
@@ -128,7 +131,7 @@ implements ControlListener
 		this.selectedAtoms = selectedAtoms;
 	}
 	public void dispose() {
-		display.timerExec(-1, runner);
+		canvas.getDisplay().timerExec(-1, runner);
 		if(image != null) image.dispose();
 		if(gcImage != null) gcImage.dispose();
 		image = null;
@@ -149,12 +152,12 @@ implements ControlListener
 	}
 	
 	private void disposeImage() {
-		display.timerExec(-1, runner);
+		canvas.getDisplay().timerExec(-1, runner);
 		if(image != null) image.dispose();
 		if(gcImage != null) gcImage.dispose();
 		image = null;
 		gcImage = null;
-		display.timerExec(timerInterval, runner);
+		canvas.getDisplay().timerExec(timerInterval, runner);
 	}
 	
     static final int DRAW_QUALITY_VERY_LOW = 0;
@@ -170,21 +173,22 @@ implements ControlListener
     static final int DRAW_BOUNDARY_ALL = 3;
     static final int DRAW_BOUNDARY_MAX = 4;
     
-    protected final Composite parent;
+
     protected final AtomIteratorLeafAtoms atomIterator = new AtomIteratorLeafAtoms();
     protected AtomFilter atomFilter;
-    protected Canvas canvas;
-    protected Display display;
     protected double scale;
     protected Phase phase;
+    protected Image image;
+    protected GC gcImage;
+    private Canvas canvas;
+    
     private int timerInterval;
     private Runnable runner;
-    private Image image;
-    private GC gcImage;
-    
+
     protected ColorScheme colorScheme;
     protected Atom[] selectedAtoms = new Atom[1];
-    protected RenderDeviceAdapter renderer;
+    protected Renderable renderer;
+
 
    /**
     * Variable specifying whether a line tracing the boundary of the display should be drawn
