@@ -1,8 +1,6 @@
 package etomica.plugin.wizards;
 
 import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -22,7 +20,6 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
-import org.eclipse.ui.dialogs.ResourceSelectionDialog;
 
 import etomica.Simulation;
 
@@ -225,7 +222,7 @@ public class NewEtomicaDocumentPage extends WizardPage {
 	private void dialogChanged() {
 		if ( containerNameModified && !checkContainerName() ) return;
 		if ( fileNameModified && !checkFileName() ) return;
-		if ( simTypeModified && checkCustomControls() ) return;
+		if ( simTypeModified && !checkCustomControls() ) return;
 		// Everything went ok, just clean up the error bar
 		updateStatus(null);
 	}
