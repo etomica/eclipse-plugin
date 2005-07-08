@@ -25,7 +25,7 @@ import etomica.plugin.views.PropertySourceWrapper;
 public class SimulationViewContentProvider implements ITreeContentProvider, SimulationListener {
 
     public SimulationViewContentProvider() {
-        Simulation.instantiationEventManager.addListener(this); 
+        //Simulation.instantiationEventManager.addListener(this); 
         
     }
 	/**
@@ -89,7 +89,7 @@ public class SimulationViewContentProvider implements ITreeContentProvider, Simu
 	 * @see org.eclipse.jface.viewers.IContentProvider#dispose()
 	 */
 	public void dispose() {
-        Simulation.instantiationEventManager.removeListener(this);
+        //Simulation.instantiationEventManager.removeListener(this);
 		viewer = null;
 	}
 
