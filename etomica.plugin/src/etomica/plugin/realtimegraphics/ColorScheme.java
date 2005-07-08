@@ -5,25 +5,10 @@ import org.eclipse.swt.graphics.Color;
 import etomica.Atom;
 
 /**
- * Class that defines the algorithm used to determine atoms colors when drawn to DisplayPhase.
- * The atomColor method is called just before the atom is drawn to set the graphics color.
- *
- * @author David Kofke
+ * Defines an interface to retrieve the Atom color from an Atom object
+ * @author Henrique Bucher
  */
  
-public abstract class ColorScheme implements java.io.Serializable {
-
-    public static String getVersion() {return "01.07.13";}
- 
-    protected Color baseColor;
-    
-    public ColorScheme(Color color) {
-        baseColor = color;
-    }
-    
-    public abstract Color atomColor(Atom a);
-    
-    public final void setBaseColor(Color c) {baseColor = c;}
-    public final Color getBaseColor() {return baseColor;}
-
+public interface ColorScheme {
+    public Color atomColor(Atom a);
 }//end of ColorScheme

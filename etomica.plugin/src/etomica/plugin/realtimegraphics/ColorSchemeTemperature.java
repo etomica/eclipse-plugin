@@ -1,7 +1,8 @@
 //includes a main method to demonstrate use and to test
 package etomica.plugin.realtimegraphics;
-import java.awt.Color;
-
+import etomica.plugin.realtimegraphics.ColorScheme;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Device;
 import etomica.Atom;
 import etomica.AtomTypeLeaf;
 import etomica.space.ICoordinateKinetic;
@@ -16,7 +17,7 @@ import etomica.units.Kelvin;
  *
  */
  
-public class ColorSchemeTemperature extends ColorScheme {
+public class ColorSchemeTemperature implements ColorScheme {
     
     double TLow, THigh;
     protected double KEMin, KEMax, range;
@@ -24,10 +25,10 @@ public class ColorSchemeTemperature extends ColorScheme {
     /**
      * Constructs with default low of 200K and high of 400K.
      */
-    public ColorSchemeTemperature() {
-        this(Kelvin.UNIT.toSim(200.), Kelvin.UNIT.toSim(400.));
+    public ColorSchemeTemperature( Device adevice ) {
+        this(adevice, Kelvin.UNIT.toSim(200.), Kelvin.UNIT.toSim(400.));
     }
-    public ColorSchemeTemperature(double TLow, double THigh) {
+    public ColorSchemeTemperature( Device adevice, double TLow, double THigh ) {
         setTLow(TLow);
         setTHigh(THigh);
     }
@@ -47,42 +48,16 @@ public class ColorSchemeTemperature extends ColorScheme {
     }
         
     public Color atomColor(Atom a) {
-        float red, blue;
+        float blueness = 0.0f;
         double ke = ((AtomTypeLeaf)a.type).getMass()*((ICoordinateKinetic)a.coord).velocity().squared();
-        if(ke > KEMax) {blue = 0.0f;}
-        else if(ke < KEMin) {blue = 1.0f;}
-        else {blue = (float)((KEMax-ke)*range);}
-        red = 1.0f - blue;
-        return new Color(red, 0.0f, blue);
+        if(ke > KEMax) {blueness = 0.0f;}
+        else if(ke < KEMin) {blueness = 1.0f;}
+        else {blueness = (float)((KEMax-ke)*range);}
+
+        int cblue = (int)( 256*blueness );
+        int cred = 255-cblue;
+        return new Color(device, cred, 0, cblue);
     }
     
-    /**
-     * Demonstrates how this class is implemented.  
-     * Appropriate for system having only one species.  For multiple species, see ColorSchemeBySpecies
-     */
-/*    public static void main(String[] args) {
-        Frame f = new Frame();   //create a window
-        f.setSize(600,350);
-        etomica.simulations.HSMD2D sim = new etomica.simulations.HSMD2D();
-        Simulation.instance = sim;
-        
-        //part unique to this example
-             //get handles to components we need
-        DisplayPhase display = sim.display;
-             //instantiate color scheme and link appropriately
-        ColorSchemeTemperature colorScheme = new ColorSchemeTemperature();
-        colorScheme.setTLow(Kelvin.UNIT.toSim(100.)); //select low of temperature scale
-        
-        display.setColorScheme(colorScheme);
-        //end of unique part
-		Simulation.instance.elementCoordinator.go(); 
-        f.add(Simulation.instance.panel());         //access the static instance of the simulation to
-                                            //display the graphical components
-        f.pack();
-        f.show();
-        f.addWindowListener(new WindowAdapter() {   //anonymous class to handle window closing
-            public void windowClosing(WindowEvent e) {System.exit(0);}
-        });
-    }
-  */  
+    protected Device device;
 }

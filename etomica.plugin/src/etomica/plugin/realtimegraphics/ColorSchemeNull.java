@@ -1,6 +1,6 @@
 package etomica.plugin.realtimegraphics;
-import java.awt.Color;
 
+import org.eclipse.swt.graphics.Color;
 import etomica.Atom;
 
 /**
@@ -9,7 +9,7 @@ import etomica.Atom;
  *
  */
 
-public final class ColorSchemeNull extends ColorScheme {
+public final class ColorSchemeNull implements ColorScheme {
     
     public ColorSchemeNull() {}
         

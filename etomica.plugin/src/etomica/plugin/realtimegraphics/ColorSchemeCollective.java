@@ -1,5 +1,7 @@
 package etomica.plugin.realtimegraphics;
-import java.awt.Color;
+
+import etomica.plugin.realtimegraphics.ColorScheme;
+import org.eclipse.swt.graphics.Color;
 
 import etomica.Atom;
 import etomica.Phase;
@@ -11,7 +13,7 @@ import etomica.Phase;
  * ColorScheme is a subclass of this one.
  */
     
-public abstract class ColorSchemeCollective extends ColorScheme implements Atom.AgentSource {
+public abstract class ColorSchemeCollective implements ColorScheme, Atom.AgentSource {
     
     protected static int agentIndex = -1;
     
