@@ -9,7 +9,7 @@
 //http://www.sgi.com/software/opengl/advanced97/notes/node196.html#stencilsection
 //http://ask.ii.uib.no/ebt-bin/nph-dweb/dynaweb/SGI_Developer/OpenGL_RM
 package etomica.plugin.realtimegraphics;
-import java.awt.Color;
+import org.eclipse.swt.graphics.Color;
 
 import etomica.Atom;
 import etomica.Phase;
@@ -23,14 +23,55 @@ import etomica.math.geometry.Polyhedron;
 import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.space3d.Vector3D;
-import org.eclipse.swt.opengl.*;
+import org.eclipse.swt.opengl.GL;
+import org.eclipse.swt.opengl.GLU;
+import org.eclipse.swt.opengl.GLContext;
+import org.eclipse.swt.widgets.Canvas;
 
 
 
 
 //Class used to define canvas onto which configuration is drawn
-public class SWTOpenGLRenderer implements RenderAdapter {
+public class SWTOpenGLRenderer implements Renderable {
   
+	/** Set the canvas to be used */
+	public void setCanvas( Canvas acanvas )
+	{
+		canvas = acanvas;
+		context = new GLContext( canvas );
+	}
+	/** Set the color pattern to be used */
+	public void setColorScheme( ColorScheme cscheme )
+	{
+		colorscheme = cscheme;
+	}
+	/** Set the phase to be drawn */
+	public void setPhase( Phase aphase )
+	{
+		phase = aphase;
+	}
+	
+	/** Called prior to any drawing function */
+	public void beginRender()
+	{
+		context.setCurrent();
+	}
+	/** Called several times for each atom visible */
+	public void drawAtom(Atom a, boolean selected)
+	{
+		
+	}
+	/** Called after all drawing function are called */
+	public void finishRender()
+	{
+		context.swapBuffers();
+	}
+	
+	private Canvas canvas;
+	private GLContext context;
+	private ColorScheme colorscheme;
+	private Phase phase;
+
 private final double rightClipPlane[] = new double[4];
 private final double leftClipPlane[] = new double[4];
 private final double topClipPlane[] = new double[4];
@@ -108,17 +149,9 @@ public float getZoom() {return(shiftZ);}
 private ColorScheme colorScheme;
 private AtomFilter atomFilter;
         
-public SWTOpenGLRenderer(DisplayPhase newDisplayPhase, int w, int h) {
-  super(w, h);
-  //scaleText.setVisible(true);
-  //scaleText.setEditable(false);
-  //scaleText.setBounds(0,0,100,50);
-  setAnimateFps(24.);
-  displayPhase = newDisplayPhase;
-  if(displayPhase != null) {
-      colorScheme = displayPhase.getColorScheme();
-      atomFilter = displayPhase.getAtomFilter();
-  }
+public SWTOpenGLRenderer( Canvas acanvas ) 
+{
+	context = new GLContext( acanvas );
 }
     
 //public void preInit() {
@@ -130,8 +163,7 @@ public synchronized void init() {
   if(glInitialized) return;
   
   // DAK - 09/27/02 rescale display to adjust to size of phase
-  if(displayPhase != null) {
-      Phase phase = displayPhase.getPhase();
+
       if(phase != null) {
           float b = (float)phase.boundary().dimensions().x(0);
 //			float z = -70f + (30f/b - 1f)*22f;
@@ -140,84 +172,83 @@ public synchronized void init() {
 //			System.out.println(b+"  "+z); 
           setZoom(z);
       }
-  }//end DAK
   
   //Set the background clear color
-  Color c = getBackground();
-  gl.glClearColor((float)c.getRed()/255f, (float)c.getGreen()/255f, (float)c.getBlue()/255f, (float)c.getAlpha()/255f);
+  Color c = canvas.getBackground();
+  GL.glClearColor((float)c.getRed()/255f, (float)c.getGreen()/255f, (float)c.getBlue()/255f, (float)0.0f);
 
   //Enables Clearing Of The Depth Buffer
-  gl.glClearDepth(1.0);
+  GL.glClearDepth(1.0);
   //The Type Of Depth To Do
-  gl.glDepthFunc(GL_LEQUAL);
+  GL.glDepthFunc(GL.GL_EQUAL);
   //Enables Depth Surface Removal
-  gl.glEnable(GL_DEPTH_TEST);
+  GL.glEnable(GL.GL_DEPTH_TEST);
   
   //Face culling? worth it or not?
-  gl.glEnable(GL_CULL_FACE);
+  GL.glEnable(GL.GL_CULL_FACE);
   
   //Disable Dithering, provides speedup on low end systems
-  gl.glDisable(GL_DITHER);
+  GL.glDisable(GL.GL_DITHER);
   
   //Enable transparency
-  gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  gl.glEnable(GL_BLEND);
+  GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+  GL.glEnable(GL.GL_BLEND);
 
   //Disable normalization
-  gl.glDisable(GL_NORMALIZE);
+  GL.glDisable(GL.GL_NORMALIZE);
   
   //glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
-//   	gl.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);//09/17/02
+//   	GL.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);//09/17/02
 
 
   
   //Let OpenGL know that we wish to use the fastest systems possible
-  gl.glHint(GL_CLIP_VOLUME_CLIPPING_HINT_EXT, GL_FASTEST);
-  gl.glHint(GL_LINE_SMOOTH_HINT, GL_FASTEST);
-  gl.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
-  gl.glHint(GL_POINT_SMOOTH_HINT, GL_FASTEST);
-  gl.glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
+  //GL.glHint(GL.GL_CLIP_VOLUME_CLIPPING_HINT_EXT, GL.GL_FASTEST);
+  GL.glHint(GL.GL_LINE_SMOOTH_HINT, GL.GL_FASTEST);
+  GL.glHint(GL.GL_PERSPECTIVE_CORRECTION_HINT, GL.GL_FASTEST);
+  GL.glHint(GL.GL_POINT_SMOOTH_HINT, GL.GL_FASTEST);
+  GL.glHint(GL.GL_POLYGON_SMOOTH_HINT, GL.GL_FASTEST);
   
   //Set the light properties for the system
-  gl.glLightfv(GL_LIGHT0, GL_SPECULAR, LightSpecular);
-  gl.glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse);
-  gl.glLightfv(GL_LIGHT0, GL_POSITION, LightPosition);
+  GL.glLightfv(GL.GL_LIGHT0, GL.GL_SPECULAR, LightSpecular);
+  GL.glLightfv(GL.GL_LIGHT0, GL.GL_DIFFUSE, LightDiffuse);
+  GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, LightPosition);
   //Enable light
-  gl.glEnable(GL_LIGHT0);
+  GL.glEnable(GL.GL_LIGHT0);
   
   //new 09/21/02 (DAK)
   //Set the light properties for the system
-/*   gl.glLightfv(GL_LIGHT1, GL_SPECULAR, LightSpecular);
-  gl.glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);
-  gl.glLightfv(GL_LIGHT1, GL_POSITION, LightPosition2);
+/*   GL.glLightfv(GL_LIGHT1, GL_SPECULAR, LightSpecular);
+  GL.glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);
+  GL.glLightfv(GL_LIGHT1, GL_POSITION, LightPosition2);
   //Enable light
-  gl.glEnable(GL_LIGHT1);*/
+  GL.glEnable(GL_LIGHT1);*/
   //end new
   
-  gl.glEnable(GL_LIGHTING);
+  GL.glEnable(GL.GL_LIGHTING);
   
   //Set the material properties for the spheres
-  gl.glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, MaterialSpecular);
-  gl.glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, MaterialShininess);
+  GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_SPECULAR, MaterialSpecular);
+  GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_SHININESS, MaterialShininess);
   //Set the material to track the current color
-  gl.glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
-  gl.glEnable(GL_COLOR_MATERIAL);
+  GL.glColorMaterial(GL.GL_FRONT_AND_BACK, GL.GL_DIFFUSE);
+  GL.glEnable(GL.GL_COLOR_MATERIAL);
 
   //Enables Smooth Color Shading
-  gl.glShadeModel(GL_SMOOTH);
+  GL.glShadeModel(GL.GL_SMOOTH);
   
-  sphereList = new int[DRAW_QUALITY_MAX];
+  /*sphereList = new int[DRAW_QUALITY_MAX];
   wellList = new int[DRAW_QUALITY_MAX];
-  sphereList[0] = gl.glGenLists(11);
+  sphereList[0] = GL.glGenLists(11);
   wellList[0] = sphereList[0] + 1;
   for(int j = 1; j < DRAW_QUALITY_MAX; j++) {
     sphereList[j] = wellList[j-1] + 1;
     wellList[j] = sphereList[j] + 1;
   }
   displayList = wellList[DRAW_QUALITY_MAX-1] + 1;
-  
-  setUseRepaint(true);
-  setUseFpsSleep(true);
+  */
+  //setUseRepaint(true);
+  //setUseFpsSleep(true);
   //setUseRepaint(false);
   //setUseFpsSleep(false);
 
@@ -225,7 +256,7 @@ public synchronized void init() {
   leftClipPlane[0] = topClipPlane[1] = frontClipPlane[2] = -1.;
   
 	  T0=System.currentTimeMillis();
-  start();
+  //start();
   //stop();
   
   glInitialized = true;
@@ -237,7 +268,7 @@ public synchronized void initialize() {
   float vertAll[];
   Atom atoms[];
 
-  countAll = displayPhase.getPhase().speciesMaster.node.leafAtomCount();
+  countAll = phase.speciesMaster.node.leafAtomCount();
   
   if(countAll==0) return;
   
@@ -250,14 +281,14 @@ public synchronized void initialize() {
 	drawExpansionShiftY = 0f;
 	drawExpansionShiftZ = 0f;
 	if(drawExpansionFactor != 1.0) {
-		Vector box = displayPhase.getPhase().boundary().dimensions();
+		Vector box = phase.boundary().dimensions();
 		float mult = (float)(0.5*(drawExpansionFactor - 1.0)/* *(2.0*displayPhase.getImageShells()+1)*/);
 		drawExpansionShiftX = (float)(mult*box.x(0));
 		drawExpansionShiftY = (float)(mult*box.x(1));
 		drawExpansionShiftZ = (float)(mult*box.x(2));
 	}
 
-  AtomIteratorListTabbed iter = new AtomIteratorListTabbed(displayPhase.getPhase().speciesMaster.atomList);
+  AtomIteratorListTabbed iter = new AtomIteratorListTabbed(phase.speciesMaster.atomList);
   iter.reset();
   while(iter.hasNext()) {
     Atom a = iter.nextAtom();
@@ -303,54 +334,50 @@ public synchronized void initialize() {
 
 public void reshape(int width, int height) {
   if(!glInitialized) return;
-  super.reshape(width, height);
-  java.awt.Dimension mySize = new java.awt.Dimension(width, height);
-	  super.setSize(mySize);
-	  setSize(mySize);
-  gl.glMatrixMode(GL_PROJECTION);
-  gl.glLoadIdentity();
-  glu.gluPerspective(35, (float)width/(float)height, 1, 500.0);
+  GL.glMatrixMode(GL.GL_PROJECTION);
+  GL.glLoadIdentity();
+  GLU.gluPerspective(35, (float)width/(float)height, 1, 500.0);
   //glu.gluPerspective(45, (float)width/(float)height, 0.1, 100.0);//orig
-  gl.glMatrixMode(GL_MODELVIEW);
-  gl.glLoadIdentity();
-//  gl.glViewport(0,0,width,height);
+  GL.glMatrixMode(GL.GL_MODELVIEW);
+  GL.glLoadIdentity();
+//  GL.glViewport(0,0,width,height);
 }
 
 private void initSphereList(double sphereRadius) {
-  gl.glNewList(sphereList[DRAW_QUALITY_VERY_LOW], GL_COMPILE);
-  gluSphere.gluSmoothSphere(this.gl, sphereRadius, 2);
-  gl.glEndList();
-  gl.glNewList(sphereList[DRAW_QUALITY_LOW], GL_COMPILE);
-  gluSphere.gluSmoothSphere(this.gl, sphereRadius, 4);
-  gl.glEndList();
-  gl.glNewList(sphereList[DRAW_QUALITY_NORMAL], GL_COMPILE);
-   gluSphere.gluSmoothSphere(this.gl, sphereRadius, 7);
-  gl.glEndList();
-  gl.glNewList(sphereList[DRAW_QUALITY_HIGH], GL_COMPILE);
-  gluSphere.gluSmoothSphere(this.gl, sphereRadius, 9);
-  gl.glEndList();
-  gl.glNewList(sphereList[DRAW_QUALITY_VERY_HIGH], GL_COMPILE);
-  gluSphere.gluSmoothSphere(this.gl, sphereRadius, 11);
-  gl.glEndList();
+  GL.glNewList(sphereList[GL.DRAW_QUALITY_VERY_LOW], GL.GL_COMPILE);
+  GLU.gluSphere.gluSmoothSphere(this.GL, sphereRadius, 2);
+  GL.glEndList();
+  GL.glNewList(sphereList[DRAW_QUALITY_LOW], GL_COMPILE);
+  gluSphere.gluSmoothSphere(this.GL, sphereRadius, 4);
+  GL.glEndList();
+  GL.glNewList(sphereList[DRAW_QUALITY_NORMAL], GL_COMPILE);
+   gluSphere.gluSmoothSphere(this.GL, sphereRadius, 7);
+  GL.glEndList();
+  GL.glNewList(sphereList[DRAW_QUALITY_HIGH], GL_COMPILE);
+  gluSphere.gluSmoothSphere(this.GL, sphereRadius, 9);
+  GL.glEndList();
+  GL.glNewList(sphereList[DRAW_QUALITY_VERY_HIGH], GL_COMPILE);
+  gluSphere.gluSmoothSphere(this.GL, sphereRadius, 11);
+  GL.glEndList();
   sphereListRadius = sphereRadius;
 }
     
 private void initWellList(double wellRadius) {
-  gl.glNewList(wellList[DRAW_QUALITY_VERY_LOW], GL_COMPILE);
-  gluSphere.gluSmoothSphere(this.gl, wellRadius, 2);
-  gl.glEndList();
-  gl.glNewList(wellList[DRAW_QUALITY_LOW], GL_COMPILE);
-  gluSphere.gluSmoothSphere(this.gl, wellRadius, 4);
-  gl.glEndList();
-  gl.glNewList(wellList[DRAW_QUALITY_NORMAL], GL_COMPILE);
-  gluSphere.gluSmoothSphere(this.gl, wellRadius, 7);
-  gl.glEndList();
-  gl.glNewList(wellList[DRAW_QUALITY_HIGH], GL_COMPILE);
-  gluSphere.gluSmoothSphere(this.gl, wellRadius, 10);
-  gl.glEndList();
-  gl.glNewList(wellList[DRAW_QUALITY_VERY_HIGH], GL_COMPILE);
-  gluSphere.gluSmoothSphere(this.gl, wellRadius, 13);
-  gl.glEndList();
+  GL.glNewList(wellList[DRAW_QUALITY_VERY_LOW], GL_COMPILE);
+  gluSphere.gluSmoothSphere(this.GL, wellRadius, 2);
+  GL.glEndList();
+  GL.glNewList(wellList[DRAW_QUALITY_LOW], GL_COMPILE);
+  gluSphere.gluSmoothSphere(this.GL, wellRadius, 4);
+  GL.glEndList();
+  GL.glNewList(wellList[DRAW_QUALITY_NORMAL], GL_COMPILE);
+  gluSphere.gluSmoothSphere(this.GL, wellRadius, 7);
+  GL.glEndList();
+  GL.glNewList(wellList[DRAW_QUALITY_HIGH], GL_COMPILE);
+  gluSphere.gluSmoothSphere(this.GL, wellRadius, 10);
+  GL.glEndList();
+  GL.glNewList(wellList[DRAW_QUALITY_VERY_HIGH], GL_COMPILE);
+  gluSphere.gluSmoothSphere(this.GL, wellRadius, 13);
+  GL.glEndList();
   wellListRadius = wellRadius;
 }
 
@@ -403,11 +430,11 @@ private void drawDisplay() {
       vertWalls[i+2] = (float)r.x(2) - zCenter + drawExpansionShiftZ;
       //Update the color for the atom
       if(!c.equals(lastColor)) {
-        gl.glColor4ub((byte)c.getRed(), (byte)c.getGreen(), (byte)c.getBlue(), (byte)c.getAlpha());
+        GL.glColor4ub((byte)c.getRed(), (byte)c.getGreen(), (byte)c.getBlue(), (byte)c.getAlpha());
         lastColor = c;
       }
-      gl.glPushMatrix();
-      gl.glTranslatef(vertWalls[i], vertWalls[i+1], vertWalls[i+2]);
+      GL.glPushMatrix();
+      GL.glTranslatef(vertWalls[i], vertWalls[i+1], vertWalls[i+2]);
       //!!! Draw wall here
       //Draw overflow images if so indicated
       if(displayPhase.getDrawOverflow()) {
@@ -415,14 +442,14 @@ private void drawDisplay() {
         if(computeShiftOrigin(a, displayPhase.getPhase().boundary())) {
           int j = originShifts.length;
           while((--j) >= 0) {
-            gl.glPushMatrix();
-            gl.glTranslatef(originShifts[j][0], originShifts[j][1], originShifts[j][2]);
+            GL.glPushMatrix();
+            GL.glTranslatef(originShifts[j][0], originShifts[j][1], originShifts[j][2]);
             //!!! Draw wall here
-            gl.glPopMatrix();
+            GL.glPopMatrix();
           }
         }
       }
-      gl.glPopMatrix();
+      GL.glPopMatrix();
       i-=3;
     }
   }
@@ -441,67 +468,67 @@ private void drawDisplay() {
       vertSphereCores[i+2] = (float)r.x(2) - zCenter + drawExpansionShiftZ;
       //Update the color for the atom
       if(!c.equals(lastColor)) {
-        gl.glColor4ub((byte)c.getRed(), (byte)c.getGreen(), (byte)c.getBlue(), (byte)c.getAlpha());
+        GL.glColor4ub((byte)c.getRed(), (byte)c.getGreen(), (byte)c.getBlue(), (byte)c.getAlpha());
         lastColor = c;
       }
       if(sphereListRadius != ((AtomTypeSphere)a.type).radius(a))
         initSphereList(((AtomTypeSphere)a.type).radius(a));
-      gl.glPushMatrix();
-      gl.glTranslatef(vertSphereCores[i], vertSphereCores[i+1], vertSphereCores[i+2]);
-      gl.glCallList(sphereList[getQuality()]);
-      //gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 2);
+      GL.glPushMatrix();
+      GL.glTranslatef(vertSphereCores[i], vertSphereCores[i+1], vertSphereCores[i+2]);
+      GL.glCallList(sphereList[getQuality()]);
+      //GL.glDrawArrays(GL_TRIANGLE_STRIP, 0, 2);
       //Draw overflow images if so indicated
       if(displayPhase.getDrawOverflow()) {
 //        setDrawExpansionFactor(1.0);
         if(computeShiftOrigin(a, displayPhase.getPhase().boundary())) {
           int j = originShifts.length;
           while((--j) >= 0) {
-            gl.glPushMatrix();
-            gl.glTranslatef(originShifts[j][0], originShifts[j][1], originShifts[j][2]);
-            gl.glCallList(sphereList[getQuality()]);
-            gl.glPopMatrix();
+            GL.glPushMatrix();
+            GL.glTranslatef(originShifts[j][0], originShifts[j][1], originShifts[j][2]);
+            GL.glCallList(sphereList[getQuality()]);
+            GL.glPopMatrix();
           }
         }
       }
-      gl.glPopMatrix();
+      GL.glPopMatrix();
       i-=3;
     }
   }
   if(sphereWells.length > 0) {
     int i = sphereWells.length;
-    gl.glColor4ub(wR, wG, wB, wA);
+    GL.glColor4ub(wR, wG, wB, wA);
     while((--i) >= 0) {
       Atom a = sphereWells[i];
       if(!atomFilter.accept(a)) {continue;}
       if(wellListRadius != ((AtomTypeWell)a.type).wellRadius())
         initWellList(((AtomTypeWell)a.type).wellRadius());
-      gl.glPushMatrix();
-      gl.glTranslatef(vertSphereCores[vertSphereWellBase[i]], vertSphereCores[vertSphereWellBase[i]+1], vertSphereCores[vertSphereWellBase[i]+2]);
-      gl.glCallList(wellList[getQuality()]);
+      GL.glPushMatrix();
+      GL.glTranslatef(vertSphereCores[vertSphereWellBase[i]], vertSphereCores[vertSphereWellBase[i]+1], vertSphereCores[vertSphereWellBase[i]+2]);
+      GL.glCallList(wellList[getQuality()]);
       //Draw overflow images if so indicated
       if(displayPhase.getDrawOverflow()) {
 //        setDrawExpansionFactor(1.0);
         if(computeShiftOrigin(a, displayPhase.getPhase().boundary())) {
           int j = originShifts.length;
           while((--j) >= 0) {
-            gl.glPushMatrix();
-            gl.glTranslatef(originShifts[j][0], originShifts[j][1], originShifts[j][2]);
-            gl.glCallList(wellList[getQuality()]);
-            gl.glPopMatrix();
+            GL.glPushMatrix();
+            GL.glTranslatef(originShifts[j][0], originShifts[j][1], originShifts[j][2]);
+            GL.glCallList(wellList[getQuality()]);
+            GL.glPopMatrix();
           }
         }
       }
-      gl.glPopMatrix();
+      GL.glPopMatrix();
     }
   }
   if(sphereRotators.length > 0) {
     int i = sphereRotators.length;
-    gl.glColor3ub(mR, mG, mB);
+    GL.glColor3ub(mR, mG, mB);
     while((--i) >= 0) {
       Atom a = sphereRotators[i];
       if(!atomFilter.accept(a)) {continue;}
-      gl.glPushMatrix();
-      gl.glTranslatef(vertSphereCores[vertSphereRotatorBase[i]], vertSphereCores[vertSphereRotatorBase[i]+1], vertSphereCores[vertSphereRotatorBase[i]+2]);
+      GL.glPushMatrix();
+      GL.glTranslatef(vertSphereCores[vertSphereRotatorBase[i]], vertSphereCores[vertSphereRotatorBase[i]+1], vertSphereCores[vertSphereRotatorBase[i]+2]);
       ///!!! Draw rotator orientation here
       //Draw overflow images if so indicated
       if(displayPhase.getDrawOverflow()) {
@@ -509,37 +536,37 @@ private void drawDisplay() {
         if(computeShiftOrigin(a, displayPhase.getPhase().boundary())) {
           int j = originShifts.length;
           while((--j) >= 0) {
-            gl.glPushMatrix();
-            gl.glTranslatef(originShifts[j][0], originShifts[j][1], originShifts[j][2]);
+            GL.glPushMatrix();
+            GL.glTranslatef(originShifts[j][0], originShifts[j][1], originShifts[j][2]);
             ///!!! Draw rotator orientation here
-            gl.glPopMatrix();
+            GL.glPopMatrix();
           }
         }
       }
-      gl.glPopMatrix();
+      GL.glPopMatrix();
     }
   }
   
   //Draw other features if indicated
   if(drawBoundary >= DRAW_BOUNDARY_ALL) {
-    gl.glDisable(GL_CLIP_PLANE0);
-    gl.glDisable(GL_CLIP_PLANE1);
-    gl.glDisable(GL_CLIP_PLANE2);
-    gl.glDisable(GL_CLIP_PLANE3);
-    gl.glDisable(GL_CLIP_PLANE4);
-    gl.glDisable(GL_CLIP_PLANE5);
-    gl.glDisable(GL_LIGHT0);
-    gl.glDisable(GL_LIGHTING);
-    gl.glColor3ub((byte)0, (byte)-1, (byte)-1);
+    GL.glDisable(GL_CLIP_PLANE0);
+    GL.glDisable(GL_CLIP_PLANE1);
+    GL.glDisable(GL_CLIP_PLANE2);
+    GL.glDisable(GL_CLIP_PLANE3);
+    GL.glDisable(GL_CLIP_PLANE4);
+    GL.glDisable(GL_CLIP_PLANE5);
+    GL.glDisable(GL_LIGHT0);
+    GL.glDisable(GL_LIGHTING);
+    GL.glColor3ub((byte)0, (byte)-1, (byte)-1);
     drawBoundary(0);
-    gl.glEnable(GL_LIGHT0);
-    gl.glEnable(GL_LIGHTING);
-    gl.glEnable(GL_CLIP_PLANE0);
-    gl.glEnable(GL_CLIP_PLANE1);
-    gl.glEnable(GL_CLIP_PLANE2);
-    gl.glEnable(GL_CLIP_PLANE3);
-    gl.glEnable(GL_CLIP_PLANE4);
-    gl.glEnable(GL_CLIP_PLANE5);
+    GL.glEnable(GL_LIGHT0);
+    GL.glEnable(GL_LIGHTING);
+    GL.glEnable(GL_CLIP_PLANE0);
+    GL.glEnable(GL_CLIP_PLANE1);
+    GL.glEnable(GL_CLIP_PLANE2);
+    GL.glEnable(GL_CLIP_PLANE3);
+    GL.glEnable(GL_CLIP_PLANE4);
+    GL.glEnable(GL_CLIP_PLANE5);
   }
   //////////////******drawing of plane*******/////////////////////////
   //(DAK) added this section 09/21/02
@@ -550,21 +577,21 @@ private void drawDisplay() {
       plane = ((etomica.lattice.LatticePlane)obj).planeCopy(plane);
       points = plane.inPlaneSquare(plane.nearestPoint(center,nearest),40., points);
       normal = plane.getNormalVector(normal);
-  gl.glDisable(GL_CULL_FACE);
+  GL.glDisable(GL_CULL_FACE);
       for(int i=0; i<4; i++) points[i].ME(center);
-        gl.glBegin(GL_QUADS);
-         gl.glNormal3f((float)normal.x(0), (float)normal.x(1), (float)normal.x(2));
-//		   gl.glColor4f(0.0f, 0.0f, 1.0f, 0.5f);
-         gl.glMaterialfv(GL_FRONT, GL_AMBIENT, materialTransparent);
-         gl.glMaterialfv(GL_FRONT, GL_DIFFUSE, materialTransparent);
-         gl.glColor4ub(wR, wG, wB, wA);
-         gl.glVertex3f((float)points[0].x(0), (float)points[0].x(1), (float)points[0].x(2));
-         gl.glVertex3f((float)points[2].x(0), (float)points[2].x(1), (float)points[2].x(2));
-         gl.glVertex3f((float)points[1].x(0), (float)points[1].x(1), (float)points[1].x(2));
-         gl.glVertex3f((float)points[3].x(0), (float)points[3].x(1), (float)points[3].x(2));
-        gl.glEnd();
+        GL.glBegin(GL_QUADS);
+         GL.glNormal3f((float)normal.x(0), (float)normal.x(1), (float)normal.x(2));
+//		   GL.glColor4f(0.0f, 0.0f, 1.0f, 0.5f);
+         GL.glMaterialfv(GL_FRONT, GL_AMBIENT, materialTransparent);
+         GL.glMaterialfv(GL_FRONT, GL_DIFFUSE, materialTransparent);
+         GL.glColor4ub(wR, wG, wB, wA);
+         GL.glVertex3f((float)points[0].x(0), (float)points[0].x(1), (float)points[0].x(2));
+         GL.glVertex3f((float)points[2].x(0), (float)points[2].x(1), (float)points[2].x(2));
+         GL.glVertex3f((float)points[1].x(0), (float)points[1].x(1), (float)points[1].x(2));
+         GL.glVertex3f((float)points[3].x(0), (float)points[3].x(1), (float)points[3].x(2));
+        GL.glEnd();
       }
-  gl.glEnable(GL_CULL_FACE);
+  GL.glEnable(GL_CULL_FACE);
   }
   //////////////////////////////////////////
 }
@@ -589,15 +616,15 @@ public synchronized void display() {
     return;
                           
   //Clear The Screen And The Depth Buffer
-  gl.glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
+  GL.glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
   //Reset The View
-  gl.glLoadIdentity();
+  GL.glLoadIdentity();
   //PhaseTranslate & Zoom to the desired position
-//  gl.glTranslatef(shiftX, shiftY, shiftZ-(displayPhase.getImageShells()<<5));//changed to '5' from '7' (08/12/03 DAK)
-	gl.glTranslatef(shiftX, shiftY, (float)(shiftZ-2.5*2*displayPhase.getImageShells()*displayPhase.getPhase().boundary().dimensions().x(0)));//changed to this (08/14/03 DAK)
+//  GL.glTranslatef(shiftX, shiftY, shiftZ-(displayPhase.getImageShells()<<5));//changed to '5' from '7' (08/12/03 DAK)
+	GL.glTranslatef(shiftX, shiftY, (float)(shiftZ-2.5*2*displayPhase.getImageShells()*displayPhase.getPhase().boundary().dimensions().x(0)));//changed to this (08/14/03 DAK)
   //Rotate accordingly
-  gl.glRotatef(xRot, 1f, 0f, 0f);
-  gl.glRotatef(yRot, 0f, 1f, 0f);
+  GL.glRotatef(xRot, 1f, 0f, 0f);
+  GL.glRotatef(yRot, 0f, 1f, 0f);
   
   //Color all atoms according to colorScheme in DisplayPhase
 //  displayPhase.getColorScheme().colorAllAtoms();
@@ -610,19 +637,19 @@ public synchronized void display() {
   topClipPlane[3] = bottomClipPlane[3] = yCenter + ((2*yCenter)*displayPhase.getImageShells());
   backClipPlane[3] = frontClipPlane[3] = zCenter + ((2*zCenter)*displayPhase.getImageShells());
 
-  gl.glClipPlane(GL_CLIP_PLANE0, rightClipPlane);
-  gl.glClipPlane(GL_CLIP_PLANE1, leftClipPlane);
-  gl.glClipPlane(GL_CLIP_PLANE2, topClipPlane);
-  gl.glClipPlane(GL_CLIP_PLANE3, bottomClipPlane);
-  gl.glClipPlane(GL_CLIP_PLANE4, backClipPlane);
-  gl.glClipPlane(GL_CLIP_PLANE5, frontClipPlane);
+  GL.glClipPlane(GL_CLIP_PLANE0, rightClipPlane);
+  GL.glClipPlane(GL_CLIP_PLANE1, leftClipPlane);
+  GL.glClipPlane(GL_CLIP_PLANE2, topClipPlane);
+  GL.glClipPlane(GL_CLIP_PLANE3, bottomClipPlane);
+  GL.glClipPlane(GL_CLIP_PLANE4, backClipPlane);
+  GL.glClipPlane(GL_CLIP_PLANE5, frontClipPlane);
 
-  gl.glEnable(GL_CLIP_PLANE0);
-  gl.glEnable(GL_CLIP_PLANE1);
-  gl.glEnable(GL_CLIP_PLANE2);
-  gl.glEnable(GL_CLIP_PLANE3);
-  gl.glEnable(GL_CLIP_PLANE4);
-  gl.glEnable(GL_CLIP_PLANE5);
+  GL.glEnable(GL_CLIP_PLANE0);
+  GL.glEnable(GL_CLIP_PLANE1);
+  GL.glEnable(GL_CLIP_PLANE2);
+  GL.glEnable(GL_CLIP_PLANE3);
+  GL.glEnable(GL_CLIP_PLANE4);
+  GL.glEnable(GL_CLIP_PLANE5);
 
   //Draw periodic images if indicated
   // The following if() block sets up the display list.
@@ -636,35 +663,35 @@ public synchronized void display() {
     setQuality(j);
     shellOrigins = displayPhase.getPhase().boundary().imageOrigins(displayPhase.getImageShells());
     //more efficient to save rather than recompute each time
-    gl.glNewList(displayList, GL_COMPILE_AND_EXECUTE);
+    GL.glNewList(displayList, GL_COMPILE_AND_EXECUTE);
   }
   // We always need to draw the display at least once
   drawDisplay();
   // Finish and compile the display list, then redraw it for each shell image
   if(displayPhase.getImageShells() > 0) {
-    gl.glEndList();
+    GL.glEndList();
     int j = shellOrigins.length;
     while((--j) >= 0) {
-      gl.glPushMatrix();
-      gl.glTranslated(shellOrigins[j][0],shellOrigins[j][1],shellOrigins[j][2]);
-      gl.glCallList(displayList);
-      gl.glPopMatrix();
+      GL.glPushMatrix();
+      GL.glTranslated(shellOrigins[j][0],shellOrigins[j][1],shellOrigins[j][2]);
+      GL.glCallList(displayList);
+      GL.glPopMatrix();
     }
     setQuality(k);
   }
 
-  gl.glDisable(GL_CLIP_PLANE0);
-  gl.glDisable(GL_CLIP_PLANE1);
-  gl.glDisable(GL_CLIP_PLANE2);
-  gl.glDisable(GL_CLIP_PLANE3);
-  gl.glDisable(GL_CLIP_PLANE4);
-  gl.glDisable(GL_CLIP_PLANE5);
+  GL.glDisable(GL_CLIP_PLANE0);
+  GL.glDisable(GL_CLIP_PLANE1);
+  GL.glDisable(GL_CLIP_PLANE2);
+  GL.glDisable(GL_CLIP_PLANE3);
+  GL.glDisable(GL_CLIP_PLANE4);
+  GL.glDisable(GL_CLIP_PLANE5);
   
   //Draw other features if indicated
   if(drawBoundary >= DRAW_BOUNDARY_OUTLINE) {
-    gl.glDisable(GL_LIGHT0);
-    gl.glDisable(GL_LIGHTING);
-    gl.glColor3ub((byte)0, (byte)-1, (byte)-1);
+    GL.glDisable(GL_LIGHT0);
+    GL.glDisable(GL_LIGHTING);
+    GL.glColor3ub((byte)0, (byte)-1, (byte)-1);
     drawBoundary(displayPhase.getImageShells());
     if (drawBoundary == DRAW_BOUNDARY_SHELL) {
       int j = displayPhase.getImageShells();
@@ -672,8 +699,8 @@ public synchronized void display() {
         drawBoundary(j);
       } 
     }
-    gl.glEnable(GL_LIGHT0);
-    gl.glEnable(GL_LIGHTING);
+    GL.glEnable(GL_LIGHT0);
+    GL.glEnable(GL_LIGHTING);
   }
   
 
@@ -694,18 +721,18 @@ public synchronized void display() {
 }
       
 private void drawBoundary(int num) {
-  gl.glBegin(GL_LINES);
+  GL.glBegin(GL_LINES);
   Polyhedron shape = (Polyhedron)displayPhase.getPhase().boundary().getShape();
   LineSegment[] edges = shape.getEdges();
   for(int i=0; i<edges.length; i++) {
       vertex.E(edges[i].getVertices()[0]);
       vertex.TE((1+2*num));
-      gl.glVertex3f((float)vertex.x(0), (float)vertex.x(1), (float)vertex.x(2));
+      GL.glVertex3f((float)vertex.x(0), (float)vertex.x(1), (float)vertex.x(2));
       vertex.E(edges[i].getVertices()[1]);
       vertex.TE((1+2*num));
-      gl.glVertex3f((float)vertex.x(0), (float)vertex.x(1), (float)vertex.x(2));
+      GL.glVertex3f((float)vertex.x(0), (float)vertex.x(1), (float)vertex.x(2));
   }
-  gl.glEnd();
+  GL.glEnd();
 }
   
 /**
