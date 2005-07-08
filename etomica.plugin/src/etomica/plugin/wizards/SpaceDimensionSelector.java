@@ -69,7 +69,7 @@ public class SpaceDimensionSelector extends Composite {
 				System.err.println( "Illegal access while creating class: " + e.getMessage() );
 				e.printStackTrace();
 			}
-			return new Simulation();
+			return null;//new Simulation();
 		}
 		// It's a stock one
 		Space space = (Space) spacemap.get( space_list.getText() );
