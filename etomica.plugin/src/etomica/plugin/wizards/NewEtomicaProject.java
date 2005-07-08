@@ -56,11 +56,23 @@ public class NewEtomicaProject extends Wizard implements INewWizard {
 	 */
 	public boolean performFinish() {
 		
-		// Run the creation
+	  	// Create simulation based on user's choices
+	  	Simulation sim = page.createSimulation();
+	  	if ( sim==null )
+			return false;
+	  	
+	  	// copy simulation to local variable
+  		newsim = sim;
+
+//  	 Get container options
+		final String containerName = page.getContainerName();
+		final String fileName = page.getFileName();
+
+  		// Run the creation
 	  	IRunnableWithProgress op = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
 				try {
-					doFinish( monitor);
+					doFinish( containerName, fileName, monitor);
 				} catch (CoreException e) {
 					throw new InvocationTargetException(e);
 				} finally {
@@ -80,26 +92,17 @@ public class NewEtomicaProject extends Wizard implements INewWizard {
 		return true;
 	}
 	
+	
 	/**
 	 * The worker method. It will find the container, create the
 	 * file if missing or just replace its contents, and open
 	 * the editor on the newly created file.
 	 */
 
-	private void doFinish( IProgressMonitor monitor)
+	private void doFinish( String containerName, String fileName, IProgressMonitor monitor)
 		throws CoreException {
-		  	// Create simulation based on user's choices
-		  	Simulation sim = page.createSimulation();
-		  	if ( sim==null )
-				throwCoreException("Could not create simulation.");
-		  	
-		  	// copy simulation to local variable
-	  		newsim = sim;
 			
-			// Get container options
-			final String containerName = page.getContainerName();
-			final String fileName = page.getFileName();
-
+			
 			// Get the workspace root
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			monitor.subTask("Creating directories...");
