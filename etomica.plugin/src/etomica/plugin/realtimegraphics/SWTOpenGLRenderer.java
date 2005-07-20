@@ -18,6 +18,7 @@ import org.eclipse.swt.opengl.GLContext;
 import org.eclipse.swt.opengl.GLU;
 import org.eclipse.swt.widgets.Canvas;
 
+import etomica.graphics2.ColorScheme;
 import etomica.graphics2.Renderable;
 
 
@@ -265,6 +266,70 @@ public synchronized void drawScene() {
     Frames = 0;
   }
   
+}
+
+/* (non-Javadoc)
+ * @see etomica.graphics2.Renderable#createObject(int)
+ */
+public int createObject(int arg0) {
+	// TODO Auto-generated method stub
+	return 0;
+}
+
+/* (non-Javadoc)
+ * @see etomica.graphics2.Renderable#setObjectPosition(int, float, float, float)
+ */
+public void setObjectPosition(int arg0, float arg1, float arg2, float arg3) {
+	// TODO Auto-generated method stub
+	
+}
+
+/* (non-Javadoc)
+ * @see etomica.graphics2.Renderable#setObjectColor(int, int)
+ */
+public void setObjectColor(int arg0, int arg1) {
+	// TODO Auto-generated method stub
+	
+}
+
+/* (non-Javadoc)
+ * @see etomica.graphics2.Renderable#setObjectProperty(int, int, float)
+ */
+public void setObjectProperty(int arg0, int arg1, float arg2) {
+	// TODO Auto-generated method stub
+	
+}
+
+/* (non-Javadoc)
+ * @see etomica.graphics2.Renderable#setObjectProperty(int, int, float[])
+ */
+public void setObjectProperty(int arg0, int arg1, float[] arg2) {
+	// TODO Auto-generated method stub
+	
+}
+
+/* (non-Javadoc)
+ * @see etomica.graphics2.Renderable#setObjectProperty(int, int, java.lang.Object)
+ */
+public void setObjectProperty(int arg0, int arg1, Object arg2) {
+	// TODO Auto-generated method stub
+	
+}
+
+/* (non-Javadoc)
+ * @see etomica.graphics2.Renderable#setColorScheme(etomica.graphics2.ColorScheme)
+ */
+public void setColorScheme(ColorScheme arg0) {
+	// TODO Auto-generated method stub
+	
+}
+
+/* (non-Javadoc)
+ * @see etomica.graphics2.Renderable#getCameraPosition()
+ */
+public float[] getCameraPosition() {
+	// TODO Auto-generated method stub
+	return null;
 }
 
 }  //end of DisplayPhase.Canvas
