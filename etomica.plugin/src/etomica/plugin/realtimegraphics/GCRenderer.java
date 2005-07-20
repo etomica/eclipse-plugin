@@ -60,7 +60,7 @@ public class GCRenderer implements Renderable {
 		}
 	};
 
-	// Temporary scratch space to be used by Ellipse
+	// Temporary scratch space to be used by Drawables
 	static final int[] scrmin = new int[2];
 	static final int[] scrmax = new int[2];
 	static final float[] tmp = new float[4];
@@ -86,9 +86,9 @@ public class GCRenderer implements Renderable {
     	for ( int j=0; j<ncolors; j++ )
     	{
     		etomica.graphics2.Color c = color_scheme.getColor( j );
-    		int red = (int)( 255*c.r );
-    		int green = (int)( 255*c.g );
-    		int blue = (int) ( 255*c.b );
+    		int red = (int)( 255*c.r +0.5);
+    		int green = (int)( 255*c.g +0.5);
+    		int blue = (int) ( 255*c.b +0.5);
     		colors[j]= new Color( display, red, green, blue );
     	}
     }
