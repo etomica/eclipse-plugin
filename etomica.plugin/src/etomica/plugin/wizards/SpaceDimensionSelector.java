@@ -74,7 +74,7 @@ public class SpaceDimensionSelector extends Composite {
 		// It's a stock one
 		Space space = (Space) spacemap.get( space_list.getText() );
 		PotentialMaster pot = (PotentialMaster) potmap.get( master_potential_list.getText() );
-		return new Simulation( space, pot );
+		return new Simulation( space, true, pot );
 	}
 	
 	
