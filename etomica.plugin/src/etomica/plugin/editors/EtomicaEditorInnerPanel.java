@@ -29,8 +29,6 @@ import org.eclipse.swt.widgets.Tree;
 /**
  * @author Henrique
  *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
 public class EtomicaEditorInnerPanel extends Composite {
 
@@ -67,7 +65,7 @@ private Button radioButton = null;
 	 */
 	public EtomicaEditorInnerPanel(Composite parent, int style) {
 		super(parent, style);
-		// TODO Auto-generated constructor stub
+		
 		initialize();
 	}
 
