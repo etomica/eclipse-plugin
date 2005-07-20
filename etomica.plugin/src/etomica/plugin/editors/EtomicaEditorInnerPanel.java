@@ -22,6 +22,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Label;
@@ -69,6 +70,10 @@ private Button radioButton = null;
 		initialize();
 	}
 
+	public Control getPhasePanel()
+	{
+		return composite4;
+	}
 	/**
 	 * This method initializes tabFolder	
 	 *
