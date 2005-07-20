@@ -1,23 +1,13 @@
 package etomica.plugin.editors;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.LinkedList;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -26,24 +16,18 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
-
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
@@ -51,40 +35,28 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
-
 
 import etomica.Atom;
 import etomica.Controller;
 import etomica.Phase;
 import etomica.Simulation;
-import etomica.SimulationEvent;
-import etomica.SimulationListener;
-import etomica.plugin.actions.ResumeSimulationAction;
-import etomica.plugin.actions.RunSimulationAction;
-import etomica.plugin.actions.SuspendSimulationAction;
-import etomica.plugin.actions.TerminateSimulationAction;
-import etomica.plugin.views.ConfigurationCanvas;
-import etomica.plugin.views.ConfigurationCanvas2D;
 import etomica.plugin.views.PropertySourceWrapper;
 import etomica.plugin.views.SimulationViewContentProvider;
 import etomica.simulations.HSMD3D;
-//import etomica.serialization.IPropertyBag;
+import etomica.graphics2.SceneManager;
 
-//import org.apache.xml.serialize.XMLSerializer;
-//import org.apache.xml.serialize.OutputFormat;
-
+import etomica.plugin.realtimegraphics.SWTOpenGLRenderer;
 
 public class EtomicaEditor extends EditorPart {
 
 	public EtomicaEditor() {
 		super();
+		scene = new SceneManager();
+		SWTOpenGLRenderer renderer = new SWTOpenGLRenderer();
+		scene.setRenderer( swtrenderer );
 	}
 	public void dispose() {
-		canvas.dispose();
+		//scene.dispose();
 		
 		if ( this.pageSelectionListener!=null )
 			getSite().getPage().removePostSelectionListener( pageSelectionListener );
@@ -259,7 +231,7 @@ public class EtomicaEditor extends EditorPart {
 		IStructuredSelection sel = (IStructuredSelection)selection;
 		if(sel.getFirstElement() == null) {
 			if(selectionSource == part) {
-				canvas.setSelectedAtoms(new Atom[0]);
+				scene.setSelectedAtoms(new Atom[0]);
 				selectionSource = null;
 			}
 			return;
@@ -271,7 +243,7 @@ public class EtomicaEditor extends EditorPart {
 		if(obj instanceof Phase) {
 			Phase phase = (Phase)obj;
 //			System.out.println("ConfigurationView phase "+phase.toString());
-			canvas.setPhase(phase);
+			scene.setPhase(phase);
 		} else if(obj instanceof Simulation) {
 			Simulation sim = (Simulation)obj;
 			Phase phase = (Phase)lastPhase.get(sim);//get phase last viewed with selected simulation
@@ -279,7 +251,7 @@ public class EtomicaEditor extends EditorPart {
 				phase = (Phase)sim.getPhaseList().get(0);
 				if(phase != null) lastPhase.put(sim, phase);
 			}
-			canvas.setPhase(phase);	
+			scene.setPhase(phase);	
 		} else if(obj instanceof Atom) {
 			//selection of one or more atoms
 			int nAtom = sel.size();
@@ -289,7 +261,7 @@ public class EtomicaEditor extends EditorPart {
 			for(int i=0; i<nAtom; i++) {
 				selectedAtoms[i] = (Atom)((etomica.plugin.views.PropertySourceWrapper)objects[i]).getObject();
 			}
-			canvas.setSelectedAtoms(selectedAtoms);
+			scene.setSelectedAtoms(selectedAtoms);
 		}
 
 	}
@@ -315,8 +287,8 @@ public class EtomicaEditor extends EditorPart {
 			newphase = (Phase)lastPhase.get(simulation);//get phase last viewed with selected simulation
 			if(newphase != null) lastPhase.put(simulation, phase);
 		}
-		if ( canvas!=null ) 
-			canvas.setPhase(newphase);
+		if ( scene!=null ) 
+			scene.setPhase(newphase);
 		phase = newphase;
 	}
 	/**
@@ -386,7 +358,7 @@ public class EtomicaEditor extends EditorPart {
 	private Simulation simulation = null;
 	private Phase phase = null; // current phase being showed
     private ISelectionListener pageSelectionListener;
-	private ConfigurationCanvas canvas;
+	private SceneManager scene = new SceneManager();
 	private final HashMap lastPhase = new HashMap(8);//store last phase viewed for each simulation
 	private IWorkbenchPart selectionSource;
 	private boolean dirty_flag = false;
