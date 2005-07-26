@@ -8,6 +8,8 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -24,7 +26,12 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
@@ -36,6 +43,8 @@ import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
 
+import osg.OrientedObject;
+
 import etomica.Atom;
 import etomica.Controller;
 import etomica.Phase;
@@ -43,6 +52,7 @@ import etomica.Simulation;
 import etomica.plugin.views.PropertySourceWrapper;
 import etomica.plugin.views.SimulationViewContentProvider;
 import etomica.simulations.HSMD3D;
+import etomica.utility.EtomicaObjectInputStream;
 import etomica.graphics2.SceneManager;
 
 import etomica.plugin.realtimegraphics.OSGRenderer;
@@ -52,11 +62,7 @@ public class EtomicaEditor extends EditorPart {
 
 	public EtomicaEditor() {
 		super();
-		scene = new SceneManager();
-		org.eclipse.swt.widgets.Control control = inner_panel.getPhasePanel();
-		OSGRenderer renderer = new OSGRenderer();
-		renderer.setControl( control );
-		scene.setRenderer( renderer );
+	
 	}
 	public void dispose() {
 		//scene.dispose();
@@ -161,7 +167,7 @@ public class EtomicaEditor extends EditorPart {
 		try
 		{
 		  fis = new FileInputStream(filename);
-		  in = new ObjectInputStream(fis);
+		  in = new EtomicaObjectInputStream(fis);
 		  simulation = (etomica.Simulation) in.readObject();
 		  in.close();
 
@@ -277,6 +283,7 @@ public class EtomicaEditor extends EditorPart {
 					newphase = (Phase)phaselist.get(n);
 			}	
 			
+			
 		}
 		catch ( Exception e ) {
 			System.err.println( "(Etomica) Could not retrieve phase #" + n + ", reason: " + e.getLocalizedMessage() );
@@ -286,7 +293,9 @@ public class EtomicaEditor extends EditorPart {
 			if(newphase != null) lastPhase.put(simulation, phase);
 		}
 		if ( scene!=null ) 
+		{
 			scene.setPhase(newphase);
+		}
 		phase = newphase;
 	}
 	/**
@@ -317,8 +326,58 @@ public class EtomicaEditor extends EditorPart {
 
 		inner_panel = new EtomicaEditorInnerPanel(parent, 0 );
 		
+		final Control control = inner_panel.getPhasePanel();
+		control.addPaintListener( new PaintListener() {
+
+			public void paintControl(PaintEvent e) {
+				if ( !render_initialized )
+				{
+					try
+					{
+						// Create timer task
+						final TimerTask task = new TimerTask() {
+
+							public void run() {
+								control.redraw();
+							}
+							
+						};
+						
+						final Timer timer = new Timer();
+						timer.scheduleAtFixedRate( task, 0, 100 );
+
+						renderer.setControl( control );
+						scene.setRenderer( renderer );
+						
+						//OrientedObject obj = new OrientedObject();
+						//obj.loadFromFile( "cow.osg" );
+						scene.updateAtomPositions();
+						
+					}
+					finally {
+						render_initialized = true;
+					}
+				}
+				scene.updateAtomPositions();
+				renderer.doPaint( e );
+			}
+		}
+		);
 		
-		 
+		control.addFocusListener( new FocusListener() {
+
+		
+			public void focusGained(FocusEvent e) {
+			}
+
+			public void focusLost(FocusEvent e) {
+				//timer.cancel();				
+			}
+			
+		}
+		);
+		
+		
 		viewer = new TreeViewer( inner_panel.objectList  );
 		viewer.setContentProvider(new SimulationViewContentProvider());
         viewer.setLabelProvider(new LabelProvider());
@@ -357,6 +416,8 @@ public class EtomicaEditor extends EditorPart {
 	private Phase phase = null; // current phase being showed
     private ISelectionListener pageSelectionListener;
 	private SceneManager scene = new SceneManager();
+	private OSGRenderer renderer = new OSGRenderer();
+	private boolean render_initialized = false;
 	private final HashMap lastPhase = new HashMap(8);//store last phase viewed for each simulation
 	private IWorkbenchPart selectionSource;
 	private boolean dirty_flag = false;
