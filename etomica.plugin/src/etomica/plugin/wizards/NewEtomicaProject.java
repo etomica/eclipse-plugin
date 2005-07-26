@@ -111,9 +111,9 @@ public class NewEtomicaProject extends Wizard implements INewWizard {
 			IProject project = root.getProject( containerName );
 			IProjectDescription description = ResourcesPlugin.getWorkspace().newProjectDescription(project.getName());
 			project.create(description,monitor);
-			monitor.worked(10);
+			monitor.worked(100);
 			
-			IResource resource = root.findMember(new Path(containerName));
+			/*IResource resource = root.findMember(new Path(containerName));
 			if ( resource==null || !resource.exists() || !(resource instanceof IContainer)) {
 				throwCoreException("Container \"" + containerName + "\" does not exist.");
 			}
@@ -141,6 +141,7 @@ public class NewEtomicaProject extends Wizard implements INewWizard {
 					}
 				} 
 			} );
+			*/
 	}
 	
 	/**
