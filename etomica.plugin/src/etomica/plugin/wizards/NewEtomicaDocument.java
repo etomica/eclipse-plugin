@@ -55,13 +55,26 @@ public class NewEtomicaDocument extends Wizard implements INewWizard {
 	 * using wizard as execution context.
 	 */
 	public boolean performFinish() {
-		
+	  	// Create simulation based on user's choices
+	  	Simulation sim = page.createSimulation();
+	  	if ( sim==null )
+			return false;
+	  	
+	  	// copy simulation to local variable
+  		newsim = sim;
+
+		// Get container options
+		final String containerName = page.getContainerName();
+		final String fileName = page.getFileName();
+
 		// Run the creation
 	  	IRunnableWithProgress op = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
 				try {
-					doFinish( monitor );
+					doFinish( containerName, fileName, monitor );
 				} catch (CoreException e) {
+					System.err.println( e.getMessage() );
+					e.printStackTrace();
 					throw new InvocationTargetException(e);
 				} finally {
 					monitor.done();
@@ -71,6 +84,8 @@ public class NewEtomicaDocument extends Wizard implements INewWizard {
 		try {
 			getContainer().run(true, false, op);
 		} catch (InterruptedException e) {
+			System.err.println( e.getMessage() );
+			e.printStackTrace();
 			return false;
 		} catch (InvocationTargetException e) {
 			Throwable realException = e.getTargetException();
@@ -86,25 +101,14 @@ public class NewEtomicaDocument extends Wizard implements INewWizard {
 	 * the editor on the newly created file.
 	 */
 
-	private void doFinish(
+	private void doFinish( String containerName, String fileName,
 		IProgressMonitor monitor)
 		throws CoreException {
 		try
 		{
-			
-		  	// Create simulation based on user's choices
-		  	Simulation sim = page.createSimulation();
-		  	if ( sim==null )
-		  		return; // failed for some reason.. :(
-		  	
-		  	// copy simulation to local variable
-	  		newsim = sim;
-			
-			// Get container options
-			final String containerName = page.getContainerName();
-			final String fileName = page.getFileName();
 
 			// Get the workspace root
+			IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			IResource resource = root.findMember(new Path(containerName));
 			if ( resource==null || !resource.exists() || !(resource instanceof IContainer)) {
@@ -112,8 +116,17 @@ public class NewEtomicaDocument extends Wizard implements INewWizard {
 			}
 
 			// Create a new file in the container
-			IContainer container = (IContainer) resource;
-			final IFile file = container.getFile(new Path(fileName));
+			//IContainer container = (IContainer) resource;
+			//IPath filepath = new Path(fileName );
+
+			IProject project = root.getProject( containerName );
+			// open if necessary
+			if (project.exists() && !project.isOpen())
+			      project.open(monitor);
+
+			final IFile file = project.getFile( fileName );
+			
+			//final IFile file = container.getFileForLocation(filepath);
 			try {
 				InputStream stream = openContentStream();
 				if (file.exists()) {
@@ -122,7 +135,10 @@ public class NewEtomicaDocument extends Wizard implements INewWizard {
 					file.create(stream, true, monitor);
 				}
 				stream.close();
+				
 			} catch (IOException e) {
+				System.err.println( "Error creating document: " + e.getMessage());
+				e.printStackTrace();
 			}
 			monitor.worked(1);
 			monitor.setTaskName("Opening file for editing...");
@@ -133,12 +149,16 @@ public class NewEtomicaDocument extends Wizard implements INewWizard {
 					try {
 						IDE.openEditor(page, file, true);
 					} catch (PartInitException e) {
+						System.err.println( "Error opening editor in NewEtomicaDocument.doFinish(): " + e.getMessage() );
+						e.printStackTrace();
 					}
 				} 
 			} );
 		}
 		catch ( Exception e )
 		{
+			System.err.println( "Error in NewEtomicaDocument.doFinish(): " + e.getMessage() );
+			e.printStackTrace();
 		}
 	}
 	
