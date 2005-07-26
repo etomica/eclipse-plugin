@@ -8,9 +8,6 @@
    class="etomica.plugin.EtomicaPlugin">
 
    <runtime>
-      <library name="etomicaplugin.jar">
-         <export name="*"/>
-      </library>
       <library name="resolver.jar">
          <export name="*"/>
       </library>
@@ -18,6 +15,9 @@
          <export name="*"/>
       </library>
       <library name="xml-apis.jar">
+         <export name="*"/>
+      </library>
+      <library name="osg.jar">
          <export name="*"/>
       </library>
       <library name="etomica_core.jar">
@@ -35,10 +35,6 @@
       <import plugin="org.eclipse.ui.editors"/>
       <import plugin="org.eclipse.ui.workbench.texteditor"/>
       <import plugin="org.eclipse.ui.views"/>
-      <import plugin="org.eclipse.osgi.util"/>
-      <import plugin="org.eclipse.osgi.services"/>
-      <import plugin="org.eclipse.ve.swt"/>
-      <import plugin="com.ibm.etools.emf.event"/>
    </requires>
 
    <extension
@@ -112,15 +108,6 @@
                relative="org.eclipse.ui.views.ResourceNavigator"
                relationship="stack"
                id="org.eclipse.jdt.ui.PackageExplorer">
-         </view>
-      </perspectiveExtension>
-      <perspectiveExtension
-            targetID="org.eclipse.ui.resourcePerspective">
-         <view
-               ratio="0.5"
-               relative="org.eclipse.ui.views.TaskList"
-               relationship="right"
-               id="etomica.plugin.views.MainView">
          </view>
       </perspectiveExtension>
    </extension>
