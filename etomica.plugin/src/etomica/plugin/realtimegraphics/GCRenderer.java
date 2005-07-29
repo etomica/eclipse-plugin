@@ -12,10 +12,14 @@ import org.eclipse.swt.widgets.Display;
 
 import etomica.graphics2.Renderable;
 import etomica.graphics2.ColorScheme;
+import etomica.graphics2.Renderable.Polyline;
+import etomica.graphics2.Renderable.Sphere;
 
     /* GCRenderer draws the atom configuration inside a org.eclipse.swt.graphics.GC
      * @author Henrique Bucher
      */
+
+
 
 //Class used to define canvas onto which configuration is drawn
 public class GCRenderer implements Renderable {
@@ -110,19 +114,6 @@ public class GCRenderer implements Renderable {
 
 
 	/* (non-Javadoc)
-	 * @see etomica.graphics2.Renderable#createObject(int)
-	 */
-	public int createObject(int type ) {
-		// TODO Auto-generated method stub
-		switch ( type )
-		{
-		case Renderable.ELLIPSE:
-			objects.add( new Ellipse() );
-			break;
-		}
-		return 0;
-	}
-	/* (non-Javadoc)
 	 * @see etomica.graphics2.Renderable#setObjectPosition(int, float, float, float)
 	 */
 	public void setObjectPosition(int index, float x, float y, float z) {
@@ -170,6 +161,27 @@ public class GCRenderer implements Renderable {
 	public void setColorScheme(ColorScheme sc) {
 		color_scheme = sc;
 		updateInternalColorTable();		
+	}
+	/* (non-Javadoc)
+	 * @see etomica.graphics2.Renderable#zoomAll()
+	 */
+	public void zoomAll() {
+		
+		
+	}
+	/* (non-Javadoc)
+	 * @see etomica.graphics2.Renderable#createSphere()
+	 */
+	public Sphere createSphere() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	/* (non-Javadoc)
+	 * @see etomica.graphics2.Renderable#createPoly()
+	 */
+	public Polyline createPoly() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 
