@@ -6,10 +6,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -18,6 +17,8 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -26,12 +27,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
@@ -44,25 +40,24 @@ import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
 
 import osg.OrientedObject;
-
 import etomica.Atom;
 import etomica.Controller;
 import etomica.Phase;
 import etomica.Simulation;
+import etomica.atom.AtomList;
+import etomica.graphics2.SceneManager;
+import etomica.plugin.EtomicaPlugin;
+import etomica.plugin.realtimegraphics.OSGWidget;
 import etomica.plugin.views.PropertySourceWrapper;
 import etomica.plugin.views.SimulationViewContentProvider;
 import etomica.simulations.HSMD3D;
 import etomica.utility.EtomicaObjectInputStream;
-import etomica.graphics2.SceneManager;
-
-import etomica.plugin.realtimegraphics.OSGRenderer;
 
 
 public class EtomicaEditor extends EditorPart {
 
 	public EtomicaEditor() {
 		super();
-	
 	}
 	public void dispose() {
 		//scene.dispose();
@@ -163,12 +158,13 @@ public class EtomicaEditor extends EditorPart {
 	void readFromFile( String filename )
 	{
 		FileInputStream fis = null;
-		ObjectInputStream in = null;
+		EtomicaObjectInputStream in = null;
 		try
 		{
 		  fis = new FileInputStream(filename);
 		  in = new EtomicaObjectInputStream(fis);
 		  simulation = (etomica.Simulation) in.readObject();
+		  AtomList.rebuildAllLists( in );
 		  in.close();
 
 		  // While we do not implement serialization for the controller...
@@ -319,64 +315,88 @@ public class EtomicaEditor extends EditorPart {
 			simulation.getController().start();
 	}
 
+	static {
+		// Add root to the search path so we can find our files :) 
+		try
+		{
+			// Get the plugin object
+			EtomicaPlugin plugin = EtomicaPlugin.getDefault();
+			
+			// Resolve the root URL to a local representation
+			URL url = Platform.resolve( plugin.find( new Path("") ) );
+			
+			// Extract the path (take out the file:// prefix)
+			String urlstr = url.getPath();
+			
+			// Fix this silly bug that places a slash at the beginning of the file name (windows only?)
+			if ( urlstr.startsWith( "/") )
+				urlstr = urlstr.substring( 1 );
+			
+			String FILESEP	= System.getProperty("file.separator");
+			urlstr = urlstr.replace( '/', FILESEP.charAt(0) );
+			System.out.println( "Etomica plugin is located at " + urlstr );
+			
+			// Add to search path
+			OrientedObject.appendToSearchPath( urlstr );
+			OrientedObject.appendToSearchPath( urlstr + FILESEP + "3dmodels" );
+			
+
+			// Add runtime workspace too
+			IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			IPath rootpath = workspace.getRoot().getLocation();
+			String rootstr = rootpath.toOSString();
+			OrientedObject.appendToSearchPath( rootstr );
+		}
+		catch ( Exception e )
+		{
+			System.err.println( e.getMessage() );
+			e.printStackTrace();
+		}
+	}
+	
+	private static String	PATHSEP	= System.getProperty("path.separator");
+
+	public class SceneUpdater implements Runnable {
+	    private int DELAY = 100;
+	    private boolean first_time = true;
+	    
+	    public SceneUpdater() {
+	    }
+	    
+	    public void setFPS( double fps )
+	    {
+	    	DELAY = (int)( 1000.0/fps );
+	    }
+	    public void run() {
+	        if (osgwidget != null && inner_panel.isVisible() ) {
+	        	scene.updateAtomPositions();
+	            osgwidget.render();
+	        	if ( first_time )
+	        	{
+	        		osgwidget.getRenderer().zoomAll();
+	        		first_time = false;
+	        	}
+        		osgwidget.getRenderer().zoomAll();
+	        }
+            inner_panel.getDisplay().timerExec(DELAY, this);
+	    }
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IWorkbenchPart#createPartControl(org.eclipse.swt.widgets.Composite)
 	 */
 	public void createPartControl(Composite parent) {
 
 		inner_panel = new EtomicaEditorInnerPanel(parent, 0 );
+		Composite control = inner_panel.getPhasePanel();
 		
-		final Control control = inner_panel.getPhasePanel();
-		control.addPaintListener( new PaintListener() {
+		osgwidget = new OSGWidget( control );
 
-			public void paintControl(PaintEvent e) {
-				if ( !render_initialized )
-				{
-					try
-					{
-						// Create timer task
-						final TimerTask task = new TimerTask() {
-
-							public void run() {
-								control.redraw();
-							}
-							
-						};
-						
-						final Timer timer = new Timer();
-						timer.scheduleAtFixedRate( task, 0, 100 );
-
-						renderer.setControl( control );
-						scene.setRenderer( renderer );
-						
-						//OrientedObject obj = new OrientedObject();
-						//obj.loadFromFile( "cow.osg" );
-						scene.updateAtomPositions();
-						
-					}
-					finally {
-						render_initialized = true;
-					}
-				}
-				scene.updateAtomPositions();
-				renderer.doPaint( e );
-			}
-		}
-		);
+		scene.setRenderer( osgwidget.getRenderer() );
 		
-		control.addFocusListener( new FocusListener() {
-
-		
-			public void focusGained(FocusEvent e) {
-			}
-
-			public void focusLost(FocusEvent e) {
-				//timer.cancel();				
-			}
-			
-		}
-		);
-		
+		updater = new SceneUpdater();
+		updater.setFPS( 10 );
+		updater.run();
 		
 		viewer = new TreeViewer( inner_panel.objectList  );
 		viewer.setContentProvider(new SimulationViewContentProvider());
@@ -416,7 +436,8 @@ public class EtomicaEditor extends EditorPart {
 	private Phase phase = null; // current phase being showed
     private ISelectionListener pageSelectionListener;
 	private SceneManager scene = new SceneManager();
-	private OSGRenderer renderer = new OSGRenderer();
+	private SceneUpdater updater;
+	private OSGWidget osgwidget;
 	private boolean render_initialized = false;
 	private final HashMap lastPhase = new HashMap(8);//store last phase viewed for each simulation
 	private IWorkbenchPart selectionSource;
