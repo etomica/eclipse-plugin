@@ -70,7 +70,7 @@ private Button radioButton = null;
 		initialize();
 	}
 
-	public Control getPhasePanel()
+	public Composite getPhasePanel()
 	{
 		return composite4;
 	}
