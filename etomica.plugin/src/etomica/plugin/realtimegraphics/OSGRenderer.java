@@ -9,29 +9,83 @@
 //http://www.sgi.com/software/opengl/advanced97/notes/node196.html#stencilsection
 //http://ask.ii.uib.no/ebt-bin/nph-dweb/dynaweb/SGI_Developer/OpenGL_RM
 package etomica.plugin.realtimegraphics;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.graphics.Color;
-
 import org.eclipse.swt.widgets.Control;
 
-
+import osg.OrientedObject;
+import osg.RenderWindow;
+import etomica.graphics2.Color;
 import etomica.graphics2.ColorScheme;
 import etomica.graphics2.Renderable;
-import osg.RenderWindow;
-import osg.OrientedObject;
+import etomica.space.Vector;
 
 
 //Class used to define canvas onto which configuration is drawn
 public class OSGRenderer implements Renderable
 {
-	public OSGRenderer()
+	public abstract class Shape implements Renderable.Shape
 	{
+		public void setPosition(Vector pos) {
+			obj.setPosition( toFloatArray(pos) );
+		}
+
+		public void setScale(Vector scale) {
+			obj.setScale( toFloatArray(scale) );
+		}
+
+		public void setRotation(Vector fromvec, Vector tovec) {
+			// TODO implement!
+		}
+
+		public void setRotation(float angle, Vector axis) {
+			// TODO implement
+		}
+
+		public void setColor(int cindex) {
+			color_index =cindex;
+			if ( color_scheme!=null )
+			{
+				Color color = color_scheme.getColor( cindex );
+				// obj.setColor( color );
+			}
+		}
+
+		public void setColorScheme(ColorScheme scheme) {
+			color_scheme = scheme;
+		}
 		
+		private ColorScheme color_scheme;
+		private int color_index = 0; 
+		protected OrientedObject obj;
+	};
+	
+	public class Sphere extends Shape implements Renderable.Sphere
+	{
+		public Sphere()
+		{
+			obj = OrientedObject.createSphere();
+			// Add to scene
+			osg_render.addObject( obj );
+		}
+	};
+	
+	public class Polyline extends Shape implements Renderable.Polyline
+	{
+		public Polyline()
+		{
+			obj = new OrientedObject();
+			// Add to scene
+			osg_render.addObject( obj );
+		}
+		public void appendLine(Vector A, Vector B ) 
+		{
+			OrientedObject line = OrientedObject.createLine( toFloatArray( B.M(A) ) );
+			line.setPosition( toFloatArray(A) );
+			obj.addChild( line );
+		}
+	};
+	
+	public OSGRenderer()
+	{		
 	}
 	/**
 	 * @param widget - any swt widget, either composite or not
@@ -62,181 +116,41 @@ public class OSGRenderer implements Renderable
 		render_in_control = widget;
 		osg_render = new RenderWindow( widget.handle );
 	}
-	
-	/** Set the color pattern to be used */
-	public void setColorScheme( ColorScheme cscheme )
-	{
-		colorscheme = cscheme;
-	}
 
-	public void doPaint( PaintEvent event )
+	public void doPaint()
 	{
 		osg_render.render();
 	}
 	
+	public void zoomAll()
+	{
+		osg_render.zoomAll();
+	}
+	
 	protected Control render_in_control;
 	protected RenderWindow osg_render;
-	protected ColorScheme colorscheme;
-	protected ArrayList object_pool;
-	protected ArrayList object_stack;
-
-
-	protected void createObjectPool()
+	static protected float[] tmp_float_array = new float[3];
+	protected float[] toFloatArray( Vector v )
 	{
-		String[] names = new String[]{ null, "sphere.osg" };
-		for ( int j=0; j<names.length; j++ )
-		{
-			String name = names[j];
-			if ( name==null )
-				continue;
-			OrientedObject obj = new OrientedObject();
-			int index = obj.loadFromFile( name );
-			object_pool.add( obj );
-		}
+		tmp_float_array[0] = (float)v.x(0);
+		tmp_float_array[1] = (float)v.x(1);
+		tmp_float_array[2] = (float)v.x(2);
+		return tmp_float_array;
 	}
+
 		
-	/** 
-	 * @see etomica.graphics2.Renderable#createObject(int)
+
+	/* (non-Javadoc)
+	 * @see etomica.graphics2.Renderable#createSphere()
 	 */
-	public int createObject(int type) {
-		if ( object_pool == null )
-			createObjectPool();
-		
-		int index = -1;
-		try 
-		{
-			OrientedObject obj = (OrientedObject) object_pool.get( type );
-			if ( obj==null )
-				return -1;
-			
-			// Make a shallow copy of object in pool
-			OrientedObject newobj = obj.copy( false );
-			if ( newobj==null )
-				return -1;
-			
-			// Hold in stack
-			object_stack.add( newobj );
-			
-			// Return its index
-			index = object_stack.size()-1;
-		}
-		finally 
-		{
-			// dummy just to make sure that any exception thrown aobve will not go away
-		}
-		return index;
+	public Renderable.Sphere createSphere() {
+		return new OSGRenderer.Sphere();
 	}
-
-	/**
-	 * @see etomica.graphics2.Renderable#setObjectPosition(int, float, float,
-	 *      float)
+	/* (non-Javadoc)
+	 * @see etomica.graphics2.Renderable#createPoly()
 	 */
-	public void setObjectPosition(int index, float x, float y, float z) {
-		try
-		{
-			OrientedObject obj = (OrientedObject) object_stack.get( index );
-			if ( obj==null )
-				return;
-			obj.translate( new float[]{x,y,z} );
-		}
-		catch( Exception ex )
-		{
-			System.err.println( ex.getMessage() );
-		}
+	public Renderable.Polyline createPoly() {
+		return new OSGRenderer.Polyline();
 	}
+} 
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see etomica.graphics2.Renderable#setObjectColor(int, int)
-	 */
-	public void setObjectColor(int arg0, int arg1) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see etomica.graphics2.Renderable#setObjectProperty(int, int, float)
-	 */
-	public void setObjectProperty(int arg0, int arg1, float arg2) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see etomica.graphics2.Renderable#setObjectProperty(int, int, float[])
-	 */
-	public void setObjectProperty(int arg0, int arg1, float[] arg2) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see etomica.graphics2.Renderable#setObjectProperty(int, int,
-	 *      java.lang.Object)
-	 */
-	public void setObjectProperty(int arg0, int arg1, Object arg2) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see etomica.graphics2.Renderable#getCameraPosition()
-	 */
-	public float[] getCameraPosition() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-}  //end of DisplayPhase.Canvas
-
-
-/*
- 
- private void initSphereList(double sphereRadius) {
-	  GL.glNewList(sphereList[GL.DRAW_QUALITY_VERY_LOW], GL.GL_COMPILE);
-	  GLU.gluSphere.gluSmoothSphere(this.GL, sphereRadius, 2);
-	  GL.glEndList();
-	  GL.glNewList(sphereList[DRAW_QUALITY_LOW], GL_COMPILE);
-	  gluSphere.gluSmoothSphere(this.GL, sphereRadius, 4);
-	  GL.glEndList();
-	  GL.glNewList(sphereList[DRAW_QUALITY_NORMAL], GL_COMPILE);
-	   gluSphere.gluSmoothSphere(this.GL, sphereRadius, 7);
-	  GL.glEndList();
-	  GL.glNewList(sphereList[DRAW_QUALITY_HIGH], GL_COMPILE);
-	  gluSphere.gluSmoothSphere(this.GL, sphereRadius, 9);
-	  GL.glEndList();
-	  GL.glNewList(sphereList[DRAW_QUALITY_VERY_HIGH], GL_COMPILE);
-	  gluSphere.gluSmoothSphere(this.GL, sphereRadius, 11);
-	  GL.glEndList();
-	  sphereListRadius = sphereRadius;
-	}
-	    
-	private void initWellList(double wellRadius) {
-	  GL.glNewList(wellList[DRAW_QUALITY_VERY_LOW], GL_COMPILE);
-	  gluSphere.gluSmoothSphere(this.GL, wellRadius, 2);
-	  GL.glEndList();
-	  GL.glNewList(wellList[DRAW_QUALITY_LOW], GL_COMPILE);
-	  gluSphere.gluSmoothSphere(this.GL, wellRadius, 4);
-	  GL.glEndList();
-	  GL.glNewList(wellList[DRAW_QUALITY_NORMAL], GL_COMPILE);
-	  gluSphere.gluSmoothSphere(this.GL, wellRadius, 7);
-	  GL.glEndList();
-	  GL.glNewList(wellList[DRAW_QUALITY_HIGH], GL_COMPILE);
-	  gluSphere.gluSmoothSphere(this.GL, wellRadius, 10);
-	  GL.glEndList();
-	  GL.glNewList(wellList[DRAW_QUALITY_VERY_HIGH], GL_COMPILE);
-	  gluSphere.gluSmoothSphere(this.GL, wellRadius, 13);
-	  GL.glEndList();
-	  wellListRadius = wellRadius;
-	}
-	*/
