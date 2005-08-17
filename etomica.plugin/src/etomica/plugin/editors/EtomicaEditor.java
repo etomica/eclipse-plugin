@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -17,16 +16,11 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
@@ -39,17 +33,12 @@ import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
 
-import osg.OrientedObject;
 import etomica.Atom;
 import etomica.Controller;
 import etomica.Phase;
 import etomica.Simulation;
 import etomica.atom.AtomList;
-import etomica.graphics2.SceneManager;
-import etomica.plugin.EtomicaPlugin;
-import etomica.plugin.realtimegraphics.OSGWidget;
 import etomica.plugin.views.PropertySourceWrapper;
-import etomica.plugin.views.SimulationViewContentProvider;
 import etomica.simulations.HSMD3D;
 import etomica.utility.EtomicaObjectInputStream;
 
@@ -204,25 +193,30 @@ public class EtomicaEditor extends EditorPart {
 		//simulation = new Simulation();
 
 		IFile original = (input instanceof IFileEditorInput) ? ((IFileEditorInput) input).getFile() : null;
-		if (original != null)
-		{
-			String filename = original.getFullPath().toOSString();
-			IWorkspace workspace = ResourcesPlugin.getWorkspace();
-			IWorkspaceRoot root = workspace.getRoot();
-			IResource resource = root.findMember( original.getFullPath() );
-			if ( resource!=null )
-			{
-				IPath location = resource.getLocation();
-				readFromFile( location.toOSString() );
-			}
-		}
+		if (original == null)
+			return;
+
+		String filename = original.getFullPath().toOSString();
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		IWorkspaceRoot root = workspace.getRoot();
+		IResource resource = root.findMember(original.getFullPath());
+		if (resource == null) 
+			return;
+		IPath location = resource.getLocation();
+		readFromFile(location.toOSString());
 		
-		showPhase( 0 );
+		// Update inner panel 
+		if ( inner_panel != null )
+		{
+			inner_panel.setSimulation( simulation );
+			showPhase(0);
+		}
 	}
 
 	
 	/**
-	 * Changes displayed configuration with change of simulation selected in another view.
+	 * Changes displayed configuration with change of simulation selected in
+	 * another view.
 	 */
 	protected void pageSelectionChanged(IWorkbenchPart part, ISelection selection) {
 		if(part == this) return;
@@ -231,7 +225,7 @@ public class EtomicaEditor extends EditorPart {
 		IStructuredSelection sel = (IStructuredSelection)selection;
 		if(sel.getFirstElement() == null) {
 			if(selectionSource == part) {
-				scene.setSelectedAtoms(new Atom[0]);
+				inner_panel.setSelectedAtoms(new Atom[0]);
 				selectionSource = null;
 			}
 			return;
@@ -241,9 +235,9 @@ public class EtomicaEditor extends EditorPart {
 		PropertySourceWrapper property = (PropertySourceWrapper) firstsel;
 		Object obj = property.getObject();
 		if(obj instanceof Phase) {
-			Phase phase = (Phase)obj;
+			phase = (Phase)obj;
 //			System.out.println("ConfigurationView phase "+phase.toString());
-			scene.setPhase(phase);
+			inner_panel.setPhase(phase);
 		} else if(obj instanceof Simulation) {
 			Simulation sim = (Simulation)obj;
 			Phase phase = (Phase)lastPhase.get(sim);//get phase last viewed with selected simulation
@@ -251,7 +245,7 @@ public class EtomicaEditor extends EditorPart {
 				phase = (Phase)sim.getPhaseList().get(0);
 				if(phase != null) lastPhase.put(sim, phase);
 			}
-			scene.setPhase(phase);	
+			inner_panel.setPhase(phase);	
 		} else if(obj instanceof Atom) {
 			//selection of one or more atoms
 			int nAtom = sel.size();
@@ -261,7 +255,7 @@ public class EtomicaEditor extends EditorPart {
 			for(int i=0; i<nAtom; i++) {
 				selectedAtoms[i] = (Atom)((etomica.plugin.views.PropertySourceWrapper)objects[i]).getObject();
 			}
-			scene.setSelectedAtoms(selectedAtoms);
+			inner_panel.setSelectedAtoms(selectedAtoms);
 		}
 
 	}
@@ -288,10 +282,7 @@ public class EtomicaEditor extends EditorPart {
 			newphase = (Phase)lastPhase.get(simulation);//get phase last viewed with selected simulation
 			if(newphase != null) lastPhase.put(simulation, phase);
 		}
-		if ( scene!=null ) 
-		{
-			scene.setPhase(newphase);
-		}
+		inner_panel.setPhase( newphase );
 		phase = newphase;
 	}
 	/**
@@ -314,108 +305,16 @@ public class EtomicaEditor extends EditorPart {
 		if ( simulation != null )
 			simulation.getController().start();
 	}
-
-	static {
-		// Add root to the search path so we can find our files :) 
-		try
-		{
-			// Get the plugin object
-			EtomicaPlugin plugin = EtomicaPlugin.getDefault();
-			
-			// Resolve the root URL to a local representation
-			URL url = Platform.resolve( plugin.find( new Path("") ) );
-			
-			// Extract the path (take out the file:// prefix)
-			String urlstr = url.getPath();
-			
-			// Fix this silly bug that places a slash at the beginning of the file name (windows only?)
-			if ( urlstr.startsWith( "/") )
-				urlstr = urlstr.substring( 1 );
-			
-			String FILESEP	= System.getProperty("file.separator");
-			urlstr = urlstr.replace( '/', FILESEP.charAt(0) );
-			System.out.println( "Etomica plugin is located at " + urlstr );
-			
-			// Add to search path
-			OrientedObject.appendToSearchPath( urlstr );
-			OrientedObject.appendToSearchPath( urlstr + FILESEP + "3dmodels" );
-			
-
-			// Add runtime workspace too
-			IWorkspace workspace = ResourcesPlugin.getWorkspace();
-			IPath rootpath = workspace.getRoot().getLocation();
-			String rootstr = rootpath.toOSString();
-			OrientedObject.appendToSearchPath( rootstr );
-		}
-		catch ( Exception e )
-		{
-			System.err.println( e.getMessage() );
-			e.printStackTrace();
-		}
-	}
-	
-	private static String	PATHSEP	= System.getProperty("path.separator");
-
-	public class SceneUpdater implements Runnable {
-	    private int DELAY = 100;
-	    private boolean first_time = true;
-	    
-	    public SceneUpdater() {
-	    }
-	    
-	    public void setFPS( double fps )
-	    {
-	    	DELAY = (int)( 1000.0/fps );
-	    }
-	    public void run() {
-	        if (osgwidget != null && inner_panel.isVisible() ) {
-	        	scene.updateAtomPositions();
-	            osgwidget.render();
-	        	if ( first_time )
-	        	{
-	        		osgwidget.getRenderer().zoomAll();
-	        		first_time = false;
-	        	}
-        		osgwidget.getRenderer().zoomAll();
-	        }
-            inner_panel.getDisplay().timerExec(DELAY, this);
-	    }
-	}
-
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IWorkbenchPart#createPartControl(org.eclipse.swt.widgets.Composite)
 	 */
 	public void createPartControl(Composite parent) {
 
 		inner_panel = new EtomicaEditorInnerPanel(parent, 0 );
-		Composite control = inner_panel.getPhasePanel();
-		
-		osgwidget = new OSGWidget( control );
-
-		scene.setRenderer( osgwidget.getRenderer() );
-		
-		updater = new SceneUpdater();
-		updater.setFPS( 10 );
-		updater.run();
-		
-		viewer = new TreeViewer( inner_panel.objectList  );
-		viewer.setContentProvider(new SimulationViewContentProvider());
-        viewer.setLabelProvider(new LabelProvider());
-		viewer.setInput( simulation );
-		
+		inner_panel.setSimulation( simulation );
+		showPhase(0);
 	}
 	
-	/**
-	 * @return the ListViewer used to display data for this view.
-	 */
-	public TreeViewer getViewer() {
-		return viewer;
-	}
-	
-
-	public void propertyChange(PropertyChangeEvent event) {
-		viewer.refresh();
-	}
 	
 	public Simulation getSimulation()
 	{
@@ -429,16 +328,11 @@ public class EtomicaEditor extends EditorPart {
 		
 	}
 
-	private TreeViewer viewer;
 	private EtomicaEditorInnerPanel inner_panel;
 	private IPath path = null;
 	private Simulation simulation = null;
 	private Phase phase = null; // current phase being showed
     private ISelectionListener pageSelectionListener;
-	private SceneManager scene = new SceneManager();
-	private SceneUpdater updater;
-	private OSGWidget osgwidget;
-	private boolean render_initialized = false;
 	private final HashMap lastPhase = new HashMap(8);//store last phase viewed for each simulation
 	private IWorkbenchPart selectionSource;
 	private boolean dirty_flag = false;
