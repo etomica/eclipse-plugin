@@ -4,19 +4,15 @@
  */
 package etomica.plugin.views;
 
-import java.util.LinkedList;
-
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
-
 
 import etomica.Simulation;
 import etomica.SimulationEvent;
 import etomica.SimulationListener;
 import etomica.action.activity.ActivityGroupParallel;
 import etomica.action.activity.ActivityGroupSeries;
-import etomica.plugin.views.PropertySourceWrapper;
 
 /**
  * TODO To change the template for this generated type comment go to
