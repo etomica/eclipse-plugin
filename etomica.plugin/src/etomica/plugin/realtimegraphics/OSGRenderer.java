@@ -1,13 +1,4 @@
-//http://www.lanw.com/training/interop/securityurls.htm
 
-//http://www.geocities.com/SiliconValley/Park/5625/opengl/
-//http://www.azillionmonkeys.com/windoze/OpenGLvsDirect3D.html
-
-//http://romka.demonews.com/opengl/demos/other_eng.htm
-//http://www.oglchallenge.com/
-
-//http://www.sgi.com/software/opengl/advanced97/notes/node196.html#stencilsection
-//http://ask.ii.uib.no/ebt-bin/nph-dweb/dynaweb/SGI_Developer/OpenGL_RM
 package etomica.plugin.realtimegraphics;
 import org.eclipse.swt.widgets.Control;
 
