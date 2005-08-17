@@ -64,7 +64,7 @@ public class OSGWidget {
      * @return Whether or not the scene is disposed.
      */
     public boolean isDisposed() {
-        return this.renderer == null || isDisposed();
+        return this.renderer == null || parent==null || parent.isDisposed();
     }
     
     /**
