@@ -12,7 +12,6 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 
-import etomica.PotentialMaster;
 import etomica.Space;
 import etomica.Species;
 
@@ -40,7 +39,7 @@ public class Registry {
 		class_discovery.addClass( etomica.Integrator.class );
 		class_discovery.addClass( etomica.Phase.class );
 		class_discovery.addClass( etomica.Controller.class );
-		class_discovery.addClass( etomica.DataSource.class );
+		class_discovery.addClass( etomica.data.DataSource.class );
 		class_discovery.addClass( etomica.graphics.Display.class );
 		class_discovery.addClass( etomica.Action.class );
 		class_discovery.addClass( etomica.Activity.class );

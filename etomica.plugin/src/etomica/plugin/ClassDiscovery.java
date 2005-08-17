@@ -1,18 +1,20 @@
 package etomica.plugin;
 
-import java.util.*;
-import java.util.jar.*;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
 
-
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.ui.PlatformUI;
 import org.osgi.framework.Bundle;
 
 import etomica.PotentialMaster;
@@ -239,7 +241,7 @@ public void searchClassPath() {
 		cd.addClass(etomica.Integrator.class);
 		cd.addClass(etomica.Phase.class);
 		cd.addClass(etomica.Controller.class);
-		cd.addClass(etomica.DataSource.class);
+		cd.addClass(etomica.data.DataSource.class);
 		cd.addClass(etomica.graphics.Display.class);
 		cd.addClass(etomica.Action.class);
 		cd.addClass(etomica.Activity.class);
