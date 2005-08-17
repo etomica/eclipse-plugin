@@ -12,6 +12,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 
+import etomica.Action;
 import etomica.Controller;
 import etomica.ControllerEvent;
 import etomica.ControllerListener;
@@ -69,7 +70,11 @@ public class RunSimulationActionDelegate implements IEditorActionDelegate, Contr
 	public void run(IAction action) {
 		current_action = action;
 		if(controller == null || controller.isActive()) return;
-		controller.start();	
+		
+		if ( controller.isActive() )
+			controller.unPause();
+		else
+			controller.start();	
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IActionDelegate#selectionChanged(org.eclipse.jface.action.IAction, org.eclipse.jface.viewers.ISelection)
