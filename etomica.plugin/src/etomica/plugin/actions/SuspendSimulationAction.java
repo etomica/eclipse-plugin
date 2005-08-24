@@ -7,12 +7,11 @@ package etomica.plugin.actions;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
 
-import etomica.Controller;
-import etomica.ControllerEvent;
-import etomica.ControllerListener;
-import etomica.Simulation;
-import etomica.SimulationEvent;
-import etomica.plugin.editors.EtomicaEditor;
+import etomica.action.activity.Controller;
+import etomica.action.activity.ControllerEvent;
+import etomica.action.activity.ControllerListener;
+import etomica.simulation.Simulation;
+import etomica.simulation.SimulationEvent;
 
 /**
  * Action that causes simulation to suspend execution.  

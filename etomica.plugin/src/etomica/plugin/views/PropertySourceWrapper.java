@@ -23,7 +23,7 @@ import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 import org.eclipse.ui.views.properties.ComboBoxPropertyDescriptor;
 
 
-import etomica.Constants;
+import etomica.util.EnumeratedType;
 import etomica.plugin.views.CheckboxPropertyDescriptor;
 import etomica.plugin.views.DecimalPropertyDescriptor;
 import etomica.plugin.views.EnumeratedTypePropertyDescriptor;
@@ -84,7 +84,7 @@ public class PropertySourceWrapper implements IPropertySource {
 				value instanceof Character ||
 				value instanceof String ||
 				value instanceof Color ||
-				value instanceof etomica.Constants.TypedConstant)) {
+				value instanceof EnumeratedType)) {
 			return new PropertySourceWrapper(value);
 		} else {
 			return value;
@@ -185,7 +185,7 @@ public class PropertySourceWrapper implements IPropertySource {
 		
 		// Do not display dimension specifications as properties
         if(etomica.units.Dimension.class.isAssignableFrom(type)) return null;
-        if(etomica.utility.java2.LinkedList.class.isAssignableFrom(type)) return null;
+        //if(etomica.utility.LinkedList.class.isAssignableFrom(type)) return null;
 		
 		IPropertyDescriptor pd = null;
 		try {
@@ -201,8 +201,8 @@ public class PropertySourceWrapper implements IPropertySource {
 			} else if(type == double.class) {
 				pd = new DecimalPropertyDescriptor(property, name);
 			}
-			else if(etomica.Constants.TypedConstant.class.isAssignableFrom(type) && value != null) {
-				pd = new EnumeratedTypePropertyDescriptor(property,name,((Constants.TypedConstant)value).choices());
+			else if(EnumeratedType.class.isAssignableFrom(type) && value != null) {
+				pd = new EnumeratedTypePropertyDescriptor(property,name,((EnumeratedType)value).choices());
 			}
 			else if(String.class.isAssignableFrom(type)) {
 				pd = new TextPropertyDescriptor(property, name);

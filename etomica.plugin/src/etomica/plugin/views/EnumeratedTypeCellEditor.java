@@ -19,7 +19,7 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
-import etomica.Constants;
+import etomica.util.*;
 
 /**
  * A cell editor that presents a list of items in a combo box.
@@ -35,13 +35,13 @@ public class EnumeratedTypeCellEditor extends CellEditor {
 	 * The list of items to present in the combo box.
 	 */
 	private String[] items;
-	private Constants.TypedConstant[] choices;
+	private EnumeratedType[] choices;
 
 	/**
 	 * The zero-based index of the selected item.
 	 */
 	int selectionIndex;
-	Constants.TypedConstant selection;
+	EnumeratedType selection;
 
 	/**
 	 * The custom combo box control.
@@ -77,7 +77,7 @@ public class EnumeratedTypeCellEditor extends CellEditor {
 	 * @param parent the parent control
 	 * @param items the list of strings for the combo box
 	 */
-	public EnumeratedTypeCellEditor(Composite parent, Constants.TypedConstant[] choices) {
+	public EnumeratedTypeCellEditor(Composite parent, EnumeratedType[] choices) {
 		this(parent, choices, defaultStyle);
 	}
 	
@@ -93,7 +93,7 @@ public class EnumeratedTypeCellEditor extends CellEditor {
 	 * @param style the style bits
 	 * @since 2.1
 	 */
-	public EnumeratedTypeCellEditor(Composite parent, Constants.TypedConstant[] choices, int style) {
+	public EnumeratedTypeCellEditor(Composite parent, EnumeratedType[] choices, int style) {
 		super(parent, style);
 		setChoices(choices);
 	}
@@ -103,7 +103,7 @@ public class EnumeratedTypeCellEditor extends CellEditor {
 	 *
 	 * @return the list of choices for the combo box
 	 */
-	public Constants.TypedConstant[] getChoices() {
+	public EnumeratedType[] getChoices() {
 		return this.choices;
 	}
 	
@@ -112,7 +112,7 @@ public class EnumeratedTypeCellEditor extends CellEditor {
 	 *
 	 * @param items the list of choices for the combo box
 	 */
-	public void setChoices(Constants.TypedConstant[] choices) {
+	public void setChoices(EnumeratedType[] choices) {
 		Assert.isNotNull(choices);
 		this.choices = choices;
 		populateComboBoxItems();

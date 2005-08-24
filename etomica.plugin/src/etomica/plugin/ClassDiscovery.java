@@ -17,9 +17,9 @@ import java.util.jar.JarInputStream;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 
-import etomica.PotentialMaster;
-import etomica.Space;
-import etomica.Species;
+import etomica.potential.PotentialMaster;
+import etomica.space.Space;
+import etomica.species.Species;
 
 /**
  * @author Henrique
@@ -235,17 +235,17 @@ public void searchClassPath() {
 		cd.addClass(Space.class);
 		cd.addClass(Space.class);
 		cd.addClass(Species.class);
-		cd.addClass(etomica.Potential.class);
+		cd.addClass(etomica.potential.Potential.class);
 		cd.addClass(etomica.potential.Potential1.class);
 		cd.addClass(etomica.potential.Potential2.class);
-		cd.addClass(etomica.Integrator.class);
-		cd.addClass(etomica.Phase.class);
-		cd.addClass(etomica.Controller.class);
+		cd.addClass(etomica.integrator.Integrator.class);
+		cd.addClass(etomica.phase.Phase.class);
+		cd.addClass(etomica.action.activity.Controller.class);
 		cd.addClass(etomica.data.DataSource.class);
 		cd.addClass(etomica.graphics.Display.class);
-		cd.addClass(etomica.Action.class);
-		cd.addClass(etomica.Activity.class);
-		cd.addClass(etomica.Simulation.class);
+		cd.addClass(etomica.action.Action.class);
+		cd.addClass(etomica.action.Activity.class);
+		cd.addClass(etomica.simulation.Simulation.class);
 		cd.addClass(PotentialMaster.class);
 		cd.addClass(etomica.graphics.Device.class);
 		cd.searchClassPath();

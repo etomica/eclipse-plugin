@@ -33,14 +33,14 @@ import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
 
-import etomica.Atom;
-import etomica.Controller;
-import etomica.Phase;
-import etomica.Simulation;
+import etomica.atom.Atom;
+import etomica.action.activity.Controller;
+import etomica.phase.Phase;
+import etomica.simulation.Simulation;
 import etomica.atom.AtomList;
 import etomica.plugin.views.PropertySourceWrapper;
-import etomica.simulations.HSMD3D;
-import etomica.utility.EtomicaObjectInputStream;
+import etomica.simulation.prototypes.HSMD3D;
+import etomica.util.EtomicaObjectInputStream;
 
 
 public class EtomicaEditor extends EditorPart {
@@ -152,7 +152,7 @@ public class EtomicaEditor extends EditorPart {
 		{
 		  fis = new FileInputStream(filename);
 		  in = new EtomicaObjectInputStream(fis);
-		  simulation = (etomica.Simulation) in.readObject();
+		  simulation = (etomica.simulation.Simulation) in.readObject();
 		  AtomList.rebuildAllLists( in );
 		  in.close();
 
@@ -368,7 +368,7 @@ public class EtomicaEditor extends EditorPart {
 				ObjectInputStream in = null;
 			  fis = new FileInputStream(filename);
 			  in = new ObjectInputStream(fis);
-			  Simulation simulation = (etomica.Simulation) in.readObject();
+			  Simulation simulation = (etomica.simulation.Simulation) in.readObject();
 			  in.close();
 			  fis.close();
 			}

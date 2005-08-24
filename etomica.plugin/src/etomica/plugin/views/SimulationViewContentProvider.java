@@ -8,9 +8,9 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 
-import etomica.Simulation;
-import etomica.SimulationEvent;
-import etomica.SimulationListener;
+import etomica.simulation.Simulation;
+import etomica.simulation.SimulationEvent;
+import etomica.simulation.SimulationListener;
 import etomica.action.activity.ActivityGroupParallel;
 import etomica.action.activity.ActivityGroupSeries;
 

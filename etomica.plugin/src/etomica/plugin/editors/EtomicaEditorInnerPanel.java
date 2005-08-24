@@ -20,9 +20,9 @@ import org.eclipse.swt.widgets.Composite;
 
 import osg.OrientedObject;
 
-import etomica.Atom;
-import etomica.Phase;
-import etomica.Simulation;
+import etomica.atom.Atom;
+import etomica.phase.Phase;
+import etomica.simulation.Simulation;
 import etomica.graphics2.SceneManager;
 import etomica.plugin.EtomicaPlugin;
 import etomica.plugin.realtimegraphics.OSGWidget;

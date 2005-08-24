@@ -21,7 +21,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 
-import etomica.Simulation;
+import etomica.simulation.Simulation;
 
 /**
  * The "New" wizard page allows setting the container for

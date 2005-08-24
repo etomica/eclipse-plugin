@@ -12,8 +12,8 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 
-import etomica.Space;
-import etomica.Species;
+import etomica.space.Space;
+import etomica.species.Species;
 
 
 /**
@@ -36,15 +36,15 @@ public class Registry {
 		class_discovery.addClass( Species.class );
 		class_discovery.addClass( etomica.potential.Potential1.class );
 		class_discovery.addClass( etomica.potential.Potential2.class );
-		class_discovery.addClass( etomica.Integrator.class );
-		class_discovery.addClass( etomica.Phase.class );
-		class_discovery.addClass( etomica.Controller.class );
+		class_discovery.addClass( etomica.integrator.Integrator.class );
+		class_discovery.addClass( etomica.phase.Phase.class );
+		class_discovery.addClass( etomica.action.activity.Controller.class );
 		class_discovery.addClass( etomica.data.DataSource.class );
 		class_discovery.addClass( etomica.graphics.Display.class );
-		class_discovery.addClass( etomica.Action.class );
-		class_discovery.addClass( etomica.Activity.class );
-		class_discovery.addClass( etomica.Simulation.class );
-		class_discovery.addClass( etomica.PotentialMaster.class );
+		class_discovery.addClass( etomica.action.Action.class );
+		class_discovery.addClass( etomica.action.Activity.class );
+		class_discovery.addClass( etomica.simulation.Simulation.class );
+		class_discovery.addClass( etomica.potential.PotentialMaster.class );
 		class_discovery.addClass( etomica.graphics.Device.class );
 	}
 

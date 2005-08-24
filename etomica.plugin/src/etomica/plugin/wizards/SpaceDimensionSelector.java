@@ -10,25 +10,20 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.eclipse.swt.widgets.Composite;
-
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.layout.RowLayout;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 
 import etomica.EtomicaInfo;
-import etomica.Potential;
-import etomica.PotentialMaster;
-import etomica.Simulation;
-import etomica.Space;
 import etomica.plugin.Registry;
+import etomica.potential.PotentialMaster;
+import etomica.simulation.Simulation;
+import etomica.space.Space;
 /**
  * @author Henrique
  *
@@ -88,7 +83,7 @@ public class SpaceDimensionSelector extends Composite {
 		initialize();
 		
 //		 Add all spaces from registry
-		Collection spaces_from_registry = Registry.queryWhoExtends( etomica.Space.class );
+		Collection spaces_from_registry = Registry.queryWhoExtends( etomica.space.Space.class );
 		Iterator item = spaces_from_registry.iterator(); 
 		while( item.hasNext() )
 		{
@@ -101,7 +96,7 @@ public class SpaceDimensionSelector extends Composite {
 		space_list.select( default_selection );
 
 		// Add all master potentials from registry
-		Collection pmaster_from_registry = Registry.queryWhoExtends( etomica.PotentialMaster.class );
+		Collection pmaster_from_registry = Registry.queryWhoExtends( etomica.potential.PotentialMaster.class );
 		item = pmaster_from_registry.iterator(); 
 		while( item.hasNext() )
 		{

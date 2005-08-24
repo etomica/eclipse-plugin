@@ -7,18 +7,16 @@
 package etomica.plugin.actions;
 
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 
-import etomica.Action;
-import etomica.Controller;
-import etomica.ControllerEvent;
-import etomica.ControllerListener;
-import etomica.Simulation;
-import etomica.SimulationEvent;
+import etomica.action.activity.Controller;
+import etomica.action.activity.ControllerEvent;
+import etomica.action.activity.ControllerListener;
 import etomica.plugin.editors.EtomicaEditor;
+import etomica.simulation.Simulation;
+import etomica.simulation.SimulationEvent;
 
 /**
  * @author Henrique

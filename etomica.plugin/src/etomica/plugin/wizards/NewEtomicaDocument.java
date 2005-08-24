@@ -16,7 +16,7 @@ import java.io.*;
 import org.eclipse.ui.*;
 import org.eclipse.ui.ide.IDE;
 
-import etomica.Simulation;
+import etomica.simulation.Simulation;
 
 /**
  * This is a sample new wizard. Its role is to create a new file 
