@@ -9,8 +9,8 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
-import etomica.Simulation;
-import etomica.simulations.HSMD2D;
+import etomica.simulation.Simulation;
+import etomica.simulation.prototypes.HSMD2D;
 
 /**
  * @author kofke

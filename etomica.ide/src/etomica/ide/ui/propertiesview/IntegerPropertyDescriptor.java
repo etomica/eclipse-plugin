@@ -8,8 +8,8 @@ import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
-import etomica.Constants;
 import etomica.ide.viewers.IntegerCellEditor;
+import etomica.util.Constants;
 
 /**
  * PropertyDescriptor for an enumerated type.  Method createPropertyEditor

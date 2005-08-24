@@ -8,12 +8,12 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 
-import etomica.Atom;
+import etomica.atom.Atom;
 import etomica.atom.AtomTreeNodeGroup;
-import etomica.Phase;
-import etomica.Simulation;
-import etomica.SpeciesAgent;
+import etomica.atom.SpeciesAgent;
 import etomica.ide.ui.propertiesview.PropertySourceWrapper;
+import etomica.phase.Phase;
+import etomica.simulation.Simulation;
 
 /**
  * @author kofke

@@ -18,9 +18,9 @@ import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
 
-import etomica.Phase;
-import etomica.Simulation;
 import etomica.ide.ui.propertiesview.PropertySourceWrapper;
+import etomica.phase.Phase;
+import etomica.simulation.Simulation;
 
 /**
  * View for listing the species hierarchy via a tree.

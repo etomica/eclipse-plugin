@@ -8,12 +8,12 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 
-import etomica.Simulation;
-import etomica.SimulationEvent;
-import etomica.SimulationListener;
 import etomica.action.activity.ActivityGroupParallel;
 import etomica.action.activity.ActivityGroupSeries;
 import etomica.ide.ui.propertiesview.PropertySourceWrapper;
+import etomica.simulation.Simulation;
+import etomica.simulation.SimulationEvent;
+import etomica.simulation.SimulationListener;
 
 /**
  * TODO To change the template for this generated type comment go to
@@ -22,7 +22,7 @@ import etomica.ide.ui.propertiesview.PropertySourceWrapper;
 public class SimulationViewContentProvider implements ITreeContentProvider, SimulationListener {
 
     public SimulationViewContentProvider() {
-        Simulation.instantiationEventManager.addListener(this); 
+        etomica.simulation.instantiationEventManager.addListener(this); 
         
     }
 	/**
@@ -82,7 +82,7 @@ public class SimulationViewContentProvider implements ITreeContentProvider, Simu
 	 * @see org.eclipse.jface.viewers.IContentProvider#dispose()
 	 */
 	public void dispose() {
-        Simulation.instantiationEventManager.removeListener(this);
+        etomica.simulation.instantiationEventManager.removeListener(this);
 		viewer = null;
 	}
 

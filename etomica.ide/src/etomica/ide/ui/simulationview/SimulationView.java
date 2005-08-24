@@ -17,14 +17,14 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
-import etomica.Simulation;
-import etomica.SimulationEvent;
-import etomica.SimulationListener;
 import etomica.ide.actions.ResumeSimulationAction;
 import etomica.ide.actions.RunSimulationAction;
 import etomica.ide.actions.SuspendSimulationAction;
 import etomica.ide.actions.TerminateSimulationAction;
 import etomica.ide.ui.propertiesview.PropertySourceWrapper;
+import etomica.simulation.Simulation;
+import etomica.simulation.SimulationEvent;
+import etomica.simulation.SimulationListener;
 
 /**
  * View that presents instantiated simulations in a list, and
@@ -147,7 +147,7 @@ public class SimulationView extends ViewPart implements ISelectionChangedListene
 	public static class ContentProvider implements IStructuredContentProvider, SimulationListener {
 
 		ContentProvider() {
-			Simulation.instantiationEventManager.addListener(this);	
+			etomica.simulation.instantiationEventManager.addListener(this);	
 		}
 		/**
 		 * @param inputElement a linked list containing the simulation instances,
@@ -165,7 +165,7 @@ public class SimulationView extends ViewPart implements ISelectionChangedListene
 		 * @see org.eclipse.jface.viewers.IContentProvider#dispose()
 		 */
 		public void dispose() {
-			Simulation.instantiationEventManager.removeListener(this);
+			etomica.simulation.instantiationEventManager.removeListener(this);
 		}
 		
 		public void actionPerformed(SimulationEvent evt) {

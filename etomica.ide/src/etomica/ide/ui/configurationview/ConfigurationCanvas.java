@@ -17,13 +17,13 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 
-import etomica.Atom;
+import etomica.atom.Atom;
 import etomica.atom.AtomFilter;
-import etomica.Phase;
 import etomica.atom.iterator.AtomIteratorLeafAtoms;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.ColorSchemeByType;
 import etomica.ide.ui.propertiesview.PropertySourceWrapper;
+import etomica.phase.Phase;
 
 /**
  * Superclass for classes that display information from simulation by painting to a canvas.

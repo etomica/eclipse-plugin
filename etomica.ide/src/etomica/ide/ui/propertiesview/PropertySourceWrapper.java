@@ -21,8 +21,9 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 
-import etomica.Constants;
 import etomica.space.Boundary;
+import etomica.util.Constants;
+import etomica.util.EnumeratedType;
 
 /**
  * Wraps an object with an implementation of IPropertySource so that
@@ -78,7 +79,7 @@ public class PropertySourceWrapper implements IPropertySource {
 				value instanceof Character ||
 				value instanceof String ||
 				value instanceof Color ||
-				value instanceof etomica.Constants.TypedConstant)) {
+				value instanceof etomica.util.EnumeratedType)) {
 			return new PropertySourceWrapper(value);
 		} else {
 			return value;
@@ -179,7 +180,7 @@ public class PropertySourceWrapper implements IPropertySource {
 		
 		// Do not display dimension specifications as properties
         if(etomica.units.Dimension.class.isAssignableFrom(type)) return null;
-        if(etomica.utility.java2.LinkedList.class.isAssignableFrom(type)) return null;
+        if(etomica.util.java2.LinkedList.class.isAssignableFrom(type)) return null;
 		
 		IPropertyDescriptor pd = null;
 		try {
@@ -195,8 +196,8 @@ public class PropertySourceWrapper implements IPropertySource {
 			} else if(type == double.class) {
 				pd = new DecimalPropertyDescriptor(property, name);
 			}
-			else if(etomica.Constants.TypedConstant.class.isAssignableFrom(type) && value != null) {
-				pd = new EnumeratedTypePropertyDescriptor(property,name,((Constants.TypedConstant)value).choices());
+			else if(etomica.util.EnumeratedType.class.isAssignableFrom(type) && value != null) {
+				pd = new EnumeratedTypePropertyDescriptor(property,name,((EnumeratedType)value).choices());
 			}
 			else if(String.class.isAssignableFrom(type)) {
 				pd = new TextPropertyDescriptor(property, name);
@@ -210,8 +211,8 @@ public class PropertySourceWrapper implements IPropertySource {
 //			//find and instantiate the editor used to modify value of the property
 //			if(property.isConstrained())
 //				editor = new ConstrainedPropertyEditor();
-//			//if property is a TypedConstant
-//			else if(etomica.Constants.TypedConstant.class.isAssignableFrom(type) && value != null) {
+//			//if property is a EnumeratedType
+//			else if(etomica.Constants.EnumeratedType.class.isAssignableFrom(type) && value != null) {
 //				editor = new TypedConstantEditor();
 //			}
 //			else if(etomica.units.Unit.class.isAssignableFrom(type)) {

@@ -7,9 +7,9 @@ package etomica.ide.actions;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
 
-import etomica.Controller;
-import etomica.Simulation;
+import etomica.action.activity.Controller;
 import etomica.ide.ui.simulationview.SimulationView;
+import etomica.simulation.Simulation;
 
 /**
  * Action that causes simulation to suspend execution.  

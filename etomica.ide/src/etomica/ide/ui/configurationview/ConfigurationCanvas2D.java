@@ -5,14 +5,14 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 
-import etomica.Atom;
-import etomica.AtomType;
-import etomica.Space;
-import etomica.Species;
+import etomica.atom.Atom;
+import etomica.atom.AtomType;
 import etomica.atom.AtomTypeSphere;
 import etomica.graphics.ColorScheme;
 import etomica.graphics.ColorSchemeByType;
+import etomica.space.Space;
 import etomica.space.Vector;
+import etomica.species.Species;
 
     /* History of changes
      * 7/16/02 (DAK) Modified for AtomType.Sphere diameter and radius method to take atom as argument.

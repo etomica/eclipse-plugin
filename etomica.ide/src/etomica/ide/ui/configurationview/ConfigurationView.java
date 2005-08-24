@@ -13,10 +13,10 @@ import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
 
-import etomica.Atom;
-import etomica.Phase;
-import etomica.Simulation;
+import etomica.atom.Atom;
 import etomica.ide.ui.propertiesview.PropertySourceWrapper;
+import etomica.phase.Phase;
+import etomica.simulation.Simulation;
 
 /**
  * @author kofke
