@@ -2,8 +2,7 @@
 package etomica.plugin.realtimegraphics;
 import org.eclipse.swt.widgets.Control;
 
-import osg.OrientedObject;
-import osg.RenderWindow;
+import etomica.etomica3D.*;
 import etomica.graphics2.Color;
 import etomica.graphics2.ColorScheme;
 import etomica.graphics2.Renderable;

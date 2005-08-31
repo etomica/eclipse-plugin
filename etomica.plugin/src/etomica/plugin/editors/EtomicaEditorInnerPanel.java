@@ -18,8 +18,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Composite;
 
-import osg.OrientedObject;
-
+import etomica.etomica3D.*;
 import etomica.atom.Atom;
 import etomica.phase.Phase;
 import etomica.simulation.Simulation;
