@@ -170,14 +170,19 @@ public void searchClassPath() {
 		// Get class object
 		name = name.replace('\\', '.');
 		name = name.replace('/', '.');
-		if (name.endsWith(".class")) {
+        
+        if (name.startsWith("etomica.graphics"))
+            return;
+		
+        if (name.endsWith(".class")) {
 			name = name.substring(0, name.length() - 6);
 		}
 		Class thisclass = null;
-		try {
-			//System.err.println( "Trying class " + name );
-			thisclass = Class.forName(name);
-		} catch (java.lang.ClassFormatError e) {
+        try {
+            //System.err.println( "Trying class " + name );
+            thisclass = Class.forName(name);
+        }
+        catch (java.lang.ClassFormatError e) {
 			System.out.println("Could not access class " + name + ": "
 					+ e.getLocalizedMessage());
 			return;
