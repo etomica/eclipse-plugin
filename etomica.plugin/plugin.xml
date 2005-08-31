@@ -212,19 +212,5 @@
             class="etomica.plugin.persistence.EtomicaDocumentProvider"
             id="etomica.plugin.persistence.EtomicaDocumentProvider"/>
    </extension>
-   <extension
-         point="org.eclipse.ui.popupMenus">
-      <objectContribution
-            adaptable="true"
-            objectClass="org.eclipse.core.resources.IResource"
-            id="etomica.plugin.actions.MenuContribution">
-         <action
-               enablesFor="+"
-               label="Run Etomica Simulation"
-               class="etomica.plugin.actions.RunSimulationAction"
-               menubarPath="additions"
-               id="etomica.plugin.actions.MenuRunSimulation"/>
-      </objectContribution>
-   </extension>
 
 </plugin>
