@@ -1,19 +1,15 @@
 package etomica.plugin.realtimegraphics;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.widgets.Display;
 
-import etomica.graphics2.Renderable;
 import etomica.graphics2.ColorScheme;
-import etomica.graphics2.Renderable.Polyline;
-import etomica.graphics2.Renderable.Sphere;
+import etomica.graphics2.Renderable;
 
     /* GCRenderer draws the atom configuration inside a org.eclipse.swt.graphics.GC
      * @author Henrique Bucher
@@ -173,14 +169,12 @@ public class GCRenderer implements Renderable {
 	 * @see etomica.graphics2.Renderable#createSphere()
 	 */
 	public Sphere createSphere() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	/* (non-Javadoc)
 	 * @see etomica.graphics2.Renderable#createPoly()
 	 */
 	public Polyline createPoly() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
