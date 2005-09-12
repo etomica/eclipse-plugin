@@ -56,11 +56,9 @@ public class SpaceDimensionSelector extends Composite {
 			try {
 				return (Simulation) simclass.newInstance();
 			} catch (InstantiationException e) {
-				// TODO Auto-generated catch block
 				System.err.println( "Could not instantiate class: " + e.getMessage() );
 				e.printStackTrace();
 			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
 				System.err.println( "Illegal access while creating class: " + e.getMessage() );
 				e.printStackTrace();
 			}
