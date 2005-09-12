@@ -55,7 +55,6 @@ public class EtomicaEditor extends EditorPart {
 			getSite().getPage().removePostSelectionListener( pageSelectionListener );
 		super.dispose();
 	}
-
 	
 	/** Save the contents of this simulation into the file pointed by the IPath object "path". 
 	 * doSaveAs() will ask for a file name and set the "path" variable before calling doSave().
