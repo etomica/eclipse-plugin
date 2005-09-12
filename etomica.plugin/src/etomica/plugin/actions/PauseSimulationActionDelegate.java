@@ -14,11 +14,8 @@ import etomica.plugin.editors.EtomicaEditor;
 
 /**
  * @author Henrique
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
-public class PauseSimulationActionDelegate extends RunSimulationActionDelegate {
+public class PauseSimulationActionDelegate extends BaseSimulationActionDelegate {
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IEditorActionDelegate#setActiveEditor(org.eclipse.jface.action.IAction, org.eclipse.ui.IEditorPart)

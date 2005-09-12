@@ -6,22 +6,26 @@ package etomica.plugin.actions;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
 
+import etomica.action.activity.Controller;
 import etomica.action.activity.ControllerEvent;
+import etomica.action.activity.ControllerListener;
 import etomica.plugin.editors.EtomicaEditor;
+import etomica.simulation.Simulation;
 import etomica.simulation.SimulationEvent;
 
 /**
  * @author Henrique
  *
  */
-public class RunSimulationActionDelegate extends BaseSimulationActionDelegate {
+public class BaseSimulationActionDelegate implements IEditorActionDelegate, ControllerListener {
 
 	/**
 	 * 
 	 */
-	public RunSimulationActionDelegate() {
+	public BaseSimulationActionDelegate() {
 		super();
 	}
 
@@ -94,4 +98,10 @@ public class RunSimulationActionDelegate extends BaseSimulationActionDelegate {
 	 */
 	public void actionPerformed(SimulationEvent event) {
 	}
+	
+	
+	protected EtomicaEditor current_editor;
+	protected IAction current_action;
+	protected Simulation simulation;
+	protected Controller controller;
 }

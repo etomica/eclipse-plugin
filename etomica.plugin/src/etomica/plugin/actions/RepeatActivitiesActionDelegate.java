@@ -15,18 +15,14 @@ import etomica.plugin.editors.EtomicaEditor;
 
 /**
  * @author Henrique
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
  */
-public class RepeatActivitiesActionDelegate extends RunSimulationActionDelegate {
+public class RepeatActivitiesActionDelegate extends BaseSimulationActionDelegate {
 
 	/**
 	 * 
 	 */
 	public RepeatActivitiesActionDelegate() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 
