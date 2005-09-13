@@ -11,15 +11,6 @@
       <library name="resolver.jar">
          <export name="*"/>
       </library>
-      <library name="xercesImpl.jar">
-         <export name="*"/>
-      </library>
-      <library name="xml-apis.jar">
-         <export name="*"/>
-      </library>
-      <library name="osg.jar">
-         <export name="*"/>
-      </library>
       <library name="etomica_core.jar">
          <export name="*"/>
       </library>

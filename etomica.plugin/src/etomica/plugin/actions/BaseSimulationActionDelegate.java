@@ -4,15 +4,13 @@
  */
 package etomica.plugin.actions;
 
+import etomica.plugin.editors.EtomicaEditor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
-
 import etomica.action.activity.Controller;
-import etomica.action.activity.ControllerEvent;
 import etomica.action.activity.ControllerListener;
-import etomica.plugin.editors.EtomicaEditor;
 import etomica.simulation.Simulation;
 import etomica.simulation.SimulationEvent;
 
@@ -20,7 +18,7 @@ import etomica.simulation.SimulationEvent;
  * @author Henrique
  *
  */
-public class BaseSimulationActionDelegate implements IEditorActionDelegate, ControllerListener {
+public abstract class BaseSimulationActionDelegate implements IEditorActionDelegate, ControllerListener {
 
 	/**
 	 * 
@@ -57,42 +55,13 @@ public class BaseSimulationActionDelegate implements IEditorActionDelegate, Cont
 		
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
-	 */
-	public void run(IAction action) {
-		current_action = action;
-		if(controller == null || controller.isActive()) return;
-		
-		if ( controller.isActive() )
-			controller.unPause();
-		else
-			controller.start();	
-	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IActionDelegate#selectionChanged(org.eclipse.jface.action.IAction, org.eclipse.jface.viewers.ISelection)
 	 */
 	public void selectionChanged(IAction action, ISelection selection) {
 	}
-	
-	/* (non-Javadoc)
-	 * @see etomica.ControllerListener#actionPerformed(etomica.ControllerEvent)
-	 */
-	public void actionPerformed(ControllerEvent event) {
-		if ( event.getType()==ControllerEvent.START )
-		{
-			current_action.setEnabled( false );
-		}
-		else if ( event.getType()==ControllerEvent.NO_MORE_ACTIONS )
-		{
-			current_action.setEnabled( true );
-		}
-		else if ( event.getType()==ControllerEvent.HALTED )
-		{
-			current_action.setEnabled( true );
-		}
-	}
-	
+		
 	/* (non-Javadoc)
 	 * @see etomica.SimulationListener#actionPerformed(etomica.SimulationEvent)
 	 */
