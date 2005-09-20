@@ -165,7 +165,7 @@
                icon="src/etomica/plugin/actions/enabled/run_exc.gif"
                tooltip="Run Simulation"
                style="push"
-               menubarPath="EtomicaMenu/group1"
+               menubarPath="additions/EtomicaMenu/group1"
                id="RunSimulation"/>
          <action
                disabledIcon="src/etomica/plugin/actions/disabled/terminate_co.gif"
@@ -176,7 +176,7 @@
                icon="src/etomica/plugin/actions/enabled/terminate_co.gif"
                tooltip="Terminate simulation"
                style="push"
-               menubarPath="EtomicaMenu/group1"
+               menubarPath="additions/EtomicaMenu/group1"
                id="StopSimulation"/>
          <action
                disabledIcon="src/etomica/plugin/actions/disabled/suspend_co.gif"
@@ -191,7 +191,7 @@
                toolbarPath="additions/Etomica"
                label="Repeat Activities"
                icon="src/etomica/plugin/icons/repeat.gif"
-               class="etomica.editor.actions.RepeatActivitiesActionDelegate"
+               class="etomica.plugin.actions.RepeatActivitiesActionDelegate"
                style="push"
                menubarPath="EtomicaMenu/group1"
                id="RepeatActivities"/>
