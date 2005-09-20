@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="etomica.plugin"
+      label="Etomica Plugin (feature)"
+      version="1.0.0"
+      provider-name="David Kofke"
+      os="linux,macosx,win32"
+      ws="carbon,gtk,win32"
+      nl="en_US"
+      arch="ppc,x86"
+      primary="true"
+      exclusive="true">
+
+   <install-handler/>
+
+   <description>
+      This feature is intended to make the etomica.plugin available
+for download at our website.
+   </description>
+
+   <copyright>
+      Copyright (c) 2005 Henrique Bucher. All rights reserved.
+   </copyright>
+
+   <license>
+      GPL V2 or superior
+   </license>
+
+   <url>
+      <update label="Rheneas update site" url="http://rheneas.eng.buffalo.edu/~hbucher"/>
+      <discovery label="Rheneas discovery site" url="http://rheneas.eng.buffalo.edu/~hbucher/web" type="web"/>
+   </url>
+
+   <requires>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.help"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.jface.text"/>
+      <import plugin="org.eclipse.ui.editors"/>
+      <import plugin="org.eclipse.ui.workbench.texteditor"/>
+      <import plugin="org.eclipse.ui.views"/>
+      <import plugin="etomica.etomica3D"/>
+   </requires>
+
+   <plugin
+         id="etomica.plugin"
+         download-size="0"
+         install-size="0"
+         version="1.0.0"/>
+
+   <data
+         id=".project"
+         download-size="0"
+         install-size="0"/>
+
+   <data
+         id="build.properties"
+         download-size="0"
+         install-size="0"/>
+
+   <data
+         id="feature.xml"
+         download-size="0"
+         install-size="0"/>
+
+</feature>

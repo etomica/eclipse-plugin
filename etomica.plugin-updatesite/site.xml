@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+
+   <description url="http://rheneas.eng.buffalo.edu/~hbucher">
+      Main Etomica plugin update site
+   </description>
+   <feature url="features/etomica.plugin_1.0.0.jar" id="etomica.plugin" version="1.0.0" label="Etomica Plugin" os="linux,macosx,win32" ws="carbon,gtk,win32" nl="en_US" arch="ppc,x86"/>
+</site>

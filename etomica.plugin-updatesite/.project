@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>etomica.plugin-updatesite</name>
+	<comment></comment>
+	<projects>
+		<project>etomica.plugin</project>
+		<project>etomica.plugin-feature</project>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.pde.UpdateSiteBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.pde.UpdateSiteNature</nature>
+	</natures>
+</projectDescription>
