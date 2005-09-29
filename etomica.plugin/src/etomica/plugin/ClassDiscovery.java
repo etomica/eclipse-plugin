@@ -93,6 +93,7 @@ public void searchClassPath() {
 		
 		// Add items from Java class path
 		String cpath = System.getProperty("java.class.path");	      
+		System.out.println( "From Etomica plugin: java.class.path = " + cpath );
 	    StringTokenizer tz = new StringTokenizer(cpath, PATHSEP);
 	    while(tz.hasMoreTokens()) {
 	      		paths.add(tz.nextToken());
@@ -173,6 +174,10 @@ public void searchClassPath() {
         
         if (name.startsWith("etomica.graphics"))
             return;
+        if ( name.startsWith("etomica.etomica3D") )
+        {
+        	System.err.println( "ETOMICA3D:: Class "+name+" found.");
+        }
 		
         if (name.endsWith(".class")) {
 			name = name.substring(0, name.length() - 6);
