@@ -60,6 +60,9 @@ public class PauseSimulationActionDelegate extends BaseSimulationActionDelegate 
 	 */
 	public void run(IAction action) {
 		if(controller == null) return;
-		controller.pause();
+		if ( controller.isPaused() ) 
+			controller.unPause();
+		else
+			controller.pause();
 	}
 }
