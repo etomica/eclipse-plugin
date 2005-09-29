@@ -26,7 +26,7 @@
       <import plugin="org.eclipse.ui.editors"/>
       <import plugin="org.eclipse.ui.workbench.texteditor"/>
       <import plugin="org.eclipse.ui.views"/>
-      <import plugin="etomica.etomica3D"/>
+      <import plugin="etomica.etomica3D" export="false"/>
    </requires>
 
    <extension
@@ -165,7 +165,7 @@
                icon="src/etomica/plugin/actions/enabled/run_exc.gif"
                tooltip="Run Simulation"
                style="push"
-               menubarPath="additions/EtomicaMenu/group1"
+               menubarPath="EtomicaMenu/group1"
                id="RunSimulation"/>
          <action
                disabledIcon="src/etomica/plugin/actions/disabled/terminate_co.gif"
@@ -176,7 +176,7 @@
                icon="src/etomica/plugin/actions/enabled/terminate_co.gif"
                tooltip="Terminate simulation"
                style="push"
-               menubarPath="additions/EtomicaMenu/group1"
+               menubarPath="EtomicaMenu/group1"
                id="StopSimulation"/>
          <action
                disabledIcon="src/etomica/plugin/actions/disabled/suspend_co.gif"
