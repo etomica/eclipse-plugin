@@ -27,6 +27,7 @@ import etomica.plugin.EtomicaPlugin;
 import etomica.plugin.realtimegraphics.OSGWidget;
 import etomica.plugin.views.SimulationViewContentProvider;
 
+
 /**
  * @author Henrique
  *
