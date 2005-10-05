@@ -82,7 +82,7 @@ public class NewEtomicaDocumentPage extends WizardPage {
 		master_layout.type = SWT.VERTICAL;
 		root_container.setLayout( master_layout );
 
-		sds = new SpaceDimensionSelector( root_container, org.eclipse.swt.SWT.EMBEDDED );
+		sds = new SpaceDimensionSelector( root_container, org.eclipse.swt.SWT.NONE );
 		
 		sds.container_name.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
