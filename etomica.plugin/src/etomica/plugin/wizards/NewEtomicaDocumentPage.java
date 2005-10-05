@@ -40,6 +40,8 @@ public class NewEtomicaDocumentPage extends WizardPage {
 	private boolean fileNameModified = false;
 	private boolean createProject = false;
 	private boolean simTypeModified = false;
+	private boolean spaceTypeModified = false;
+	private boolean pMasterTypeModified = false;
 	/**
 	 * Constructor for SampleNewWizardPage.
 	 * @param pageName
@@ -123,6 +125,29 @@ public class NewEtomicaDocumentPage extends WizardPage {
 				
 			}} );
 		
+		sds.space_list.addSelectionListener( new SelectionListener() {
+
+			public void widgetSelected(SelectionEvent e) {
+				spaceTypeModified = true;
+				dialogChanged();
+			}
+
+			public void widgetDefaultSelected(SelectionEvent e) {
+				updateCustomSimulationControls();
+				
+			}} );
+		
+		sds.master_potential_list.addSelectionListener( new SelectionListener() {
+
+			public void widgetSelected(SelectionEvent e) {
+				pMasterTypeModified = true;
+				dialogChanged();
+			}
+
+			public void widgetDefaultSelected(SelectionEvent e) {
+				updateCustomSimulationControls();
+				
+			}} );
 		
 		initialize();
 		dialogChanged();
@@ -222,7 +247,7 @@ public class NewEtomicaDocumentPage extends WizardPage {
 	private void dialogChanged() {
 		if ( containerNameModified && !checkContainerName() ) return;
 		if ( fileNameModified && !checkFileName() ) return;
-		if ( simTypeModified && !checkCustomControls() ) return;
+		if ( (simTypeModified || spaceTypeModified || pMasterTypeModified) && !checkCustomControls() ) return;
 		// Everything went ok, just clean up the error bar
 		updateStatus(null);
 	}
@@ -262,7 +287,7 @@ public class NewEtomicaDocumentPage extends WizardPage {
 		if ( sds.sim_types.getItem(index).compareToIgnoreCase( "Custom...")==0 )
 			custom = true;
 		
-		if ( custom && simTypeModified )
+		if ( custom && (simTypeModified || spaceTypeModified || pMasterTypeModified))
 		{
 			// If there's nothing selected in the space/master potential boxes, signalize with an error
 			if ( sds.space_list.getSelectionIndex()==-1 )
@@ -270,7 +295,7 @@ public class NewEtomicaDocumentPage extends WizardPage {
 				updateStatus( "A space type is required for custom simulations but none selected");
 				return false;
 			}
-			if ( sds.master_potential_list.getSelectionIndex()==-1 );
+			if ( sds.master_potential_list.getSelectionIndex()==-1 )
 			{
 				updateStatus( "A master potential is required for custom simulations but none selected");
 				return false;
