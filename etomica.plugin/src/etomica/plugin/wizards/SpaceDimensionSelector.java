@@ -6,6 +6,7 @@
  */
 package etomica.plugin.wizards;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -65,8 +66,51 @@ public class SpaceDimensionSelector extends Composite {
 			return null;//new Simulation();
 		}
 		// It's a stock one
-		Space space = (Space) spacemap.get( space_list.getText() );
-		PotentialMaster pot = (PotentialMaster) potmap.get( master_potential_list.getText() );
+		Class spaceClass = (Class)spacemap.get(space_list.getText());
+		Space space = null;
+		try {
+			space = (Space)spaceClass.getDeclaredMethod("getInstance",new Class[]{}).invoke(null,new Object[]{});
+		}
+		catch (IllegalAccessException e) {
+			System.err.println( "Illegal access while creating Space class: " + e.getMessage() );
+			e.printStackTrace();
+			return null;
+		}
+		catch (NoSuchMethodException e) {
+			System.err.println( "No such method exception while creating Space class: " + e.getMessage() );
+			e.printStackTrace();
+			return null;
+		}
+		catch (InvocationTargetException e) {
+			System.err.println( "Invocation exception while creating Space class: " + e.getMessage() );
+			e.printStackTrace();
+			return null;
+		}
+		Class potClass = (Class) potmap.get( master_potential_list.getText() );
+        PotentialMaster pot = null;
+        try {
+            pot = (PotentialMaster)potClass.getConstructor(new Class[]{Space.class}).newInstance(new Space[]{space});
+        }
+        catch (IllegalAccessException e) {
+            System.err.println( "Illegal access while creating PotentialMaster class: " + e.getMessage() );
+            e.printStackTrace();
+            return null;
+        }
+        catch (NoSuchMethodException e) {
+            System.err.println( "No such method exception while creating PotentialMaster class: " + e.getMessage() );
+            e.printStackTrace();
+            return null;
+        }
+        catch (InstantiationException e) {
+            System.err.println( "Instantiation exception while creating PotentialMaster class: " + e.getMessage() );
+            e.printStackTrace();
+            return null;
+        }
+        catch (InvocationTargetException e) {
+            System.err.println( "Invocation exception while creating space class: " + e.getMessage() );
+            e.printStackTrace();
+            return null;
+        }
 		return new Simulation( space, true, pot );
 	}
 	
