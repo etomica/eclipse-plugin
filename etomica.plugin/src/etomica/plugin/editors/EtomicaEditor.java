@@ -33,12 +33,11 @@ import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
 
-import etomica.atom.Atom;
 import etomica.action.activity.Controller;
+import etomica.atom.Atom;
 import etomica.phase.Phase;
-import etomica.simulation.Simulation;
-import etomica.atom.AtomList;
 import etomica.plugin.views.PropertySourceWrapper;
+import etomica.simulation.Simulation;
 import etomica.simulation.prototypes.HSMD3D;
 import etomica.util.EtomicaObjectInputStream;
 
@@ -64,7 +63,7 @@ public class EtomicaEditor extends EditorPart {
 		
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IFile file = workspace.getRoot().getFile(path);
-		final IEditorInput newInput = new FileEditorInput(file);
+		new FileEditorInput(file);
 
 		if (progressMonitor != null)
 			progressMonitor.setCanceled( false );
@@ -121,7 +120,7 @@ public class EtomicaEditor extends EditorPart {
 		path = filePath;
 		
 		// Create a progress dialog
-		ProgressMonitorDialog progress = new ProgressMonitorDialog( shell );
+		new ProgressMonitorDialog( shell );
 			
 		// Fire a thread to load our stuff
 		try {
@@ -152,7 +151,7 @@ public class EtomicaEditor extends EditorPart {
 		  fis = new FileInputStream(filename);
 		  in = new EtomicaObjectInputStream(fis);
 		  simulation = (etomica.simulation.Simulation) in.readObject();
-		  AtomList.rebuildAllLists( in );
+          in.finalizeRead();
 		  in.close();
 
 		  // While we do not implement serialization for the controller...
@@ -195,7 +194,6 @@ public class EtomicaEditor extends EditorPart {
 		if (original == null)
 			return;
 
-		String filename = original.getFullPath().toOSString();
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IWorkspaceRoot root = workspace.getRoot();
 		IResource resource = root.findMember(original.getFullPath());
