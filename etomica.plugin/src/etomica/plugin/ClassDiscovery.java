@@ -208,6 +208,9 @@ public void searchClassPath() {
 					+ e.getLocalizedMessage());
 			return;
 		}
+		if ((thisclass.getModifiers() & java.lang.reflect.Modifier.ABSTRACT) != 0) {
+			return;
+		}
 
 		// Test it against all other classes
 		Iterator ikey = map.keySet().iterator();
@@ -216,10 +219,6 @@ public void searchClassPath() {
 			Class baseclass = (Class) ikey.next();
 
 			if (baseclass.isAssignableFrom(thisclass)) {
-				if (baseclass.equals(thisclass)) {
-					//System.out.println("...disconsidering "+ thisclass.getName() + " as an implementation of "+ baseclass.getName()+ " because they are the same");
-					continue;
-				}
 				/*
 				 * else if ( !thisclass.isInterface() ) { System.out.println(
 				 * "...disconsidering " + thisclass.getName() + " as an
