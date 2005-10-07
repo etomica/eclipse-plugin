@@ -32,9 +32,9 @@ public class SimulationViewContentProvider implements ITreeContentProvider, Simu
 	public Object[] getChildren(Object wrappedElement) {
 		Object parentElement = ((PropertySourceWrapper)wrappedElement).getObject();
         if(parentElement instanceof ActivityGroupParallel) {
-            return PropertySourceWrapper.wrapArrayElements(((ActivityGroupParallel)parentElement).getActions());
+            return PropertySourceWrapper.wrapArrayElements(((ActivityGroupParallel)parentElement).getAllActions());
         } else if(parentElement instanceof ActivityGroupSeries) {//temporary
-                return PropertySourceWrapper.wrapArrayElements(((ActivityGroupSeries)parentElement).pendingActions());
+                return PropertySourceWrapper.wrapArrayElements(((ActivityGroupSeries)parentElement).getPendingActions());
 		} else if(parentElement instanceof Simulation) {
 			Simulation sim = (Simulation)parentElement;
 			if ( sim.getController()!=null )
@@ -72,9 +72,9 @@ public class SimulationViewContentProvider implements ITreeContentProvider, Simu
 	public boolean hasChildren(Object wrappedElement) {
 		Object element = ((PropertySourceWrapper)wrappedElement).getObject();
         if(element instanceof ActivityGroupParallel) {
-            return ((ActivityGroupParallel)element).getActions().length > 0;
+            return ((ActivityGroupParallel)element).getAllActions().length > 0;
         } else if(element instanceof ActivityGroupSeries) {
-            return ((ActivityGroupSeries)element).pendingActions().length > 0;
+            return ((ActivityGroupSeries)element).getPendingActions().length > 0;
 		} else if(element instanceof Simulation) {
 			return true;
 		} else return false;
