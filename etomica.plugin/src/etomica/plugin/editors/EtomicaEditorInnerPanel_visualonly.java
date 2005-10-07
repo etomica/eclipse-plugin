@@ -6,6 +6,7 @@
  */
 package etomica.plugin.editors;
 
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
@@ -37,7 +38,8 @@ public class EtomicaEditorInnerPanel_visualonly extends Composite {
 	private Label label = null;
 	private Composite composite1 = null;
 	private Label label1 = null;
-	public Tree objectList = null;
+	public Tree objectTree = null;
+    public Tree actionsTree = null;
 	private Composite composite3 = null;
 	private Composite composite4 = null;
 	private List list1 = null;
@@ -60,7 +62,7 @@ public class EtomicaEditorInnerPanel_visualonly extends Composite {
 	/**
 	 * This method initializes tabFolder	
 	 *
-	 */    
+	 */
 	private void createTabFolder() {
 		tabFolder = new TabFolder(this, SWT.NONE);		   
 		createComposite3();
@@ -70,20 +72,20 @@ public class EtomicaEditorInnerPanel_visualonly extends Composite {
 		TabItem tabItem2 = new TabItem(tabFolder, SWT.NONE);
 		createComposite2();
 		TabItem tabItem3 = new TabItem(tabFolder, SWT.NONE);
-		TabItem tabItem4 = new TabItem(tabFolder, SWT.NONE);
+		TabItem actionsTab = new TabItem(tabFolder, SWT.NONE);
 		tabItem2.setControl(compositeSpecies);
 		tabItem2.setText("Species");
 		tabItem2.setImage(new Image(Display.getCurrent(), getClass().getResourceAsStream("/etomica/plugin/icons/types.gif")));
 		tabItem3.setControl(compositePhases);
 		tabItem3.setText("Phases");
 		tabItem3.setImage(new Image(Display.getCurrent(), getClass().getResourceAsStream("/etomica/plugin/icons/type.gif")));
-		tabItem4.setControl(compositeActions);
-		tabItem4.setText("Activities");
-		tabItem4.setImage(new Image(Display.getCurrent(), getClass().getResourceAsStream("/etomica/plugin/icons/simulations.gif")));
+		actionsTab.setControl(compositeActions);
+		actionsTab.setText("Activities");
+		actionsTab.setImage(new Image(Display.getCurrent(), getClass().getResourceAsStream("/etomica/plugin/icons/simulations.gif")));
 		tabItem6.setControl(compositeConfiguration);
 			tabItem6.setText("Summary");
 		tabItem6.setImage(new Image(Display.getCurrent(), getClass().getResourceAsStream("/etomica/plugin/icons/watch_exp.gif")));
-}
+	}
 	/**
 	 * This method initializes composite	
 	 *
@@ -99,7 +101,7 @@ public class EtomicaEditorInnerPanel_visualonly extends Composite {
 	/**
 	 * This method initializes composite1	
 	 *
-	 */    
+	 */
 	private void createComposite1() {
 		GridLayout gridLayout11 = new GridLayout();
 		compositePhases = new Composite(tabFolder, SWT.NONE);		   
@@ -113,8 +115,22 @@ public class EtomicaEditorInnerPanel_visualonly extends Composite {
 	 *
 	 */    
 	private void createComposite2() {
-		compositeActions = new Composite(tabFolder, SWT.NONE);		   
-	}
+        GridData gridData10 = new org.eclipse.swt.layout.GridData();
+        GridData gridData6 = new org.eclipse.swt.layout.GridData();
+		compositeActions = new Composite(tabFolder, SWT.NONE);
+        Label actionsLabel = new Label(composite1, SWT.NONE);
+        createActionsTree();
+        compositeActions.setLayoutData(gridData6);
+        compositeActions.setLayout(new GridLayout());
+        gridData6.horizontalAlignment = org.eclipse.swt.layout.GridData.FILL;
+        gridData6.verticalAlignment = org.eclipse.swt.layout.GridData.FILL;
+        gridData6.grabExcessHorizontalSpace = true;
+        gridData6.grabExcessVerticalSpace = true;
+        actionsLabel.setText("All Objects in the simulation");
+        actionsLabel.setLayoutData(gridData10);
+        gridData10.horizontalAlignment = org.eclipse.swt.layout.GridData.FILL;
+        gridData10.verticalAlignment = org.eclipse.swt.layout.GridData.CENTER;
+    }
 	
 	/**
 	 * This method initializes composite	
@@ -183,16 +199,29 @@ public class EtomicaEditorInnerPanel_visualonly extends Composite {
 	/**
 	 * This method initializes tree	
 	 *
-	 */    
+	 */
 	private void createTree() {
 		GridData gridData2 = new org.eclipse.swt.layout.GridData();
-		objectList = new Tree(composite1, SWT.BORDER);		   
+		objectTree = new Tree(composite1, SWT.BORDER);		   
 		gridData2.horizontalAlignment = org.eclipse.swt.layout.GridData.FILL;
 		gridData2.verticalAlignment = org.eclipse.swt.layout.GridData.FILL;
 		gridData2.grabExcessVerticalSpace = true;
 		gridData2.grabExcessHorizontalSpace = true;
-		objectList.setLayoutData(gridData2);
+		objectTree.setLayoutData(gridData2);
 	}
+    /**
+     * This method initializes tree 
+     *
+     */
+    private void createActionsTree() {
+        GridData gridData2 = new org.eclipse.swt.layout.GridData();
+        actionsTree = new Tree(compositeActions, SWT.BORDER);         
+        gridData2.horizontalAlignment = org.eclipse.swt.layout.GridData.FILL;
+        gridData2.verticalAlignment = org.eclipse.swt.layout.GridData.FILL;
+        gridData2.grabExcessVerticalSpace = true;
+        gridData2.grabExcessHorizontalSpace = true;
+        actionsTree.setLayoutData(gridData2);
+    }
 	/**
 	 * This method initializes composite3	
 	 *

@@ -41,6 +41,7 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
 	private OSGWidget osgwidget;
 	private boolean render_initialized = false;
 	private TreeViewer viewer;
+    private TreeViewer actionsViewer;
 
 
 	public class SceneUpdater implements Runnable {
@@ -110,15 +111,19 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
 		updater.setFPS( 20 );
 		updater.run();
 		
-		viewer = new TreeViewer( objectList  );
+		viewer = new TreeViewer( objectTree  );
 		viewer.setContentProvider(new SimulationViewContentProvider());
         viewer.setLabelProvider(new LabelProvider());
 	
+        actionsViewer = new TreeViewer( actionsTree );
+        actionsViewer.setContentProvider(new ActionsViewContentProvider());
+        actionsViewer.setLabelProvider(new LabelProvider());
 	}
 
 	public void setSimulation( Simulation simulation )
 	{
 		viewer.setInput( simulation );
+        actionsViewer.setInput(simulation.getController());
 	}
 	
 	static {
