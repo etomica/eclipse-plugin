@@ -15,17 +15,18 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Composite;
 
-import etomica.etomica3D.*;
 import etomica.atom.Atom;
-import etomica.phase.Phase;
-import etomica.simulation.Simulation;
+import etomica.etomica3D.OrientedObject;
 import etomica.graphics2.SceneManager;
+import etomica.phase.Phase;
 import etomica.plugin.EtomicaPlugin;
 import etomica.plugin.realtimegraphics.OSGWidget;
 import etomica.plugin.views.SimulationViewContentProvider;
+import etomica.simulation.Simulation;
 
 
 /**
@@ -42,6 +43,7 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
 	private boolean render_initialized = false;
 	private TreeViewer viewer;
     private TreeViewer actionsViewer;
+    private ListViewer speciesViewer;
 
 
 	public class SceneUpdater implements Runnable {
@@ -118,12 +120,17 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
         actionsViewer = new TreeViewer( actionsTree );
         actionsViewer.setContentProvider(new ActionsViewContentProvider());
         actionsViewer.setLabelProvider(new LabelProvider());
+        
+        speciesViewer = new ListViewer(speciesList);
+        speciesViewer.setContentProvider(new SpeciesContentProvider());
+        speciesViewer.setLabelProvider(new LabelProvider());
 	}
 
 	public void setSimulation( Simulation simulation )
 	{
 		viewer.setInput( simulation );
         actionsViewer.setInput(simulation.getController());
+        speciesViewer.setInput(simulation.speciesRoot);
 	}
 	
 	static {

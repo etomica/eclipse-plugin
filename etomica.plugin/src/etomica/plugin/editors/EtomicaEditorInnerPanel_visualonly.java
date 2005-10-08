@@ -34,7 +34,7 @@ public class EtomicaEditorInnerPanel_visualonly extends Composite {
 	private Composite compositeConfiguration = null;
 	private Group group3 = null;
 	private Composite composite = null;
-	private List list = null;
+	public List speciesList = null;
 	private Label label = null;
 	private Composite composite1 = null;
 	private Label label1 = null;
@@ -69,13 +69,13 @@ public class EtomicaEditorInnerPanel_visualonly extends Composite {
 		createComposite();
 		createComposite1();
 		TabItem tabItem6 = new TabItem(tabFolder, SWT.NONE);
-		TabItem tabItem2 = new TabItem(tabFolder, SWT.NONE);
+		TabItem speciesTab = new TabItem(tabFolder, SWT.NONE);
 		createComposite2();
 		TabItem tabItem3 = new TabItem(tabFolder, SWT.NONE);
 		TabItem actionsTab = new TabItem(tabFolder, SWT.NONE);
-		tabItem2.setControl(compositeSpecies);
-		tabItem2.setText("Species");
-		tabItem2.setImage(new Image(Display.getCurrent(), getClass().getResourceAsStream("/etomica/plugin/icons/types.gif")));
+		speciesTab.setControl(compositeSpecies);
+		speciesTab.setText("Species");
+		speciesTab.setImage(new Image(Display.getCurrent(), getClass().getResourceAsStream("/etomica/plugin/icons/types.gif")));
 		tabItem3.setControl(compositePhases);
 		tabItem3.setText("Phases");
 		tabItem3.setImage(new Image(Display.getCurrent(), getClass().getResourceAsStream("/etomica/plugin/icons/type.gif")));
@@ -166,7 +166,7 @@ public class EtomicaEditorInnerPanel_visualonly extends Composite {
 		FillLayout fillLayout10 = new FillLayout();
 		composite = new Composite(compositeSpecies, SWT.NONE);		   
 		label = new Label(composite, SWT.NONE);
-		list = new List(composite, SWT.NONE);
+		speciesList = new List(composite, SWT.NONE);
 		composite.setLayout(fillLayout10);
 		composite.setLayoutData(gridData11);
 		fillLayout10.type = org.eclipse.swt.SWT.VERTICAL;
