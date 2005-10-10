@@ -38,7 +38,6 @@ public class NewEtomicaDocumentPage extends WizardPage {
 	//   did not input anything yet
 	private boolean containerNameModified = false;
 	private boolean fileNameModified = false;
-	private boolean createProject = false;
 	private boolean simTypeModified = false;
 	private boolean spaceTypeModified = false;
 	private boolean pMasterTypeModified = false;
@@ -46,14 +45,10 @@ public class NewEtomicaDocumentPage extends WizardPage {
 	 * Constructor for SampleNewWizardPage.
 	 * @param pageName
 	 */
-	public NewEtomicaDocumentPage(ISelection selection, boolean new_project ) {
+	public NewEtomicaDocumentPage(ISelection selection) {
 		super("wizardPage");
-		createProject = new_project;
 		setTitle("Etomica New File Wizard");
-		if ( createProject )
-			setDescription("This wizard creates a new Etomica project.");
-		else
-			setDescription("This wizard creates a new Etomica document.");
+		setDescription("This wizard creates a new Etomica document.");
 		this.selection = selection;
 	}
 
@@ -103,14 +98,6 @@ public class NewEtomicaDocumentPage extends WizardPage {
 				dialogChanged();
 			}
 		});
-		
-		if ( createProject )
-		{
-			// If creating a project, dissable the browse button so the user has to input the name manually
-			sds.browse_button.setEnabled( false );
-			// Modify the create-project label to enforce that the user has to type in
-			sds.project_selection_label.setText( "Enter project name:" );
-		}
 		
 		sds.sim_types.addSelectionListener( new SelectionListener() {
 
@@ -266,11 +253,7 @@ public class NewEtomicaDocumentPage extends WizardPage {
 		if ( resource==null || !resource.exists() || !(resource instanceof IContainer)) 
 			container_exists = false;
 		
-		if ( createProject && container_exists ){
-			updateStatus("File container already exists");
-			return false;
-		}
-		else if ( !createProject && !container_exists ) {
+		if ( !container_exists ) {
 			updateStatus("File container does not exist");
 			return false;
 		}

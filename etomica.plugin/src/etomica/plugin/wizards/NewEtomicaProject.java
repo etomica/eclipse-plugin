@@ -1,10 +1,5 @@
 package etomica.plugin.wizards;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IProject;
@@ -13,8 +8,6 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
@@ -23,8 +16,6 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWizard;
-
-import etomica.simulation.Simulation;
 
 /**
  * This is a sample new wizard. Its role is to create a new file 
@@ -38,7 +29,7 @@ import etomica.simulation.Simulation;
  */
 
 public class NewEtomicaProject extends Wizard implements INewWizard {
-	private NewEtomicaDocumentPage page;
+	private NewEtomicaProjectPage page;
 	private ISelection selection;
 
 	/**
@@ -53,7 +44,7 @@ public class NewEtomicaProject extends Wizard implements INewWizard {
 	 * Adding the page to the wizard.
 	 */
 	public void addPages() {
-		page = new NewEtomicaDocumentPage(selection,true);
+		page = new NewEtomicaProjectPage(selection);
 		addPage(page);
 	}
 
@@ -64,23 +55,14 @@ public class NewEtomicaProject extends Wizard implements INewWizard {
 	 */
 	public boolean performFinish() {
 		
-	  	// Create simulation based on user's choices
-	  	Simulation sim = page.createSimulation();
-	  	if ( sim==null )
-			return false;
-	  	
-	  	// copy simulation to local variable
-  		newsim = sim;
-
 //  	 Get container options
 		final String containerName = page.getContainerName();
-		final String fileName = page.getFileName();
 
   		// Run the creation
 	  	IRunnableWithProgress op = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
 				try {
-					doFinish( containerName, fileName, monitor);
+					doFinish( containerName, monitor);
 				} catch (CoreException e) {
 					throw new InvocationTargetException(e);
 				} finally {
@@ -107,7 +89,7 @@ public class NewEtomicaProject extends Wizard implements INewWizard {
 	 * the editor on the newly created file.
 	 */
 
-	private void doFinish( String containerName, String fileName, IProgressMonitor monitor)
+	private void doFinish( String containerName, IProgressMonitor monitor)
 		throws CoreException {
 			
 			
@@ -153,35 +135,6 @@ public class NewEtomicaProject extends Wizard implements INewWizard {
 	}
 	
 	/**
-	 * We will initialize file contents with a sample text.
-	 */
-
-	private InputStream openContentStream() 
-	{
-		
-		ByteArrayOutputStream fos = new ByteArrayOutputStream();
-		ObjectOutputStream out = null;
-		try
-		{
-		  	out = new ObjectOutputStream(fos);
-		  	out.writeObject( newsim );
-		  	out.close();
-		}
-		catch(IOException ex)
-		{
-			ex.printStackTrace();
-		}
-
-		return new ByteArrayInputStream( fos.toByteArray() );
-	}
-
-	private void throwCoreException(String message) throws CoreException {
-		IStatus status =
-			new Status(IStatus.ERROR, "etomica.plugin", IStatus.OK, message, null);
-		throw new CoreException(status);
-	}
-
-	/**
 	 * We will accept the selection in the workbench to see if
 	 * we can initialize from it.
 	 * @see IWorkbenchWizard#init(IWorkbench, IStructuredSelection)
@@ -189,62 +142,4 @@ public class NewEtomicaProject extends Wizard implements INewWizard {
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		this.selection = selection;
 	}
-	/*
-	protected void createProject(IProgressMonitor monitor)
-	{
-	   monitor.beginTask( "Creating project...",50);
-	   try
-	   {
-	      IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-	      monitor.subTask("Creating directories...");
-	      IProject project = root.getProject( page.getProjectName());
-	      IProjectDescription description = ResourcesPlugin.getWorkspace().newProjectDescription(project.getName());
-	      if(!Platform.getLocation().equals(page.getLocationPath()))
-	         description.setLocation(page.getLocationPath());
-	      description.setNatureIds(new String[] { PluginConstants.NATURE_ID });
-	      ICommand command = description.newCommand();
-	      command.setBuilderName(PluginConstants.BUILDER_ID);
-	      description.setBuildSpec(new ICommand[] { command });
-	      project.create(description,monitor);
-	      monitor.worked(10);
-	      
-	      project.open(monitor);
-	      project.setPersistentProperty(PluginConstants.SOURCE_PROPERTY_NAME,"src");
-	      project.setPersistentProperty(PluginConstants.RULES_PROPERTY_NAME,"rules");
-	      project.setPersistentProperty(PluginConstants.PUBLISH_PROPERTY_NAME,"publish");
-	      project.setPersistentProperty(PluginConstants.BUILD_PROPERTY_NAME,"false");
-	      monitor.worked(10);
-	      IPath projectPath = project.getFullPath(),
-	            srcPath = projectPath.append("src"),
-	            rulesPath = projectPath.append("rules"),
-	            publishPath = projectPath.append("publish");
-	      IFolder srcFolder = root.getFolder(srcPath),
-	              rulesFolder = root.getFolder(rulesPath),
-	              publishFolder = root.getFolder(publishPath);
-	      createFolderHelper(srcFolder,monitor);
-	      createFolderHelper(rulesFolder,monitor);
-	      createFolderHelper(publishFolder,monitor);
-	      monitor.worked(10);
-	      monitor.subTask(Resources.getString("eclipse.creatingfiles"));
-	      IPath indexPath = srcPath.append("index.xml"),
-	            defaultPath = rulesPath.append("default.xsl");
-	      IFile indexFile = root.getFile(indexPath),
-	            defaultFile = root.getFile(defaultPath);
-	      Class clasz = getClass();
-	      InputStream indexIS = clasz.getResourceAsStream("/org/ananas/xm/eclipse/resources/index.xml"),
-	          defaultIS = clasz.getResourceAsStream("/org/ananas/xm/eclipse/resources/default.xsl");
-	      indexFile.create(indexIS,false,new SubProgressMonitor(monitor,10));
-	      defaultFile.create(defaultIS,false,new SubProgressMonitor(monitor,10));
-	   }
-	   catch(CoreException x)
-	   {
-	      reportError(x);
-	   }
-	   finally
-	   {
-	      monitor.done();
-	   }
-	}
-	*/
-	private Simulation newsim = null;
 }
