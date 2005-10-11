@@ -16,7 +16,7 @@ import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesRoot;
 import etomica.integrator.Integrator;
 import etomica.phase.Phase;
-import etomica.plugin.views.PropertySourceWrapper;
+import etomica.plugin.wrappers.PropertySourceWrapper;
 import etomica.simulation.Simulation;
 import etomica.simulation.SimulationEvent;
 import etomica.simulation.SimulationListener;

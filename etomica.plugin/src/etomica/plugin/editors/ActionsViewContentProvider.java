@@ -5,17 +5,10 @@
 package etomica.plugin.editors;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
-import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 
 import etomica.action.Action;
 import etomica.action.ActionGroup;
-import etomica.atom.Atom;
-import etomica.atom.AtomTreeNodeGroup;
-import etomica.atom.SpeciesAgent;
-import etomica.phase.Phase;
-import etomica.plugin.views.PropertySourceWrapper;
-import etomica.simulation.Simulation;
 
 /**
  * @author kofke

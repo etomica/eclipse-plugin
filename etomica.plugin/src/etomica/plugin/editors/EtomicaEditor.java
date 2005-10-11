@@ -7,7 +7,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
-import java.util.LinkedList;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -33,10 +32,9 @@ import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
 
-import etomica.action.activity.Controller;
 import etomica.atom.Atom;
 import etomica.phase.Phase;
-import etomica.plugin.views.PropertySourceWrapper;
+import etomica.plugin.wrappers.PropertySourceWrapper;
 import etomica.simulation.Simulation;
 import etomica.simulation.prototypes.HSMD3D;
 import etomica.util.EtomicaObjectInputStream;
@@ -142,28 +140,25 @@ public class EtomicaEditor extends EditorPart {
 
 	
 	
-	void readFromFile( String filename )
-	{
-		FileInputStream fis = null;
-		EtomicaObjectInputStream in = null;
-		try
-		{
-		  fis = new FileInputStream(filename);
-		  in = new EtomicaObjectInputStream(fis);
-		  simulation = (etomica.simulation.Simulation) in.readObject();
-          in.finalizeRead();
-		  in.close();
-
-		  // While we do not implement serialization for the controller...
-		  if ( simulation.getController()==null )
-		  	simulation.setController( new Controller() );
-		}
+    void readFromFile( String filename ) {
+        FileInputStream fis = null;
+        EtomicaObjectInputStream in = null;
+        try
+        {
+            fis = new FileInputStream(filename);
+            in = new EtomicaObjectInputStream(fis);
+            simulation = (etomica.simulation.Simulation) in.readObject();
+            in.finalizeRead();
+            in.close();
+            simulation.clearDataStreams();
+            new DataStreamRegister(simulation).registerDataStreams(simulation);
+        }
 		catch( Exception ex ) {
 			System.err.println( "Could not read simulation from file " + filename + ". Cause: " + ex.getLocalizedMessage() );
 			simulation = new Simulation();
 		}
 	}
-	
+    
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.ISaveablePart#isDirty()
 	 */
@@ -239,7 +234,7 @@ public class EtomicaEditor extends EditorPart {
 			Simulation sim = (Simulation)obj;
 			Phase phase = (Phase)lastPhase.get(sim);//get phase last viewed with selected simulation
 			if(phase == null) {
-				phase = (Phase)sim.getPhaseList().get(0);
+				phase = (Phase)sim.getPhases()[0];
 				if(phase != null) lastPhase.put(sim, phase);
 			}
 			inner_panel.setPhase(phase);	
@@ -250,7 +245,7 @@ public class EtomicaEditor extends EditorPart {
 			selectionSource = part;
 			Object[] objects = sel.toArray();
 			for(int i=0; i<nAtom; i++) {
-				selectedAtoms[i] = (Atom)((etomica.plugin.views.PropertySourceWrapper)objects[i]).getObject();
+				selectedAtoms[i] = (Atom)((etomica.plugin.wrappers.PropertySourceWrapper)objects[i]).getObject();
 			}
 			inner_panel.setSelectedAtoms(selectedAtoms);
 		}
@@ -263,14 +258,12 @@ public class EtomicaEditor extends EditorPart {
 			return;
 		Phase newphase = null;
 		try {
-			if ( n>=0 && n<simulation.getPhaseList().size() )
-			{
-				LinkedList phaselist = simulation.getPhaseList();
-				if ( n<=phaselist.size() )
-					newphase = (Phase)phaselist.get(n);
-			}	
-			
-			
+			if ( n>=0) {
+                Phase[] phases = simulation.getPhases();
+                if (n<phases.length) {
+                    newphase = phases[n];
+                }
+			}
 		}
 		catch ( Exception e ) {
 			System.err.println( "(Etomica) Could not retrieve phase #" + n + ", reason: " + e.getLocalizedMessage() );

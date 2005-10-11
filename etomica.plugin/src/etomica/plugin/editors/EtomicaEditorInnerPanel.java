@@ -26,6 +26,7 @@ import etomica.phase.Phase;
 import etomica.plugin.EtomicaPlugin;
 import etomica.plugin.realtimegraphics.OSGWidget;
 import etomica.plugin.views.SimulationViewContentProvider;
+import etomica.plugin.wrappers.SimulationWrapper;
 import etomica.simulation.Simulation;
 
 
@@ -128,7 +129,7 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
 
 	public void setSimulation( Simulation simulation )
 	{
-		viewer.setInput( simulation );
+		viewer.setInput( new SimulationWrapper(simulation) );
         actionsViewer.setInput(simulation.getController());
         speciesViewer.setInput(simulation.speciesRoot);
 	}
