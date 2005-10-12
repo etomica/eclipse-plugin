@@ -25,7 +25,6 @@ import etomica.action.ActionGroup;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.data.DataPipeForked;
 import etomica.data.DataProcessor;
-import etomica.data.DataStuff;
 import etomica.phase.Phase;
 import etomica.plugin.views.CheckboxPropertyDescriptor;
 import etomica.plugin.views.DecimalPropertyDescriptor;
@@ -33,6 +32,7 @@ import etomica.plugin.views.EnumeratedTypePropertyDescriptor;
 import etomica.plugin.views.IntegerPropertyDescriptor;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
+import etomica.simulation.DataStreamHeader;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.util.EnumeratedType;
@@ -74,8 +74,8 @@ public class PropertySourceWrapper implements IPropertySource {
         else if (obj instanceof ActivityIntegrate) {
             return new ActivityIntegrateWrapper((ActivityIntegrate)obj);
         }
-        else if (obj instanceof DataStuff) {
-            return new DataStreamWrapper((DataStuff)obj);
+        else if (obj instanceof DataStreamHeader) {
+            return new DataStreamWrapper((DataStreamHeader)obj);
         }
         else if (obj instanceof DataPipeForked) {
             return new DataForkWrapper((DataPipeForked)obj);

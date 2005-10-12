@@ -1,7 +1,7 @@
 package etomica.plugin.wrappers;
 
-import etomica.data.DataStuff;
 import etomica.phase.Phase;
+import etomica.simulation.DataStreamHeader;
 import etomica.simulation.Simulation;
 import etomica.species.Species;
 
@@ -15,7 +15,7 @@ public class SimulationWrapper extends PropertySourceWrapper {
         Simulation sim = (Simulation)object;
         Phase[] phases = sim.getPhases();
         Species[] species = sim.getSpecies();
-        DataStuff[] streams = sim.getDataStreams();
+        DataStreamHeader[] streams = sim.getDataStreams();
         PropertySourceWrapper[] elements = new PropertySourceWrapper[2+phases.length+species.length+streams.length];
         int i=0;
         elements[i++] = PropertySourceWrapper.makeWrapper(sim.getController());
