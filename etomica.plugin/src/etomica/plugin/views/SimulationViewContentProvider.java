@@ -8,11 +8,9 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 
-import etomica.simulation.Simulation;
+import etomica.plugin.wrappers.PropertySourceWrapper;
 import etomica.simulation.SimulationEvent;
 import etomica.simulation.SimulationListener;
-import etomica.action.activity.ActivityGroupParallel;
-import etomica.action.activity.ActivityGroupSeries;
 
 /**
  * TODO To change the template for this generated type comment go to
@@ -30,17 +28,18 @@ public class SimulationViewContentProvider implements ITreeContentProvider, Simu
 	 * ActivityGroups are parents of actions/activities
 	 */
 	public Object[] getChildren(Object wrappedElement) {
-		Object parentElement = ((PropertySourceWrapper)wrappedElement).getObject();
-        if(parentElement instanceof ActivityGroupParallel) {
-            return PropertySourceWrapper.wrapArrayElements(((ActivityGroupParallel)parentElement).getAllActions());
-        } else if(parentElement instanceof ActivityGroupSeries) {//temporary
-                return PropertySourceWrapper.wrapArrayElements(((ActivityGroupSeries)parentElement).getPendingActions());
-		} else if(parentElement instanceof Simulation) {
-			Simulation sim = (Simulation)parentElement;
-			if ( sim.getController()!=null )
-				return PropertySourceWrapper.wrapArrayElements(new Object[] {sim.getController()});
-		}
-		return new PropertySourceWrapper[0];
+        return ((PropertySourceWrapper)wrappedElement).getChildren();
+//		Object parentElement = ((PropertySourceWrapper)wrappedElement).getObject();
+//        if(parentElement instanceof ActivityGroupParallel) {
+//            return PropertySourceWrapper.wrapArrayElements(((ActivityGroupParallel)parentElement).getAllActions());
+//        } else if(parentElement instanceof ActivityGroupSeries) {//temporary
+//                return PropertySourceWrapper.wrapArrayElements(((ActivityGroupSeries)parentElement).getPendingActions());
+//		} else if(parentElement instanceof Simulation) {
+//			Simulation sim = (Simulation)parentElement;
+//			if ( sim.getController()!=null )
+//				return PropertySourceWrapper.wrapArrayElements(new Object[] {sim.getController()});
+//		}
+//		return new PropertySourceWrapper[0];
 	}
     
     /**
@@ -50,11 +49,12 @@ public class SimulationViewContentProvider implements ITreeContentProvider, Simu
     //the call to viewer.setInput in createPartControl causes the list of
     //simulation instances to be the input element in this method
     public Object[] getElements(Object inputElement) {
-        Simulation sim = (Simulation) inputElement;
-        //LinkedList ll = new LinkedList();
-        Simulation[] simlist = new Simulation[] { sim };
-        PropertySourceWrapper[] wrappedElements = PropertySourceWrapper.wrapArrayElements( simlist );
-        return wrappedElements; 
+        return ((PropertySourceWrapper)inputElement).getChildren();
+//        Simulation sim = (Simulation) inputElement;
+//        //LinkedList ll = new LinkedList();
+//        Simulation[] simlist = new Simulation[] { sim };
+//        PropertySourceWrapper[] wrappedElements = PropertySourceWrapper.wrapArrayElements( simlist );
+//        return wrappedElements; 
     }
 
 
@@ -70,14 +70,7 @@ public class SimulationViewContentProvider implements ITreeContentProvider, Simu
 	 * @see org.eclipse.jface.viewers.ITreeContentProvider#hasChildren(java.lang.Object)
 	 */
 	public boolean hasChildren(Object wrappedElement) {
-		Object element = ((PropertySourceWrapper)wrappedElement).getObject();
-        if(element instanceof ActivityGroupParallel) {
-            return ((ActivityGroupParallel)element).getAllActions().length > 0;
-        } else if(element instanceof ActivityGroupSeries) {
-            return ((ActivityGroupSeries)element).getPendingActions().length > 0;
-		} else if(element instanceof Simulation) {
-			return true;
-		} else return false;
+        return ((PropertySourceWrapper)wrappedElement).getChildren().length > 0;
 	}
 	
 
