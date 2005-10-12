@@ -29,17 +29,6 @@ public class SimulationViewContentProvider implements ITreeContentProvider, Simu
 	 */
 	public Object[] getChildren(Object wrappedElement) {
         return ((PropertySourceWrapper)wrappedElement).getChildren();
-//		Object parentElement = ((PropertySourceWrapper)wrappedElement).getObject();
-//        if(parentElement instanceof ActivityGroupParallel) {
-//            return PropertySourceWrapper.wrapArrayElements(((ActivityGroupParallel)parentElement).getAllActions());
-//        } else if(parentElement instanceof ActivityGroupSeries) {//temporary
-//                return PropertySourceWrapper.wrapArrayElements(((ActivityGroupSeries)parentElement).getPendingActions());
-//		} else if(parentElement instanceof Simulation) {
-//			Simulation sim = (Simulation)parentElement;
-//			if ( sim.getController()!=null )
-//				return PropertySourceWrapper.wrapArrayElements(new Object[] {sim.getController()});
-//		}
-//		return new PropertySourceWrapper[0];
 	}
     
     /**
@@ -50,11 +39,6 @@ public class SimulationViewContentProvider implements ITreeContentProvider, Simu
     //simulation instances to be the input element in this method
     public Object[] getElements(Object inputElement) {
         return ((PropertySourceWrapper)inputElement).getChildren();
-//        Simulation sim = (Simulation) inputElement;
-//        //LinkedList ll = new LinkedList();
-//        Simulation[] simlist = new Simulation[] { sim };
-//        PropertySourceWrapper[] wrappedElements = PropertySourceWrapper.wrapArrayElements( simlist );
-//        return wrappedElements; 
     }
 
 
