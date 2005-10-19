@@ -10,6 +10,7 @@ import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Control;
 
 /**
@@ -20,8 +21,8 @@ import org.eclipse.swt.widgets.Control;
  */
 public class OSGWidget {
 
-    private Control parent;
-    private OSGRenderer renderer;
+    protected final Control parent;
+    private final OSGRenderer renderer;
     private double delay = 100; // ms
     
     /**
@@ -29,12 +30,14 @@ public class OSGWidget {
      * 
      * @param parent The parent of this scene.
      */
-    public OSGWidget(Control parent) {
+    public OSGWidget(Control parentControl) {
     	//canvas = new Canvas( parent, SWT.NONE );
+        parent = parentControl;
         
         parent.addControlListener(new ControlAdapter() {
             public void controlResized(ControlEvent e) {
-                
+                Point p = parent.getSize();
+                renderer.resize(p.x,p.y);
             }
         });  
         parent.addDisposeListener(new DisposeListener() {

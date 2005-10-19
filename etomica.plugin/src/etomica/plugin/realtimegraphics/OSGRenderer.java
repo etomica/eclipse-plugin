@@ -74,8 +74,8 @@ public class OSGRenderer implements Renderable
 		}
 	};
 	
-	public OSGRenderer()
-	{		
+	private OSGRenderer()
+	{
 	}
 	/**
 	 * @param widget - any swt widget, either composite or not
@@ -97,7 +97,7 @@ public class OSGRenderer implements Renderable
 	}
 
 	/** Set the control to render into */
-	public void setControl( Control widget )
+	protected void setControl( Control widget )
 	{
 		if ( osg_render!= null )
 			osg_render.dispose();
@@ -116,6 +116,10 @@ public class OSGRenderer implements Renderable
 	{
 		osg_render.zoomAll();
 	}
+    
+    public void resize(int width, int height) {
+        osg_render.resize(width,height);
+    }
 	
 	protected Control render_in_control;
 	protected RenderWindow osg_render;
