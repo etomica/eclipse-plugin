@@ -196,12 +196,13 @@ public class EtomicaEditor extends EditorPart {
 			return;
 		IPath location = resource.getLocation();
 		readFromFile(location.toOSString());
-		
+        
 		// Update inner panel 
 		if ( inner_panel != null )
 		{
 			inner_panel.setSimulation( simulation );
 			showPhase(0);
+            getSite().setSelectionProvider(inner_panel.getViewer());
 		}
 	}
 
@@ -302,6 +303,7 @@ public class EtomicaEditor extends EditorPart {
 
 		inner_panel = new EtomicaEditorInnerPanel(parent, 0 );
 		inner_panel.setSimulation( simulation );
+        getSite().setSelectionProvider(inner_panel.getViewer());
 		showPhase(0);
 	}
 	
