@@ -5,16 +5,12 @@
 package etomica.plugin.wrappers;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
-import java.beans.PropertyEditor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
-
-import javax.swing.JLabel;
 
 import org.eclipse.ui.views.properties.ComboBoxPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
@@ -56,6 +52,15 @@ public class PropertySourceWrapper implements IPropertySource {
 	}
 	
     public static PropertySourceWrapper makeWrapper(Object obj) {
+        if (obj instanceof Object[]) {
+            return new ArrayWrapper((Object[])obj);
+        }
+        if (obj instanceof double[]) {
+            return new DoubleArrayWrapper((double[])obj);
+        }
+        if (obj instanceof int[]) {
+            return new IntArrayWrapper((int[])obj);
+        }
         if (obj instanceof Simulation) {
             return new SimulationWrapper((Simulation)obj);
         }
@@ -97,37 +102,39 @@ public class PropertySourceWrapper implements IPropertySource {
 	 * Returns the wrapped object, which is the editable value of 
 	 * this PropertySource.
 	 */
-	public Object getEditableValue() {
-		return object;
-	}
+    public Object getEditableValue() {
+        return this;
+    }
 
 
-	/**
-	 * Returns the one of this source's properties as specified by the key.
-	 * We use the java.beans.PropertyDescriptor as the key for the properties.
-	 */
-	public Object getPropertyValue(Object key) {
-		java.beans.PropertyDescriptor pd = (java.beans.PropertyDescriptor)key;
-		Method getter = pd.getReadMethod(); //method used to read value of property in this object
-		Object value = null;
-		Object args[] = { };
-		try {value = getter.invoke(object, args);}
-		catch(NullPointerException ex) {value = null;}
-		catch(InvocationTargetException ex) {value = null;}
-		catch(IllegalAccessException ex) {value = null;}
-		//See if object can have child objects in tree (cannot if it is primitive)
-		if(!(value == null || 
-				value instanceof Number || 
-				value instanceof Boolean ||
-				value instanceof Character ||
-				value instanceof String ||
-				value instanceof Color ||
-				value instanceof EnumeratedType)) {
-			return PropertySourceWrapper.makeWrapper(value);
-		} else {
-			return value;
-		}
-	}
+    /**
+     * Returns the one of this source's properties as specified by the key.
+     * We use the java.beans.PropertyDescriptor as the key for the properties.
+     */
+    public Object getPropertyValue(Object key) {
+        java.beans.PropertyDescriptor pd = (java.beans.PropertyDescriptor)key;
+        Method getter = pd.getReadMethod(); //method used to read value of property in this object
+        Object value = null;
+        Object args[] = { };
+        try {value = getter.invoke(object, args);}
+        catch(NullPointerException ex) {value = null;}
+        catch(InvocationTargetException ex) {value = null;}
+        catch(IllegalAccessException ex) {value = null;}
+//        if (value != null && value.getClass().isArray()) {
+//            return PropertySourceWrapper.makeWrapper(value);
+//        }
+        //See if object can have child objects in tree (cannot if it is primitive)
+        if(!(value == null || 
+                value instanceof Number || 
+                value instanceof Boolean ||
+                value instanceof Character ||
+                value instanceof String ||
+                value instanceof Color ||
+                value instanceof EnumeratedType)) {
+            return PropertySourceWrapper.makeWrapper(value);
+        }
+        return value;
+    }
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.views.properties.IPropertySource#isPropertySet(java.lang.Object)
@@ -179,9 +186,8 @@ public class PropertySourceWrapper implements IPropertySource {
 	private void generateDescriptors() {
        //Introspection to get array of all properties
         java.beans.PropertyDescriptor[] properties = null;
-        BeanInfo bi = null;
         try {
-	        bi = Introspector.getBeanInfo(object.getClass());
+	        BeanInfo bi = Introspector.getBeanInfo(object.getClass());
 	        properties = bi.getPropertyDescriptors();
 	    } 
 	    catch (IntrospectionException ex) {
@@ -191,7 +197,7 @@ public class PropertySourceWrapper implements IPropertySource {
 	    //loop through properties and generate descriptors
 	    LinkedList list = new LinkedList();
 	    for (int i = 0; i < properties.length; i++) {
-	        IPropertyDescriptor pd = makeDescriptor(properties[i], bi);
+	        IPropertyDescriptor pd = makeDescriptor(properties[i]);
 	        if(pd != null) list.add(pd);
 	    }//end of loop over properties
 	    
@@ -199,24 +205,18 @@ public class PropertySourceWrapper implements IPropertySource {
 	    descriptors = (IPropertyDescriptor[])list.toArray(new IPropertyDescriptor[list.size()]);
 	}
 		
-    private IPropertyDescriptor makeDescriptor(java.beans.PropertyDescriptor property, BeanInfo bi) {
+    private IPropertyDescriptor makeDescriptor(java.beans.PropertyDescriptor property) {
 
 		// Don't display hidden or expert properties.
 		if (property.isHidden() || property.isExpert()) {
 		    return null;
         }
 		
-		Component view = null;
-		Component unitView = null;
-		JLabel label = null;
-		PropertyEditor editor = null;
-		
 		String name = property.getDisplayName();  //Localized display name 
 		if(name.equals("class")) return null;//skip getDimension(), getClass()
 		
 		Class type = property.getPropertyType();  //Type (class) of this property
 		Method getter = property.getReadMethod(); //method used to read value of property in this object
-		Method setter = property.getWriteMethod();//method used to set value of property
 
 		// Display only read/write properties.
 		if (getter == null) return null;
@@ -228,26 +228,30 @@ public class PropertySourceWrapper implements IPropertySource {
 		IPropertyDescriptor pd = null;
 		try {
 //			//read the current value of the property
-			Object value = null;
 			Object args[] = { };
-			value = getter.invoke(object, args);
 						
 			if(type == boolean.class) {
 				pd = new CheckboxPropertyDescriptor(property, name);
-			} else if(type == int.class) {
+			}
+            else if(type == int.class) {
 				pd = new IntegerPropertyDescriptor(property, name);
-			} else if(type == double.class) {
+			}
+            else if(type == double.class) {
 				pd = new DecimalPropertyDescriptor(property, name);
 			}
-			else if(EnumeratedType.class.isAssignableFrom(type) && value != null) {
-				pd = new EnumeratedTypePropertyDescriptor(property,name,((EnumeratedType)value).choices());
+			else if(EnumeratedType.class.isAssignableFrom(type)) {
+                Object value = getter.invoke(object, args);
+                if (value != null) {
+                    pd = new EnumeratedTypePropertyDescriptor(property,name,((EnumeratedType)value).choices());
+                }
 			}
 			else if(String.class.isAssignableFrom(type)) {
 				pd = new TextPropertyDescriptor(property, name);
-			} else if(Boundary.class.isAssignableFrom(type)) {
+			}
+            else if(Boundary.class.isAssignableFrom(type)) {
 				pd = new ComboBoxPropertyDescriptor(property,name,new String[] {"test A", "test B"});
 			}
-			else {
+			if (pd == null) {
 				pd = new org.eclipse.ui.views.properties.PropertyDescriptor(property, name);
 			}
 //		
