@@ -77,7 +77,7 @@
             category="etomica.plugin"
             project="false"
             preferredPerspectives="EtomicaRun"
-            name="Etomica Document"
+            name="Etomica Simulation"
             id="etomica.plugin.wizards.NewEtomicaDocument"/>
    </extension>
    <extension
@@ -130,10 +130,17 @@
       <view
             allowMultiple="false"
             icon="icons/sample.gif"
-            class="etomica.plugin.views.SimulationView"
+            class="etomica.plugin.views.SpeciesView"
             category="etomica.plugin"
-            name="Simulation View"
-            id="etomica.plugin.views.SimulationView"/>
+            name="Species View"
+            id="etomica.plugin.views.SpeciesView"/>
+      <view
+            allowMultiple="false"
+            category="etomica.plugin"
+            class="etomica.plugin.views.SummaryView"
+            icon="icons/sample.gif"
+            id="etomica.plugin.views.SummaryView"
+            name="Summary View"/>
    </extension>
    <extension
          point="org.eclipse.ui.editors">
