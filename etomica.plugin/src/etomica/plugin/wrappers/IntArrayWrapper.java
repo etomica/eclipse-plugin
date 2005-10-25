@@ -1,32 +1,23 @@
 package etomica.plugin.wrappers;
 
-import java.awt.Color;
-
-import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
-
-import etomica.util.EnumeratedType;
 
 public class IntArrayWrapper extends PropertySourceWrapper {
 
     public IntArrayWrapper(int[] obj) {
         super(obj);
+        setDisplayName("integer array");
     }
 
     public PropertySourceWrapper[] getChildren() {
         return PropertySourceWrapper.wrapArrayElements((Object[])object);
     }
 
-    public IPropertyDescriptor[] getPropertyDescriptors() {
-        if(descriptors == null) generateDescriptors();
-        return descriptors;
-    }
-    
     public Object getEditableValue() {
         return this;
     }
 
-    private void generateDescriptors() {
+    protected void generateDescriptors() {
         int[] intArray = (int[])object;
        //Introspection to get array of all properties
         descriptors= new PropertyDescriptor[intArray.length];
@@ -39,11 +30,4 @@ public class IntArrayWrapper extends PropertySourceWrapper {
         int index = ((Integer)key).intValue();
         return new Integer(((int[])object)[index]);
     }
-
-
-    public String toString() {
-        return "integer array";
-    }
-
-    private IPropertyDescriptor[] descriptors;
 }

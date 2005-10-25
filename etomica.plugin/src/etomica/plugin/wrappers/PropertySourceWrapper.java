@@ -11,7 +11,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.ui.views.properties.ComboBoxPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
@@ -19,6 +18,7 @@ import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 
 import etomica.action.ActionGroup;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.Atom;
 import etomica.data.DataPipeForked;
 import etomica.data.DataProcessor;
 import etomica.phase.Phase;
@@ -31,6 +31,7 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.DataStreamHeader;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
+import etomica.species.Species;
 import etomica.util.EnumeratedType;
 
 /**
@@ -73,6 +74,9 @@ public class PropertySourceWrapper implements IPropertySource {
         else if (obj instanceof Phase) {
             return new PhaseWrapper((Phase)obj);
         }
+        else if (obj instanceof Species) {
+            return new SpeciesWrapper((Species)obj);
+        }
         else if (obj instanceof ActionGroup) {
             return new ActionGroupWrapper((ActionGroup)obj);
         }
@@ -87,6 +91,9 @@ public class PropertySourceWrapper implements IPropertySource {
         }
         else if (obj instanceof DataProcessor) {
             return new DataProcessorWrapper((DataProcessor)obj);
+        }
+        else if (obj instanceof Atom) {
+            return new AtomWrapper((Atom)obj);
         }
         return new PropertySourceWrapper(obj);
     }
@@ -120,17 +127,7 @@ public class PropertySourceWrapper implements IPropertySource {
         catch(NullPointerException ex) {value = null;}
         catch(InvocationTargetException ex) {value = null;}
         catch(IllegalAccessException ex) {value = null;}
-//        if (value != null && value.getClass().isArray()) {
-//            return PropertySourceWrapper.makeWrapper(value);
-//        }
-        //See if object can have child objects in tree (cannot if it is primitive)
-        if(!(value == null || 
-                value instanceof Number || 
-                value instanceof Boolean ||
-                value instanceof Character ||
-                value instanceof String ||
-                value instanceof Color ||
-                value instanceof EnumeratedType)) {
+        if (value != null && value.getClass().isArray()) {
             return PropertySourceWrapper.makeWrapper(value);
         }
         return value;
@@ -172,9 +169,20 @@ public class PropertySourceWrapper implements IPropertySource {
 	 * the PropertySheet.
 	 */
 	public String toString() {
-		return object.toString();
+        if (displayName == null) {
+            return object.toString();
+        }
+        return displayName;
 	}
-	
+
+    public void setDisplayName(String newName) {
+        displayName = newName;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+    
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.views.properties.IPropertySource#getPropertyDescriptors()
 	 */
@@ -183,7 +191,7 @@ public class PropertySourceWrapper implements IPropertySource {
 		return descriptors;
 	}
 	
-	private void generateDescriptors() {
+	protected void generateDescriptors() {
        //Introspection to get array of all properties
         java.beans.PropertyDescriptor[] properties = null;
         try {
@@ -381,5 +389,6 @@ public class PropertySourceWrapper implements IPropertySource {
     }
     
     protected Object object;
-	private IPropertyDescriptor[] descriptors;
+	protected IPropertyDescriptor[] descriptors;
+    protected String displayName;
 }
