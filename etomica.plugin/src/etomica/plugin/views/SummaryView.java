@@ -91,10 +91,15 @@ public class SummaryView extends ViewPart {
 //		System.out.println("SpeciesView selection "+selection.toString());
 		if(!(selection instanceof IStructuredSelection)) return;
 		IStructuredSelection sel = (IStructuredSelection)selection;
-        PropertySourceWrapper wrapper = (PropertySourceWrapper)sel.getFirstElement();
-        if (wrapper == null || !(wrapper.getObject() instanceof Simulation)) return;
+        Object firstElement = sel.getFirstElement();
+        if(firstElement == null) return;
+        if (!(firstElement instanceof PropertySourceWrapper)) {
+            return;
+        }
+        Object obj = ((PropertySourceWrapper)firstElement).getObject();
+        if (!(obj instanceof Simulation)) return;
 //		System.out.println("SpeciesView simulation "+sim.toString());
-		viewer.setInput(wrapper);
+		viewer.setInput((Simulation)obj);
 //		try {
 //			if(sim.phase(0) == null) return;
 //			System.out.println("Phase "+sim.phase(0).toString());

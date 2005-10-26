@@ -83,8 +83,12 @@ public class PhaseView extends ViewPart {
 //		System.out.println("SpeciesView selection "+selection.toString());
 		if(!(selection instanceof IStructuredSelection)) return;
 		IStructuredSelection sel = (IStructuredSelection)selection;
-		if(sel.getFirstElement() == null) return;
-		Object obj = ((PropertySourceWrapper)sel.getFirstElement()).getObject();
+        Object firstElement = sel.getFirstElement();
+        if(firstElement == null) return;
+        if (!(firstElement instanceof PropertySourceWrapper)) {
+            return;
+        }
+        Object obj = ((PropertySourceWrapper)firstElement).getObject();
         if (obj instanceof Phase && obj != phase) {
             phase = (Phase)obj;
             viewer.setInput(sel.getFirstElement());
