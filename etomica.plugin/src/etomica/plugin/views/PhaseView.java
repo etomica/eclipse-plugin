@@ -85,7 +85,8 @@ public class PhaseView extends ViewPart {
 		IStructuredSelection sel = (IStructuredSelection)selection;
 		if(sel.getFirstElement() == null) return;
 		Object obj = ((PropertySourceWrapper)sel.getFirstElement()).getObject();
-        if (obj instanceof Phase) {
+        if (obj instanceof Phase && obj != phase) {
+            phase = (Phase)obj;
             viewer.setInput(sel.getFirstElement());
         }
 	}
@@ -127,5 +128,5 @@ public class PhaseView extends ViewPart {
 	private Action collapseAction;
     private PhaseViewContentProvider vcp;
 	private ISelectionListener pageSelectionListener;
-	private TreeItem root;
+	private Phase phase;
 }
