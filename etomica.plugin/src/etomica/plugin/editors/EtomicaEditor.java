@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -18,23 +17,17 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.ISelectionListener;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
 
-import etomica.atom.Atom;
-import etomica.phase.Phase;
-import etomica.plugin.wrappers.PropertySourceWrapper;
 import etomica.simulation.Simulation;
 import etomica.simulation.prototypes.HSMD3D;
 import etomica.util.EtomicaObjectInputStream;
@@ -201,97 +194,10 @@ public class EtomicaEditor extends EditorPart {
 		if ( inner_panel != null )
 		{
 			inner_panel.setSimulation( simulation );
-			showPhase(0);
             getSite().setSelectionProvider(inner_panel.getViewer());
 		}
 	}
 
-	
-	/**
-	 * Changes displayed configuration with change of simulation selected in
-	 * another view.
-	 */
-	protected void pageSelectionChanged(IWorkbenchPart part, ISelection selection) {
-		if(part == this) return;
-//		System.out.println("ConfigurationView Selection "+selection.toString());
-		if(!(selection instanceof IStructuredSelection)) return;
-		IStructuredSelection sel = (IStructuredSelection)selection;
-		if(sel.getFirstElement() == null) {
-			if(selectionSource == part) {
-				inner_panel.setSelectedAtoms(new Atom[0]);
-				selectionSource = null;
-			}
-			return;
-		}
-		Object firstsel = sel.getFirstElement();
-		if ( !(firstsel instanceof PropertySourceWrapper) ) return;
-		PropertySourceWrapper property = (PropertySourceWrapper) firstsel;
-		Object obj = property.getObject();
-		if(obj instanceof Phase) {
-			phase = (Phase)obj;
-//			System.out.println("ConfigurationView phase "+phase.toString());
-			inner_panel.setPhase(phase);
-		} else if(obj instanceof Simulation) {
-			Simulation sim = (Simulation)obj;
-			Phase phase = (Phase)lastPhase.get(sim);//get phase last viewed with selected simulation
-			if(phase == null) {
-				phase = (Phase)sim.getPhases()[0];
-				if(phase != null) lastPhase.put(sim, phase);
-			}
-			inner_panel.setPhase(phase);	
-		} else if(obj instanceof Atom) {
-			//selection of one or more atoms
-			int nAtom = sel.size();
-			Atom[] selectedAtoms = new Atom[nAtom];
-			selectionSource = part;
-			Object[] objects = sel.toArray();
-			for(int i=0; i<nAtom; i++) {
-				selectedAtoms[i] = (Atom)((etomica.plugin.wrappers.PropertySourceWrapper)objects[i]).getObject();
-			}
-			inner_panel.setSelectedAtoms(selectedAtoms);
-		}
-
-	}
-
-	public void showPhase( int n )
-	{
-		if ( simulation==null )
-			return;
-		Phase newphase = null;
-		try {
-			if ( n>=0) {
-                Phase[] phases = simulation.getPhases();
-                if (n<phases.length) {
-                    newphase = phases[n];
-                }
-			}
-		}
-		catch ( Exception e ) {
-			System.err.println( "(Etomica) Could not retrieve phase #" + n + ", reason: " + e.getLocalizedMessage() );
-		}
-		if(newphase == null) {
-			newphase = (Phase)lastPhase.get(simulation);//get phase last viewed with selected simulation
-			if(newphase != null) lastPhase.put(simulation, phase);
-		}
-		inner_panel.setPhase( newphase );
-		phase = newphase;
-	}
-	/**
-	 * 
-	 *
-	 */
-	private void hookPageSelection() {
-		pageSelectionListener = new ISelectionListener() {
-			public void selectionChanged(
-					IWorkbenchPart part,
-					ISelection selection) {
-				pageSelectionChanged(part, selection);
-			}
-		};
-		getSite().getPage().addPostSelectionListener(pageSelectionListener);
-	}
-
-	
 	public void runSimulation() {
 		if ( simulation != null )
 			simulation.getController().start();
@@ -304,7 +210,6 @@ public class EtomicaEditor extends EditorPart {
 		inner_panel = new EtomicaEditorInnerPanel(parent, 0 );
 		inner_panel.setSimulation( simulation );
         getSite().setSelectionProvider(inner_panel.getViewer());
-		showPhase(0);
 	}
 	
 	
@@ -323,10 +228,7 @@ public class EtomicaEditor extends EditorPart {
 	private EtomicaEditorInnerPanel inner_panel;
 	private IPath path = null;
 	private Simulation simulation = null;
-	private Phase phase = null; // current phase being showed
 	private ISelectionListener pageSelectionListener;
-	private final HashMap lastPhase = new HashMap(8);//store last phase viewed for each simulation
-	private IWorkbenchPart selectionSource;
 	private boolean dirty_flag = false;
 	//private java.util.HashMap property_bag_list = new HashMap(8);
 	

@@ -15,16 +15,11 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Composite;
 
-import etomica.atom.Atom;
 import etomica.etomica3D.OrientedObject;
-import etomica.graphics2.SceneManager;
-import etomica.phase.Phase;
 import etomica.plugin.EtomicaPlugin;
-import etomica.plugin.realtimegraphics.OSGWidget;
 import etomica.plugin.views.SimulationViewContentProvider;
 import etomica.plugin.wrappers.SimulationWrapper;
 import etomica.simulation.Simulation;
@@ -38,49 +33,8 @@ import etomica.simulation.Simulation;
  */
 public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly {
 
-	private SceneManager scene = new SceneManager();
-	private SceneUpdater updater;
-	private OSGWidget osgwidget;
-	private boolean render_initialized = false;
 	private TreeViewer viewer;
     private TreeViewer actionsViewer;
-    private ListViewer speciesViewer;
-
-
-	public class SceneUpdater implements Runnable {
-	    private int DELAY = 100;
-	    private boolean first_time = true;
-	    
-	    public SceneUpdater() {
-	    }
-	    
-	    public void setFPS( double fps )
-	    {
-	    	DELAY = (int)( 1000.0/fps );
-	    }
-	    public void run() {
-	    	if ( osgwidget!=null && isDisposed()  ) 
-	    		return;
-	        if ( osgwidget!=null &&  isVisible() ) {
-	        	scene.updateAtomPositions();
-	            osgwidget.render();
-	        	if ( first_time )
-	        	{
-	        		osgwidget.getRenderer().zoomAll();
-	        		first_time = false;
-	        	}
-	        }
-            getDisplay().timerExec(DELAY, this);
-	    }
-	}
-
-	public void setPhase( Phase ph )
-	{
-		if ( scene!=null ) 
-		{
-			scene.setPhase( ph );
-		}
-	}
 
 	/**
 	 * @return the ListViewer used to display data for this view.
@@ -94,25 +48,12 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
 		viewer.refresh();
 	}
 
-	public void setSelectedAtoms( Atom[] atoms )
-	{
-		scene.setSelectedAtoms( atoms );
-	}
 	/**
 	 * @param parent
 	 * @param style
 	 */
 	public EtomicaEditorInnerPanel(Composite parent, int style) {
 		super(parent, style);
-		Composite control = getPhasePanel();
-		
-		osgwidget = new OSGWidget( control );
-
-		scene.setRenderer( osgwidget.getRenderer() );
-		
-		updater = new SceneUpdater();
-		updater.setFPS( 20 );
-		updater.run();
 		
 		viewer = new TreeViewer( objectTree  );
 		viewer.setContentProvider(new SimulationViewContentProvider());
@@ -121,17 +62,12 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
         actionsViewer = new TreeViewer( actionsTree );
         actionsViewer.setContentProvider(new ActionsViewContentProvider());
         actionsViewer.setLabelProvider(new LabelProvider());
-        
-        speciesViewer = new ListViewer(speciesList);
-        speciesViewer.setContentProvider(new SpeciesContentProvider());
-        speciesViewer.setLabelProvider(new LabelProvider());
 	}
 
 	public void setSimulation( Simulation simulation )
 	{
 		viewer.setInput( new SimulationWrapper(simulation) );
         actionsViewer.setInput(simulation.getController());
-        speciesViewer.setInput(simulation.speciesRoot);
 	}
 	
 	static {
@@ -173,7 +109,4 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
 		}
 	}
 	
-	private static String	PATHSEP	= System.getProperty("path.separator");
-
-
 }
