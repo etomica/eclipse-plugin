@@ -16,7 +16,7 @@ public class SimulationWrapper extends PropertySourceWrapper {
         Phase[] phases = sim.getPhases();
         Species[] species = sim.getSpecies();
         DataStreamHeader[] streams = sim.getDataStreams();
-        return PropertySourceWrapper.wrapArrayElements(new Object[]{sim.getController(),sim.potentialMaster,phases,species,streams});
+        return PropertySourceWrapper.wrapArrayElements(new Object[]{sim.getController(),sim.potentialMaster,phases,species,streams,sim.getDefaults()});
 //        PropertySourceWrapper[] elements = new PropertySourceWrapper[2+phases.length+species.length+streams.length];
 //        int i=0;
 //        elements[i++] = PropertySourceWrapper.makeWrapper(sim.getController());
