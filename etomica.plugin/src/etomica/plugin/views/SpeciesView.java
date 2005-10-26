@@ -20,6 +20,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import etomica.atom.SpeciesRoot;
 import etomica.phase.Phase;
+import etomica.plugin.editors.EtomicaEditor;
 import etomica.plugin.wrappers.ArrayWrapper;
 import etomica.plugin.wrappers.PropertySourceWrapper;
 import etomica.simulation.Simulation;
@@ -40,7 +41,7 @@ public class SpeciesView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		viewer = new TreeViewer(parent);
 //		setViewer(viewer);
-		vcp = new SimulationViewContentProvider();
+        vcp = new SpeciesViewContentProvider();
 		viewer.setContentProvider(vcp);
 		viewer.setLabelProvider(new LabelProvider());
 		hookPageSelection();
@@ -83,21 +84,19 @@ public class SpeciesView extends ViewPart {
 	 * Changes root of tree with change of simulation selected in another view.
 	 */
 	protected void pageSelectionChanged(IWorkbenchPart part, ISelection selection) {
+        if (part instanceof EtomicaEditor) {
+            Simulation sim = ((EtomicaEditor)part).getSimulation();
+            if (sim != null) {
+                vcp.setSimulation(sim);
+            }
+        }
 		if(part == this) return;
 //		System.out.println("SpeciesView selection "+selection.toString());
 		if(!(selection instanceof IStructuredSelection)) return;
 		IStructuredSelection sel = (IStructuredSelection)selection;
 		if(sel.getFirstElement() == null) return;
 		Object obj = ((PropertySourceWrapper)sel.getFirstElement()).getObject();
-		if(!(obj instanceof Simulation) && !(obj instanceof SpeciesRoot) && !(obj instanceof Species)) return;
-        if (obj instanceof Simulation) {
-            SpeciesRoot root = ((Simulation)obj).speciesRoot;
-            viewer.setInput(new ArrayWrapper(root.getSpecies()));
-        }
-        else if (obj instanceof SpeciesRoot) {
-            viewer.setInput(new ArrayWrapper(((SpeciesRoot)obj).getSpecies()));
-        }
-        else if (obj instanceof Species) {
+        if (obj instanceof Species) {
             viewer.setInput(sel.getFirstElement());
         }
 	}
@@ -137,8 +136,7 @@ public class SpeciesView extends ViewPart {
 		
 	private TreeViewer viewer;
 	private Action collapseAction;
-	private SimulationViewContentProvider vcp;
-	private Phase phase;
+    private SpeciesViewContentProvider vcp;
 	private ISelectionListener pageSelectionListener;
 	private TreeItem root;
 }
