@@ -56,25 +56,29 @@ public class SimulationViewContentProvider implements ITreeContentProvider, Simu
             if (value == null) {
                 continue;
             }
-            if (value.getClass().isArray()) {
-                if (!(value instanceof Object[])) {
+            Object obj = value;
+            if (obj instanceof PropertySourceWrapper) {
+                obj = ((PropertySourceWrapper)value).getObject();
+            }
+            if (obj.getClass().isArray()) {
+                if (!(obj instanceof Object[])) {
                     continue;
                 }
-                if (((Object[])value).length == 0) {
+                if (((Object[])obj).length == 0) {
                     continue;
                 }
             }
-            else if (value instanceof Number ||
-                    value instanceof Boolean ||
-                    value instanceof Color ||
-                    value instanceof Vector ||
-                    value instanceof EnumeratedType ||
-                    value instanceof String ||
-                    value instanceof FeatureSet ||
-                    value instanceof LinkedList) {
+            else if (obj instanceof Number ||
+                    obj instanceof Boolean ||
+                    obj instanceof Color ||
+                    obj instanceof Vector ||
+                    obj instanceof EnumeratedType ||
+                    obj instanceof String ||
+                    obj instanceof FeatureSet ||
+                    obj instanceof LinkedList) {
                 continue;
             }
-            if ((((PropertySourceWrapper)wrappedElement).getObject() instanceof AtomType)
+            if ((obj instanceof AtomType)
                     && (descriptors[i].getDisplayName().equals("parentType") ||
                             descriptors[i].getDisplayName().equals("species"))) {
                 continue;
@@ -84,7 +88,7 @@ public class SimulationViewContentProvider implements ITreeContentProvider, Simu
                 childWrappers[count-1] = (PropertySourceWrapper)value;
             }
             else {
-                childWrappers[count-1] = PropertySourceWrapper.makeWrapper(value);
+                childWrappers[count-1] = PropertySourceWrapper.makeWrapper(obj);
             }
         }
         return childWrappers;
@@ -97,7 +101,7 @@ public class SimulationViewContentProvider implements ITreeContentProvider, Simu
     //the call to viewer.setInput in createPartControl causes the list of
     //simulation instances to be the input element in this method
     public Object[] getElements(Object inputElement) {
-        return getChildren(inputElement);
+        return ((PropertySourceWrapper)inputElement).getChildren();
     }
 
 
