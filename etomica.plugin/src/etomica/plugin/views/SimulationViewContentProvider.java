@@ -13,6 +13,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.action.activity.ActivityGroup;
+import etomica.atom.AtomType;
 import etomica.compatibility.FeatureSet;
 import etomica.plugin.wrappers.ArrayWrapper;
 import etomica.plugin.wrappers.PropertySourceWrapper;
@@ -71,6 +72,11 @@ public class SimulationViewContentProvider implements ITreeContentProvider, Simu
                     value instanceof String ||
                     value instanceof FeatureSet ||
                     value instanceof LinkedList) {
+                continue;
+            }
+            if ((((PropertySourceWrapper)wrappedElement).getObject() instanceof AtomType)
+                    && (descriptors[i].getDisplayName().equals("parentType") ||
+                            descriptors[i].getDisplayName().equals("species"))) {
                 continue;
             }
             childWrappers = (PropertySourceWrapper[])Arrays.resizeArray(childWrappers,++count);
