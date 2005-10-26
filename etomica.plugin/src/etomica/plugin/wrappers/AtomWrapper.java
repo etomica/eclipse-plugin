@@ -53,11 +53,9 @@ public class AtomWrapper extends PropertySourceWrapper {
         }
         if (keyString.equals("position")) {
             wrapper = PropertySourceWrapper.makeWrapper(((Atom)object).coord.position());
-            wrapper.setDisplayName("Position");
         }
         if (keyString.equals("velocity")) {
             wrapper = PropertySourceWrapper.makeWrapper(((ICoordinateKinetic)((Atom)object).coord).velocity());
-            wrapper.setDisplayName("Velocity");
         }
         if (keyString.equals("allAtomAgents")) {
             wrapper = PropertySourceWrapper.makeWrapper(((Atom)object).allatomAgents);
