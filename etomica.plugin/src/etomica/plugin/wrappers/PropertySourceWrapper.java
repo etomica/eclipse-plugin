@@ -5,6 +5,7 @@
 package etomica.plugin.wrappers;
 
 import java.beans.BeanInfo;
+import java.beans.IndexedPropertyDescriptor;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.lang.reflect.InvocationTargetException;
@@ -19,6 +20,7 @@ import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 import etomica.action.ActionGroup;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.Atom;
+import etomica.atom.AtomType;
 import etomica.data.DataPipeForked;
 import etomica.data.DataProcessor;
 import etomica.phase.Phase;
@@ -94,6 +96,9 @@ public class PropertySourceWrapper implements IPropertySource {
         }
         else if (obj instanceof Atom) {
             return new AtomWrapper((Atom)obj);
+        }
+        else if (obj instanceof AtomType) {
+            return new AtomTypeWrapper((AtomType)obj);
         }
         return new PropertySourceWrapper(obj);
     }
@@ -212,8 +217,8 @@ public class PropertySourceWrapper implements IPropertySource {
 	    //make array of descriptors from list
 	    descriptors = (IPropertyDescriptor[])list.toArray(new IPropertyDescriptor[list.size()]);
 	}
-		
-    private IPropertyDescriptor makeDescriptor(java.beans.PropertyDescriptor property) {
+
+    protected IPropertyDescriptor makeDescriptor(java.beans.PropertyDescriptor property) {
 
 		// Don't display hidden or expert properties.
 		if (property.isHidden() || property.isExpert()) {
@@ -223,12 +228,18 @@ public class PropertySourceWrapper implements IPropertySource {
 		String name = property.getDisplayName();  //Localized display name 
 		if(name.equals("class")) return null;//skip getDimension(), getClass()
 		
-		Class type = property.getPropertyType();  //Type (class) of this property
 		Method getter = property.getReadMethod(); //method used to read value of property in this object
 
 		// Display only read/write properties.
-		if (getter == null) return null;
-		
+		if (getter == null) {
+            // getter will be null if it was an IndexedPropertyDescriptor
+//            if (property instanceof IndexedPropertyDescriptor) {
+                // do something!
+//            }
+            return null;
+        }
+
+        Class type = property.getPropertyType();  //Type (class) of this property
 		// Do not display dimension specifications as properties
         if(etomica.units.Dimension.class.isAssignableFrom(type)) return null;
         //if(etomica.utility.LinkedList.class.isAssignableFrom(type)) return null;
