@@ -171,7 +171,7 @@ public class NewEtomicaDocumentPage extends WizardPage {
 				sds.container_name.setText(container.getFullPath().toString());
 			}
 		}
-		sds.file_name.setText("newfile.etom");
+		sds.file_name.setText("newsim");
 	}
 	
 	/**
@@ -292,14 +292,6 @@ public class NewEtomicaDocumentPage extends WizardPage {
 		if (fileName.length() == 0) {
 			updateStatus("File name must be specified");
 			return false;
-		}
-		int dotLoc = fileName.lastIndexOf('.');
-		if (dotLoc != -1) {
-			String ext = fileName.substring(dotLoc + 1);
-			if (ext.equalsIgnoreCase("etom") == false) {
-				updateStatus("File name should end with \".etom\"");
-				return false;
-			}
 		}
 		return true;
 	}
