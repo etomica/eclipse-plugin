@@ -81,7 +81,18 @@ public class NewEtomicaDocument extends Wizard implements INewWizard {
 
 		// Get container options
 		final String containerName = page.getContainerName();
-		final String fileName = page.getFileName();
+		String tmpFileName = page.getFileName();
+        int dotLoc = tmpFileName.lastIndexOf('.');
+        if (dotLoc != -1) {
+            String ext = tmpFileName.substring(dotLoc + 1);
+            if (ext.equalsIgnoreCase("etom") == false) {
+                tmpFileName = tmpFileName + ".etom";
+            }
+        }
+        else {
+            tmpFileName = tmpFileName + ".etom";
+        }
+        final String fileName = tmpFileName;
 
 		// Run the creation
 	  	IRunnableWithProgress op = new IRunnableWithProgress() {
