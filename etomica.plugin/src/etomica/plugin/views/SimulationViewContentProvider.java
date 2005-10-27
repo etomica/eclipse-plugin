@@ -13,9 +13,9 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.action.activity.ActivityGroup;
-import etomica.atom.AtomType;
 import etomica.compatibility.FeatureSet;
 import etomica.plugin.wrappers.ArrayWrapper;
+import etomica.plugin.wrappers.AtomTypeWrapper;
 import etomica.plugin.wrappers.PropertySourceWrapper;
 import etomica.simulation.SimulationEvent;
 import etomica.simulation.SimulationListener;
@@ -78,7 +78,7 @@ public class SimulationViewContentProvider implements ITreeContentProvider, Simu
                     obj instanceof LinkedList) {
                 continue;
             }
-            if ((obj instanceof AtomType)
+            if ((wrappedElement instanceof AtomTypeWrapper)
                     && (descriptors[i].getDisplayName().equals("parentType") ||
                             descriptors[i].getDisplayName().equals("species"))) {
                 continue;
