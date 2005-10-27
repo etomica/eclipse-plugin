@@ -388,9 +388,17 @@ public class PropertySourceWrapper implements IPropertySource {
 	 * @return the array of wrapped elements
 	 */
     public static PropertySourceWrapper[] wrapArrayElements(Object[] array) {
-        PropertySourceWrapper[] wrappedArray = new PropertySourceWrapper[array.length];
+        int nonNullCount = 0;
         for(int i=0; i<array.length; i++) {
-            wrappedArray[i] = PropertySourceWrapper.makeWrapper(array[i]);
+            if (array[i] != null) {
+                nonNullCount++;
+            }
+        }
+        PropertySourceWrapper[] wrappedArray = new PropertySourceWrapper[nonNullCount];
+        for(int i=0; i<array.length; i++) {
+            if (array[i] != null) {
+                wrappedArray[i] = PropertySourceWrapper.makeWrapper(array[i]);
+            }
         }
         return wrappedArray;
     }
