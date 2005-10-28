@@ -42,7 +42,7 @@ public class ConfigurationView extends ViewPart {
         control.setLayoutData(gridData3);
 
         updater = new SceneUpdater(control,scene);
-        updater.setFPS( 5 );
+        updater.setFPS( 20 );
         if (phase != null) {
             updater.run();
         }
