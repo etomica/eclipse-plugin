@@ -148,6 +148,13 @@
             icon="icons/sample.gif"
             id="etomica.plugin.views.PhaseView"
             name="Phase View"/>
+      <view
+            allowMultiple="false"
+            category="etomica.plugin"
+            class="etomica.plugin.views.ConfigurationView"
+            icon="icons/sample.gif"
+            id="etomica.plugin.views.ConfigurationView"
+            name="Configuration View"/>
    </extension>
    <extension
          point="org.eclipse.ui.editors">
