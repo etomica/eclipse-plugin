@@ -1,7 +1,5 @@
 package etomica.plugin.wrappers;
 
-import java.lang.reflect.Method;
-
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.species.Species;
@@ -14,7 +12,7 @@ public class SpeciesWrapper extends PropertySourceWrapper {
     }
 
     public PropertySourceWrapper[] getChildren() {
-        return new PropertySourceWrapper[]{PropertySourceWrapper.makeWrapper(((Species)object).moleculeFactory())};
+        return new PropertySourceWrapper[0];
     }
     
     protected IPropertyDescriptor makeDescriptor(java.beans.PropertyDescriptor property) {
