@@ -109,7 +109,6 @@ public class SimulationViewContentProvider implements ITreeContentProvider, Simu
 	 * @see org.eclipse.jface.viewers.ITreeContentProvider#getParent(java.lang.Object)
 	 */
 	public Object getParent(Object element) {
-		System.out.println("SimulationViewContentProvide.getParent");
 		return null;
 	}
 
