@@ -168,7 +168,7 @@ public class NewEtomicaDocumentPage extends WizardPage {
 					container = (IContainer)obj;
 				else
 					container = ((IResource)obj).getParent();
-				sds.container_name.setText(container.getFullPath().toString());
+				sds.container_name.setText(container.getFullPath().toString().replaceFirst("/",""));
 			}
 		}
         if (sds.container_name.getText().equals("")) {
@@ -224,19 +224,16 @@ public class NewEtomicaDocumentPage extends WizardPage {
 		{
 			Object[] result = dialog.getResult();
 			if (result.length == 1) 
-				sds.container_name.setText(((Path)result[0]).toOSString());
+				sds.container_name.setText(((Path)result[0]).toOSString().replaceFirst("/",""));
 		}
 	}
-			
-	
 	
 	/**
 	 * Ensures that both text fields are set.
 	 */
 
 	private void dialogChanged() {
-		if ( containerNameModified && !checkContainerName() ) return;
-		if ( fileNameModified && !checkFileName() ) return;
+		if ( (containerNameModified || fileNameModified) && (!checkContainerName() || !checkFileName())) return;
 		if ( (simTypeModified || spaceTypeModified || pMasterTypeModified) && !checkCustomControls() ) return;
 		// Everything went ok, just clean up the error bar
 		updateStatus(null);
@@ -251,16 +248,11 @@ public class NewEtomicaDocumentPage extends WizardPage {
 		}
 		// Find out if this container is valid
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		IResource resource = root.findMember(new Path(container));
-		boolean container_exists = true;
-		if ( resource==null || !resource.exists() || !(resource instanceof IContainer)) 
-			container_exists = false;
-		
-		if ( !container_exists ) {
+		IResource resource = root.findMember(new Path("/"+container));
+		if ( resource==null || !resource.exists() || !(resource instanceof IContainer)) { 
 			updateStatus("File container does not exist");
 			return false;
 		}
-		
 		
 		return true;
 	}
