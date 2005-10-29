@@ -80,7 +80,7 @@ public class NewEtomicaDocument extends Wizard implements INewWizard {
   		newsim = sim;
 
 		// Get container options
-		final String containerName = page.getContainerName();
+		final String containerName = "/"+page.getContainerName();
 		String tmpFileName = page.getFileName();
         int dotLoc = tmpFileName.lastIndexOf('.');
         if (dotLoc != -1) {
