@@ -6,25 +6,12 @@
  */
 package etomica.plugin.wizards;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-
-import etomica.EtomicaInfo;
-import etomica.plugin.Registry;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
-import etomica.space.Space;
 /**
  * @author Henrique
  *
