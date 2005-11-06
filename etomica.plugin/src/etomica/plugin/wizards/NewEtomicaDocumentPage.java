@@ -171,10 +171,7 @@ public class NewEtomicaDocumentPage extends WizardPage {
 				sds.container_name.setText(container.getFullPath().toString().replaceFirst("/",""));
 			}
 		}
-        if (sds.container_name.getText().equals("")) {
-            setPageComplete(false);
-        }
-		sds.file_name.setText("newsim");
+        setPageComplete(false);
 	}
 	
 	/**
