@@ -5,7 +5,6 @@
 package etomica.plugin.wrappers;
 
 import java.beans.BeanInfo;
-import java.beans.IndexedPropertyDescriptor;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.lang.reflect.InvocationTargetException;
@@ -23,6 +22,8 @@ import etomica.atom.Atom;
 import etomica.atom.AtomType;
 import etomica.data.DataPipeForked;
 import etomica.data.DataProcessor;
+import etomica.integrator.Integrator;
+import etomica.integrator.IntegratorMC;
 import etomica.phase.Phase;
 import etomica.plugin.views.CheckboxPropertyDescriptor;
 import etomica.plugin.views.DecimalPropertyDescriptor;
@@ -84,6 +85,12 @@ public class PropertySourceWrapper implements IPropertySource {
         }
         else if (obj instanceof ActivityIntegrate) {
             return new ActivityIntegrateWrapper((ActivityIntegrate)obj);
+        }
+        else if (obj instanceof Integrator) {
+            if (obj instanceof IntegratorMC) {
+                return new IntegratorMCWrapper((IntegratorMC)obj);
+            }
+            return new IntegratorWrapper((Integrator)obj);
         }
         else if (obj instanceof DataStreamHeader) {
             return new DataStreamWrapper((DataStreamHeader)obj);
@@ -407,7 +414,23 @@ public class PropertySourceWrapper implements IPropertySource {
         return new PropertySourceWrapper[0];
     }
     
+    /**
+     * Removes the Object child from the object wrapped by this
+     * PropertySourceWrapper.  returns false if the child could not be removed.
+     */
+    public boolean removeChild(Object child) {
+        return false;
+    }
+
+    /**
+     * Returns true if the given child can be removed.
+     */
+    public boolean canRemoveChild(Object child) {
+        return false;
+    }
+    
     protected Object object;
 	protected IPropertyDescriptor[] descriptors;
     protected String displayName;
+    protected PropertySourceWrapper[] children;
 }

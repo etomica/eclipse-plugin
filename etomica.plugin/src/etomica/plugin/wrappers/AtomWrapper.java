@@ -63,6 +63,27 @@ public class AtomWrapper extends PropertySourceWrapper {
         }
         return wrapper;
     }
+    
+    public boolean removeChild(Object child) {
+        if (child instanceof PropertySourceWrapper) {
+            child = ((PropertySourceWrapper)child).getObject();
+        }
+        if (child instanceof Atom && ((Atom)child).node.parentSpeciesAgent() == object) {
+            ((Atom)child).node.setParent((Atom)null);
+            return true;
+        }
+        return false;
+    }
+    
+    public boolean canRemoveChild(Object child) {
+        if (child instanceof PropertySourceWrapper) {
+            child = ((PropertySourceWrapper)child).getObject();
+        }
+        if (child instanceof Atom && ((Atom)child).node.parentSpeciesAgent() == object) {
+            return true;
+        }
+        return false;
+    }
 
     private static final AtomIteratorListSimple iterator = new AtomIteratorListSimple();
 }
