@@ -19,13 +19,12 @@ import etomica.phase.Phase;
 import etomica.plugin.wrappers.PropertySourceWrapper;
 import etomica.simulation.Simulation;
 import etomica.simulation.SimulationEvent;
-import etomica.simulation.SimulationListener;
 
 /**
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class SpeciesContentProvider implements ITreeContentProvider, SimulationListener {
+public class SpeciesContentProvider implements ITreeContentProvider {
 
     public SpeciesContentProvider() {
     }
@@ -90,11 +89,6 @@ public class SpeciesContentProvider implements ITreeContentProvider, SimulationL
         //Simulation.instantiationEventManager.removeListener(this);
 		viewer = null;
 	}
-
-    
-    public void actionPerformed(SimulationEvent evt) {
-        viewer.refresh();
-    }
 
     /* (non-Javadoc)
      * @see org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse.jface.viewers.Viewer, java.lang.Object, java.lang.Object)

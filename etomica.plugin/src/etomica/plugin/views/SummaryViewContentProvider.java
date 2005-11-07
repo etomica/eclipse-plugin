@@ -9,14 +9,12 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 
 import etomica.plugin.wrappers.PropertySourceWrapper;
-import etomica.simulation.SimulationEvent;
-import etomica.simulation.SimulationListener;
 
 /**
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class SummaryViewContentProvider implements ITreeContentProvider, SimulationListener {
+public class SummaryViewContentProvider implements ITreeContentProvider {
 
     public SummaryViewContentProvider() {
         //Simulation.instantiationEventManager.addListener(this); 
@@ -65,11 +63,6 @@ public class SummaryViewContentProvider implements ITreeContentProvider, Simulat
         //Simulation.instantiationEventManager.removeListener(this);
 		viewer = null;
 	}
-
-    
-    public void actionPerformed(SimulationEvent evt) {
-        viewer.refresh();
-    }
 
     /* (non-Javadoc)
      * @see org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse.jface.viewers.Viewer, java.lang.Object, java.lang.Object)

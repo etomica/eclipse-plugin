@@ -17,8 +17,6 @@ import etomica.compatibility.FeatureSet;
 import etomica.plugin.wrappers.ArrayWrapper;
 import etomica.plugin.wrappers.AtomTypeWrapper;
 import etomica.plugin.wrappers.PropertySourceWrapper;
-import etomica.simulation.SimulationEvent;
-import etomica.simulation.SimulationListener;
 import etomica.space.Vector;
 import etomica.util.Arrays;
 import etomica.util.EnumeratedType;
@@ -27,7 +25,7 @@ import etomica.util.EnumeratedType;
  * TODO To change the template for this generated type comment go to
  * Window - Preferences - Java - Code Style - Code Templates
  */
-public class SimulationViewContentProvider implements ITreeContentProvider, SimulationListener {
+public class SimulationViewContentProvider implements ITreeContentProvider {
 
     public SimulationViewContentProvider() {
         //Simulation.instantiationEventManager.addListener(this); 
@@ -128,11 +126,6 @@ public class SimulationViewContentProvider implements ITreeContentProvider, Simu
         //Simulation.instantiationEventManager.removeListener(this);
 		viewer = null;
 	}
-
-    
-    public void actionPerformed(SimulationEvent evt) {
-        viewer.refresh();
-    }
 
     /* (non-Javadoc)
      * @see org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse.jface.viewers.Viewer, java.lang.Object, java.lang.Object)
