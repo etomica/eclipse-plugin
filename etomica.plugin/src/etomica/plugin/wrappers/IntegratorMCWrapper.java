@@ -10,7 +10,7 @@ public class IntegratorMCWrapper extends IntegratorWrapper {
     }
 
     public PropertySourceWrapper[] getChildren() {
-        return PropertySourceWrapper.wrapArrayElements(((IntegratorMC)object).getMCMoves());
+        return PropertySourceWrapper.wrapArrayElements(((IntegratorMC)object).getMoveManager().getMCMoves());
     }
 
     public boolean removeChild(Object obj) {
@@ -21,7 +21,7 @@ public class IntegratorMCWrapper extends IntegratorWrapper {
             return true;
         }
         if (obj instanceof MCMove) {
-            return ((IntegratorMC)object).removeMCMove((MCMove)obj);
+            return ((IntegratorMC)object).getMoveManager().removeMCMove((MCMove)obj);
         }
         return false;
     }

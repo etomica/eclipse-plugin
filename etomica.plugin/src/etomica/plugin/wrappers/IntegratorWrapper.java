@@ -2,6 +2,7 @@ package etomica.plugin.wrappers;
 
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalListener;
+import etomica.integrator.IntegratorPhase;
 import etomica.phase.Phase;
 
 public class IntegratorWrapper extends PropertySourceWrapper {
@@ -18,8 +19,8 @@ public class IntegratorWrapper extends PropertySourceWrapper {
             ((Integrator)object).removeListener((IntegratorIntervalListener)obj);
             return true;
         }
-        else if (obj instanceof Phase) {
-            ((Integrator)object).removePhase((Phase)obj);
+        else if (obj instanceof Phase && object instanceof IntegratorPhase) {
+            ((IntegratorPhase)object).setPhase(null);
             return true;
         }
         return false;
@@ -29,7 +30,7 @@ public class IntegratorWrapper extends PropertySourceWrapper {
         if (obj instanceof PropertySourceWrapper) {
             obj = ((PropertySourceWrapper)obj).getObject();
         }
-        if (obj instanceof IntegratorIntervalListener || obj instanceof Phase) {
+        if (obj instanceof IntegratorIntervalListener || (obj instanceof Phase && object instanceof IntegratorPhase)) {
             return true;
         }
         return false;

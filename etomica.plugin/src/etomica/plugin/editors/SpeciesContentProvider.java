@@ -14,11 +14,10 @@ import etomica.atom.Atom;
 import etomica.atom.AtomTreeNode;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.SpeciesRoot;
-import etomica.integrator.Integrator;
+import etomica.integrator.IntegratorPhase;
 import etomica.phase.Phase;
 import etomica.plugin.wrappers.PropertySourceWrapper;
 import etomica.simulation.Simulation;
-import etomica.simulation.SimulationEvent;
 
 /**
  * TODO To change the template for this generated type comment go to
@@ -67,8 +66,8 @@ public class SpeciesContentProvider implements ITreeContentProvider {
 			return true;
 		} else if (element instanceof ActivityIntegrate) {
             return true;
-        } else if (element instanceof Integrator) {
-            return ((Integrator)element).getPhase().length > 0;
+        } else if (element instanceof IntegratorPhase) {
+            return ((IntegratorPhase)element).getPhase() != null;
         } else if (element instanceof Phase) {
             return true;
         } else if (element instanceof Atom) {
