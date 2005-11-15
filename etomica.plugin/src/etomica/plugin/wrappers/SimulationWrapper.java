@@ -48,13 +48,11 @@ public class SimulationWrapper extends PropertySourceWrapper {
             return true;
         }
         if (obj instanceof DataStreamHeader) {
-            for (int i=((DataStreamHeader)obj).getClients().length-1; i>0; i--) {
-                Object client = ((DataStreamHeader)obj).getClients()[i];
-                if (!removeDataStream(object,client)) {
-                    System.out.println("couldn't find "+client+" in "+object);
-                }
-                ((Simulation)object).unregister(((DataStreamHeader)obj).getDataSource(),client);
+            Object client = ((DataStreamHeader)obj).getClient();
+            if (!removeDataStream(object,client)) {
+                System.out.println("couldn't find "+client+" in "+object);
             }
+            ((Simulation)object).unregister(((DataStreamHeader)obj).getDataSource(),client);
             return true;
         }
         return false;

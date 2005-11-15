@@ -17,13 +17,11 @@ public class DataStreamWrapper extends PropertySourceWrapper {
     }
     
     public PropertySourceWrapper[] getChildren() {
-        Object[] clients = ((DataStreamHeader)object).getClients();
+        Object client = ((DataStreamHeader)object).getClient();
         PropertySourceWrapper[] wrappers = new PropertySourceWrapper[0];
-        for (int i=0; i<clients.length; i++) {
-            if (clients[i] instanceof DataPump) {
-                wrappers = (PropertySourceWrapper[])Arrays.addObject(wrappers,
-                        PropertySourceWrapper.makeWrapper(((DataPump)clients[i]).getDataSink()));
-            }
+        if (client instanceof DataPump) {
+            wrappers = (PropertySourceWrapper[])Arrays.addObject(wrappers,
+                    PropertySourceWrapper.makeWrapper(((DataPump)client).getDataSink()));
         }
         return wrappers;
     }
