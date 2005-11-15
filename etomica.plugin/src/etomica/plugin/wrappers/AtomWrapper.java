@@ -26,9 +26,6 @@ public class AtomWrapper extends PropertySourceWrapper {
                 descriptors = (IPropertyDescriptor[])Arrays.addObject(descriptors,new org.eclipse.ui.views.properties.PropertyDescriptor("velocity","velocity"));
             }
         }
-        if (((Atom)object).allatomAgents.length > 0) {
-            descriptors = (IPropertyDescriptor[])Arrays.addObject(descriptors,new org.eclipse.ui.views.properties.PropertyDescriptor("allAtomAgents","allAtomAgents"));
-        }
     }
 
     public Object getPropertyValue(Object key) {
@@ -56,10 +53,6 @@ public class AtomWrapper extends PropertySourceWrapper {
         }
         if (keyString.equals("velocity")) {
             wrapper = PropertySourceWrapper.makeWrapper(((ICoordinateKinetic)((Atom)object).coord).velocity());
-        }
-        if (keyString.equals("allAtomAgents")) {
-            wrapper = PropertySourceWrapper.makeWrapper(((Atom)object).allatomAgents);
-            wrapper.setDisplayName("Atom Agents");
         }
         return wrapper;
     }
