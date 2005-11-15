@@ -1,11 +1,6 @@
 package etomica.plugin.wrappers;
 
-import java.awt.Color;
-
-import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
-
-import etomica.util.EnumeratedType;
 
 public class ArrayWrapper extends PropertySourceWrapper {
 
