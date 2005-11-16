@@ -31,7 +31,12 @@ public class IntegratorMCWrapper extends IntegratorWrapper {
             obj = ((PropertySourceWrapper)obj).getObject();
         }
         if (obj instanceof MCMove) {
-            return true;
+            MCMove[] moves = ((IntegratorMC)object).getMoveManager().getMCMoves();
+            for (int i=0; i<moves.length; i++) {
+                if (moves[i] == obj) {
+                    return true;
+                }
+            }
         }
         return false;
     }

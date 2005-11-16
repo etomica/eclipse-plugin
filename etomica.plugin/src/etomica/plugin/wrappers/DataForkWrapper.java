@@ -30,6 +30,13 @@ public class DataForkWrapper extends PropertySourceWrapper {
     }
     
     public boolean canRemoveChild(Object child) {
-        return (child instanceof DataSink);
+        DataPipeForked fork = (DataPipeForked)object;
+        int n = fork.getDataSinkCount();
+        for (int i=0; i<n; i++) {
+            if (child == fork.getDataSink(i)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

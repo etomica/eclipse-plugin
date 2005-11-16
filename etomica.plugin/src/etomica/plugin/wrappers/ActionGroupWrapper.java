@@ -39,7 +39,13 @@ public class ActionGroupWrapper extends PropertySourceWrapper {
     }
     
     public boolean canRemoveChild(Object obj) {
-        return true;
+        Action[] actions = ((ActionGroup)object).getAllActions();
+        for (int i=0; i<actions.length; i++) {
+            if (actions[i] == obj) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

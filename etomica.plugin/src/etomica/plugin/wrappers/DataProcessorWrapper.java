@@ -32,6 +32,9 @@ public class DataProcessorWrapper extends PropertySourceWrapper {
     }
     
     public boolean canRemoveChild(Object child) {
-        return (child instanceof DataSink);
+        if (child instanceof PropertySourceWrapper) {
+            child = ((PropertySourceWrapper)child).getObject();
+        }
+        return (((DataProcessor)object).getDataSink() == child);
     }
 }

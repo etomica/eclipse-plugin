@@ -11,6 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.views.properties.ComboBoxPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
@@ -423,9 +424,26 @@ public class PropertySourceWrapper implements IPropertySource {
     }
 
     /**
-     * Returns true if the given child can be removed.
+     * Returns true if the given child can be removed (assumes that
+     * the given object is an actual child of the wrapped object).
      */
     public boolean canRemoveChild(Object child) {
+        return false;
+    }
+    
+    /**
+     * returns an array of Classes which can be added to the wrapped object.
+     */
+    public Class[] getAdders() {
+        return new Class[0];
+    }
+    
+    /**
+     * Adds a new instance of an object of class newObjectClass to the wrapped object.
+     * The shell is passed so that a Wizard can be invoked if needed.
+     * Returns true if the operation is successful.
+     */
+    public boolean addObjectClass(Simulation sim, Class newObjectClass, Shell shell) {
         return false;
     }
     
