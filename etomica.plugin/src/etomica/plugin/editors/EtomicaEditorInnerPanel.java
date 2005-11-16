@@ -14,11 +14,9 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -35,6 +33,7 @@ import etomica.plugin.wrappers.ArrayWrapper;
 import etomica.plugin.wrappers.PropertySourceWrapper;
 import etomica.plugin.wrappers.SimulationWrapper;
 import etomica.simulation.Simulation;
+import etomica.util.Arrays;
 
 
 /**
@@ -70,6 +69,7 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
 		viewer = new TreeViewer( objectTree  );
 		viewer.setContentProvider(new SimulationViewContentProvider());
         viewer.setLabelProvider(new LabelProvider());
+
         Menu viewMenu = new Menu(viewer.getTree());
         MenuItem removeItem = new MenuItem(viewMenu,SWT.NONE);
         removeItem.setText("Remove");
@@ -81,7 +81,14 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
         // stash the viewer in the MenuItem so the listeners can get it
         refreshItem.setData(viewer);
         refreshItem.addSelectionListener(new RefreshItemSelectionListener());
-        viewer.addSelectionChangedListener(new MySelectionChangedListener(removeItem));
+        
+        MenuItem addItem = new MenuItem(viewMenu,SWT.CASCADE);
+        addItem.setText("Add");
+        Menu addSubMenu = new Menu(addItem);
+        addItem.setMenu(addSubMenu);
+        // stash the viewer in the MenuItem so the listeners can get it
+        addItem.setData(viewer);
+        viewer.addSelectionChangedListener(new MySelectionChangedListener(removeItem,addItem));
         viewer.getTree().setMenu(viewMenu);
 	
         actionsViewer = new TreeViewer( actionsTree );
@@ -134,11 +141,20 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
 		}
 	}
     
-    private class RefreshItemSelectionListener implements SelectionListener {
+    private static class RefreshItemSelectionListener implements SelectionListener {
         public void widgetSelected(SelectionEvent e){
             TreeViewer simViewer = (TreeViewer)e.widget.getData();
             //retrieve the object from the tree viewer directly
-            Object selectedObj = simViewer.getTree().getSelection()[0].getData();
+            TreeItem selectedItem = simViewer.getTree().getSelection()[0];
+            Object selectedObj = selectedItem.getData();
+            while (selectedObj instanceof ArrayWrapper) {
+                selectedItem = selectedItem.getParentItem();
+                if (selectedItem == null) {
+                    simViewer.refresh();
+                    return;
+                }
+                selectedObj = selectedItem.getData();
+            }
             simViewer.refresh(selectedObj);
         }
 
@@ -147,7 +163,7 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
         }
     }
 	
-	private class RemoveItemSelectionListener implements SelectionListener {
+	private static class RemoveItemSelectionListener implements SelectionListener {
         public void widgetSelected(SelectionEvent e){
             TreeViewer simViewer = (TreeViewer)e.widget.getData();
             //retrieve the selected tree item from the tree so we can get its parent
@@ -175,9 +191,47 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
                 // selected item's parent must be the simulation.  retrieve it from
                 // the tree viewer's root.
                 SimulationWrapper simWrapper = (SimulationWrapper)simViewer.getInput();
-                simWrapper.removeChild(selectedObj);
-                //refresh everything
-                simViewer.refresh();
+                if (simWrapper.removeChild(selectedObj)) {
+                    simViewer.refresh(null);
+                }
+            }
+        }
+
+        public void widgetDefaultSelected(SelectionEvent e){
+            widgetSelected(e);
+        }
+    }
+    
+    private static class AddItemSelectionListener implements SelectionListener {
+        public void widgetSelected(SelectionEvent e){
+            TreeViewer simViewer = (TreeViewer)e.widget.getData("viewer");
+            SimulationWrapper simWrapper = (SimulationWrapper)simViewer.getInput();
+            //retrieve the selected tree item from the tree so we can get its parent
+            TreeItem selectedItem = simViewer.getTree().getSelection()[0];
+            Object selectedObj = selectedItem.getData();
+            TreeItem parentItem = selectedItem;
+            Object parentObj = selectedObj;
+            if (parentObj instanceof ArrayWrapper) {
+                //retrieve the selected item's parent
+                parentItem = selectedItem.getParentItem();
+                while (parentItem != null) {
+                    parentObj = parentItem.getData();
+                    if (parentObj instanceof ArrayWrapper) {
+                        //if the parent was an array wrapper, then we really want the array's parent
+                        parentItem = parentItem.getParentItem();
+                        continue;
+                    }
+                    break;
+                }
+                if (parentItem == null) {
+                    // selected item's parent must be the simulation.  retrieve it from
+                    // the tree viewer's root.
+                    parentObj = simWrapper;
+                }
+            }
+            if (((PropertySourceWrapper)parentObj).addObjectClass((Simulation)simWrapper.getObject(),
+                    (Class)e.widget.getData("newClass"),simViewer.getControl().getShell())) {
+                simViewer.refresh(parentItem);
             }
         }
 
@@ -186,9 +240,19 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
         }
     }
 
+    protected void refreshTree(TreeItem item) {
+        if (item == null) {
+            viewer.refresh();
+        }
+        else {
+            viewer.refresh(item.getData());
+        }
+    }
+
     private static class MySelectionChangedListener implements ISelectionChangedListener {
-        public MySelectionChangedListener(MenuItem remove) {
+        public MySelectionChangedListener(MenuItem remove, MenuItem add) {
             removeItem = remove;
+            addItem = add;
         }
         
         public void selectionChanged(SelectionChangedEvent e) {
@@ -216,15 +280,60 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
                 parentObj = (SimulationWrapper)simViewer.getInput();
             }
             // query the parent's wrapper to see if the selected child can be removed 
-            if (parentObj instanceof PropertySourceWrapper && 
-                    ((PropertySourceWrapper)parentObj).canRemoveChild(selectedObj)) {
+            if (parentObj instanceof PropertySourceWrapper
+                  && ((PropertySourceWrapper)parentObj).canRemoveChild(selectedObj)) {
                 removeItem.setEnabled(true);
             }
             else {
                 removeItem.setEnabled(false);
             }
+            if (selectedObj instanceof PropertySourceWrapper) {
+                Class[] adders;
+                if (selectedObj instanceof ArrayWrapper) {
+                    // if we have an array, we really want to add something to the 
+                    // array's parent.
+                    adders = ((PropertySourceWrapper)parentObj).getAdders();
+                    Object obj = ((PropertySourceWrapper)selectedObj).getObject();
+                    Class arrayClass = obj.getClass();
+                    Class componentClass = arrayClass.getComponentType();
+
+                    for (int i=0; i<adders.length; ) {
+                        if (!adders[i].isAssignableFrom(componentClass)) {
+                            adders = (Class[])Arrays.removeObject(adders,adders[i]);
+                        }
+                        else {
+                            i++;
+                        }
+                    }
+                }
+                else {
+                    adders = ((PropertySourceWrapper)selectedObj).getAdders();
+                }
+                if (adders.length == 0) {
+                    addItem.setEnabled(false);
+                }
+                else {
+                    addItem.setEnabled(true);
+                    Menu addSubMenu = addItem.getMenu();
+                    while (addSubMenu.getItemCount() > 0) {
+                        MenuItem item = addSubMenu.getItem(0);
+                        item.dispose();
+                    }
+//                    MenuItem setSubItemNone = new MenuItem(setSubMenu,SWT.NONE);
+//                    setSubItemNone.setText("(empty)");
+//                    setSubItemNone.setEnabled(false);
+//                    setItem.addSelectionListener(new RemoveItemSelectionListener());
+                    for (int i=0; i<adders.length; i++) {
+                        MenuItem addSubItem = new MenuItem(addSubMenu,SWT.NONE);
+                        addSubItem.setText(adders[i].getName());
+                        addSubItem.setData("viewer",simViewer);
+                        addSubItem.setData("newClass",adders[i]);
+                        addSubItem.addSelectionListener(new AddItemSelectionListener());
+                    }
+                }
+            }
         }
         
-        private final MenuItem removeItem;
+        private final MenuItem removeItem, addItem;
     }
 }
