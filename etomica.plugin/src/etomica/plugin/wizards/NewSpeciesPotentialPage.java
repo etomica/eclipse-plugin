@@ -28,6 +28,8 @@ public class NewSpeciesPotentialPage extends WizardPage {
     //   did not input anything yet
     private boolean potentialNameModified = false;
     private boolean potentialTypeModified = false;
+    private boolean potentialBodyModified = false;
+    private boolean potentialHardSoftModified = false;
     private boolean speciesModified = false;
 
     /**
@@ -79,6 +81,27 @@ public class NewSpeciesPotentialPage extends WizardPage {
 	        }
 		});
 
+        potentialSpeciesSelector.potentialBodyCombo.addModifyListener(new ModifyListener() {
+            public void modifyText(ModifyEvent e) {
+                potentialBodyModified = true;
+                dialogChanged();
+            }
+        });
+
+        potentialSpeciesSelector.potentialHardSoftCombo.addModifyListener(new ModifyListener() {
+            public void modifyText(ModifyEvent e) {
+                potentialHardSoftModified = true;
+                dialogChanged();
+            }
+        });
+
+        potentialSpeciesSelector.potentialCombo.addModifyListener(new ModifyListener() {
+            public void modifyText(ModifyEvent e) {
+                potentialTypeModified = true;
+                dialogChanged();
+            }
+        });
+
         potentialSpeciesSelector.potentialCombo.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
                 potentialTypeModified = true;
@@ -119,15 +142,19 @@ public class NewSpeciesPotentialPage extends WizardPage {
 	 */
 
 	private void dialogChanged() {
+        if (potentialBodyModified || potentialHardSoftModified) {
+            if (potentialBodyModified) {
+                updateSpecies();
+            }
+            potentialBodyModified = false;
+            potentialHardSoftModified = false;
+            potentialSpeciesSelector.rebuildPotentialList();
+        }
 		if (!checkPotentialName()) {
             return;
         }
         if (!checkPotentialType()) {
             return;
-        }
-        if (potentialTypeModified) {
-            potentialTypeModified = false;
-            updateSpecies();
         }
         if (!checkSpecies()) {
             return;
@@ -158,25 +185,12 @@ public class NewSpeciesPotentialPage extends WizardPage {
     }
     
     private void updateSpecies() {
-        Class potentialClass = potentialSpeciesSelector.getPotentialClass();
-        if (potentialClass == null) {
-            potentialSpeciesSelector.speciesCombo.setEnabled(false);
-            potentialSpeciesSelector.speciesCombo2.setEnabled(false);
-            return;
-        }
-        potentialSpeciesSelector.speciesCombo.setEnabled(true);
-        System.out.println("have "+potentialClass);
-        if (etomica.potential.Potential2.class.isAssignableFrom(potentialClass)) {
-            System.out.println("it's 2 body");
+        int nBody = potentialSpeciesSelector.getPotenialNumBody();
+        if (nBody == 2) {
             potentialSpeciesSelector.speciesCombo2.setEnabled(true);
         }
-        else if (etomica.potential.Potential1.class.isAssignableFrom(potentialClass)) {
-            System.out.println("it's 1 body");
-            potentialSpeciesSelector.speciesCombo2.setEnabled(false);
-        }
         else {
-            System.out.println("it's neither");
-            //potential group.. need another combo
+            potentialSpeciesSelector.speciesCombo2.setEnabled(false);
         }
     }
 
@@ -187,7 +201,7 @@ public class NewSpeciesPotentialPage extends WizardPage {
             updateStatus("You must select the first Species");
             return false;
         }
-        if (species[1] == null && potentialSpeciesSelector.speciesCombo2.isEnabled()) {
+        if (species.length > 1 && species[1] == null && potentialSpeciesSelector.speciesCombo2.isEnabled()) {
             updateStatus("You must select the second Species");
             return false;
         }

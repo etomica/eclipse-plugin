@@ -32,8 +32,8 @@ public class NewSpeciesPotential extends Wizard {
      * Adding the page to the wizard.
      */
     public void addPages() {
-        page = new NewSpeciesPotentialPage(simulation);
-        addPage(page);
+        speciesPotentialPage = new NewSpeciesPotentialPage(simulation);
+        addPage(speciesPotentialPage);
     }
 
     /**
@@ -43,11 +43,11 @@ public class NewSpeciesPotential extends Wizard {
      */
     public boolean performFinish() {
         // Create simulation based on user's choices
-        Potential potential = page.createPotential();
+        Potential potential = speciesPotentialPage.createPotential();
         if ( potential==null )
             return false;
 	  	
-        Species[] speciesArray = page.getSpecies();
+        Species[] speciesArray = speciesPotentialPage.getSpecies();
         potentialMaster.setSpecies(potential,speciesArray);
         success = true;
         
@@ -60,6 +60,6 @@ public class NewSpeciesPotential extends Wizard {
     
     private final Simulation simulation;
     private final PotentialMaster potentialMaster;
-    private NewSpeciesPotentialPage page;
+    private NewSpeciesPotentialPage speciesPotentialPage;
     private boolean success = false;
 }
