@@ -102,13 +102,6 @@ public class NewSpeciesPotentialPage extends WizardPage {
             }
         });
 
-        potentialSpeciesSelector.potentialCombo.addModifyListener(new ModifyListener() {
-            public void modifyText(ModifyEvent e) {
-                potentialTypeModified = true;
-                dialogChanged();
-            }
-        });
-
         potentialSpeciesSelector.speciesCombo.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
                 speciesModified = true;
