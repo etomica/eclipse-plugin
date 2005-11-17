@@ -275,9 +275,6 @@ public class PropertySourceWrapper implements IPropertySource {
 			else if(String.class.isAssignableFrom(type)) {
 				pd = new TextPropertyDescriptor(property, name);
 			}
-            else if(Boundary.class.isAssignableFrom(type)) {
-				pd = new ComboBoxPropertyDescriptor(property,name,new String[] {"test A", "test B"});
-			}
 			if (pd == null) {
 				pd = new org.eclipse.ui.views.properties.PropertyDescriptor(property, name);
 			}
