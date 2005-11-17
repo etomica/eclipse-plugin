@@ -5,7 +5,6 @@ import org.eclipse.swt.widgets.Shell;
 
 import etomica.plugin.wizards.NewSpeciesPotential;
 import etomica.potential.Potential;
-import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 
@@ -15,10 +14,6 @@ public class PotentialMasterWrapper extends PropertySourceWrapper {
         super(object);
     }
 
-    public PropertySourceWrapper[] getChildren() {
-        return PropertySourceWrapper.wrapArrayElements(((PotentialMaster)object).getPotentials());
-    }
-    
     public boolean removeChild(Object obj) {
         if (obj instanceof PropertySourceWrapper) {
             obj = ((PropertySourceWrapper)obj).getObject();
@@ -55,7 +50,6 @@ public class PotentialMasterWrapper extends PropertySourceWrapper {
 
             WizardDialog dialog = new WizardDialog(shell, wizard);
             dialog.create();
-            dialog.getShell().setSize(500,400);
             dialog.open();
             return wizard.getSuccess();
         }
