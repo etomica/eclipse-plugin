@@ -2,15 +2,16 @@ package etomica.plugin.wrappers;
 
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.MCMove;
+import etomica.simulation.Simulation;
 
 public class IntegratorMCWrapper extends IntegratorWrapper {
 
-    public IntegratorMCWrapper(IntegratorMC object) {
-        super(object);
+    public IntegratorMCWrapper(IntegratorMC object, Simulation sim) {
+        super(object,sim);
     }
 
     public PropertySourceWrapper[] getChildren() {
-        return PropertySourceWrapper.wrapArrayElements(((IntegratorMC)object).getMoveManager().getMCMoves());
+        return PropertySourceWrapper.wrapArrayElements(((IntegratorMC)object).getMoveManager().getMCMoves(),simulation);
     }
 
     public boolean removeChild(Object obj) {

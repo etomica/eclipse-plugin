@@ -2,18 +2,19 @@ package etomica.plugin.wrappers;
 
 import etomica.data.DataPipeForked;
 import etomica.data.DataSink;
+import etomica.simulation.Simulation;
 
 public class DataForkWrapper extends PropertySourceWrapper {
 
-    public DataForkWrapper(DataPipeForked object) {
-        super(object);
+    public DataForkWrapper(DataPipeForked object, Simulation sim) {
+        super(object,sim);
     }
 
     public PropertySourceWrapper[] getChildren() {
         DataPipeForked fork = (DataPipeForked)object;
         PropertySourceWrapper[] wrappers = new PropertySourceWrapper[fork.getDataSinkCount()];
         for (int i=0; i<wrappers.length; i++) {
-            wrappers[i] = PropertySourceWrapper.makeWrapper(fork.getDataSink(i));
+            wrappers[i] = PropertySourceWrapper.makeWrapper(fork.getDataSink(i),simulation);
         }
         return wrappers;
     }

@@ -10,8 +10,8 @@ import etomica.simulation.Simulation;
 
 public class PotentialMasterWrapper extends PropertySourceWrapper {
 
-    public PotentialMasterWrapper(PotentialMaster object) {
-        super(object);
+    public PotentialMasterWrapper(PotentialMaster object, Simulation sim) {
+        super(object,sim);
     }
 
     public boolean removeChild(Object obj) {
@@ -50,6 +50,7 @@ public class PotentialMasterWrapper extends PropertySourceWrapper {
 
             WizardDialog dialog = new WizardDialog(shell, wizard);
             dialog.create();
+            dialog.getShell().setSize(500,500);
             dialog.open();
             return wizard.getSuccess();
         }

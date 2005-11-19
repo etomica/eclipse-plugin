@@ -5,13 +5,14 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import etomica.atom.Atom;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorListSimple;
+import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
 import etomica.util.Arrays;
 
 public class AtomWrapper extends PropertySourceWrapper {
 
-    public AtomWrapper(Atom object) {
-        super(object);
+    public AtomWrapper(Atom object, Simulation sim) {
+        super(object,sim);
     }
     
     protected void generateDescriptors() {
@@ -35,24 +36,24 @@ public class AtomWrapper extends PropertySourceWrapper {
         String keyString = (String)key;
         PropertySourceWrapper wrapper = null;
         if (keyString.equals("type")) {
-            wrapper = PropertySourceWrapper.makeWrapper(((Atom)object).type);
+            wrapper = PropertySourceWrapper.makeWrapper(((Atom)object).type,simulation);
         }
         if (keyString.equals("children")) {
             iterator.setList(((AtomTreeNodeGroup)((Atom)object).node).childList);
             iterator.reset();
-            Atom[] children = new Atom[iterator.size()];
+            Atom[] childAtoms = new Atom[iterator.size()];
             int i=0;
             while (iterator.hasNext()) {
-                children[i++] = iterator.nextAtom();
+                childAtoms[i++] = iterator.nextAtom();
             }
-            wrapper = PropertySourceWrapper.makeWrapper(children);
+            wrapper = PropertySourceWrapper.makeWrapper(childAtoms,simulation);
             wrapper.setDisplayName("Child Atoms");
         }
         if (keyString.equals("position")) {
-            wrapper = PropertySourceWrapper.makeWrapper(((Atom)object).coord.position());
+            wrapper = PropertySourceWrapper.makeWrapper(((Atom)object).coord.position(),simulation);
         }
         if (keyString.equals("velocity")) {
-            wrapper = PropertySourceWrapper.makeWrapper(((ICoordinateKinetic)((Atom)object).coord).velocity());
+            wrapper = PropertySourceWrapper.makeWrapper(((ICoordinateKinetic)((Atom)object).coord).velocity(),simulation);
         }
         return wrapper;
     }

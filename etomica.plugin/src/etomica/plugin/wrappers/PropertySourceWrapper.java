@@ -12,11 +12,11 @@ import java.lang.reflect.Method;
 import java.util.LinkedList;
 
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.views.properties.ComboBoxPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 
+import etomica.action.Action;
 import etomica.action.ActionGroup;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.Atom;
@@ -28,14 +28,21 @@ import etomica.integrator.IntegratorMC;
 import etomica.phase.Phase;
 import etomica.plugin.views.CheckboxPropertyDescriptor;
 import etomica.plugin.views.DecimalPropertyDescriptor;
-import etomica.plugin.views.EnumeratedTypePropertyDescriptor;
+import etomica.plugin.views.ComboClassPropertyDescriptor;
+import etomica.plugin.views.ComboPropertyDescriptor;
 import etomica.plugin.views.IntegerPropertyDescriptor;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.DataStreamHeader;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
+import etomica.space.BoundaryDeformablePeriodic;
+import etomica.space.BoundaryRectangularNonperiodic;
+import etomica.space.BoundaryRectangularPeriodic;
+import etomica.space.BoundaryRectangularSlit;
+import etomica.space3d.BoundaryTruncatedOctahedron;
 import etomica.species.Species;
+import etomica.util.Arrays;
 import etomica.util.EnumeratedType;
 
 /**
@@ -48,17 +55,26 @@ import etomica.util.EnumeratedType;
 
 public class PropertySourceWrapper implements IPropertySource {
 
-	/**
+    protected PropertySourceWrapper(Object object) {
+        this(object,null);
+    }
+
+    /**
 	 * Constructs new instance, wrapping the given object.
 	 */
-	protected PropertySourceWrapper(Object object) {
+	protected PropertySourceWrapper(Object object, Simulation sim) {
 		super();
 		this.object = object;
+        simulation = sim;
 	}
 	
     public static PropertySourceWrapper makeWrapper(Object obj) {
+        return makeWrapper(obj,null);
+    }
+    
+    public static PropertySourceWrapper makeWrapper(Object obj, Simulation sim) {
         if (obj instanceof Object[]) {
-            return new ArrayWrapper((Object[])obj);
+            return new ArrayWrapper((Object[])obj,sim);
         }
         if (obj instanceof double[]) {
             return new DoubleArrayWrapper((double[])obj);
@@ -70,45 +86,45 @@ public class PropertySourceWrapper implements IPropertySource {
             return new SimulationWrapper((Simulation)obj);
         }
         else if (obj instanceof PotentialMaster) {
-            return new PotentialMasterWrapper((PotentialMaster)obj);
+            return new PotentialMasterWrapper((PotentialMaster)obj,sim);
         }
         else if (obj instanceof PotentialGroup) {
-            return new PotentialGroupWrapper((PotentialGroup)obj);
+            return new PotentialGroupWrapper((PotentialGroup)obj,sim);
         }
         else if (obj instanceof Phase) {
-            return new PhaseWrapper((Phase)obj);
+            return new PhaseWrapper((Phase)obj,sim);
         }
         else if (obj instanceof Species) {
-            return new SpeciesWrapper((Species)obj);
+            return new SpeciesWrapper((Species)obj,sim);
         }
         else if (obj instanceof ActionGroup) {
-            return new ActionGroupWrapper((ActionGroup)obj);
+            return new ActionGroupWrapper((ActionGroup)obj,sim);
         }
         else if (obj instanceof ActivityIntegrate) {
-            return new ActivityIntegrateWrapper((ActivityIntegrate)obj);
+            return new ActivityIntegrateWrapper((ActivityIntegrate)obj,sim);
         }
         else if (obj instanceof Integrator) {
             if (obj instanceof IntegratorMC) {
-                return new IntegratorMCWrapper((IntegratorMC)obj);
+                return new IntegratorMCWrapper((IntegratorMC)obj,sim);
             }
-            return new IntegratorWrapper((Integrator)obj);
+            return new IntegratorWrapper((Integrator)obj,sim);
         }
         else if (obj instanceof DataStreamHeader) {
-            return new DataStreamWrapper((DataStreamHeader)obj);
+            return new DataStreamWrapper((DataStreamHeader)obj,sim);
         }
         else if (obj instanceof DataPipeForked) {
-            return new DataForkWrapper((DataPipeForked)obj);
+            return new DataForkWrapper((DataPipeForked)obj,sim);
         }
         else if (obj instanceof DataProcessor) {
-            return new DataProcessorWrapper((DataProcessor)obj);
+            return new DataProcessorWrapper((DataProcessor)obj,sim);
         }
         else if (obj instanceof Atom) {
-            return new AtomWrapper((Atom)obj);
+            return new AtomWrapper((Atom)obj,sim);
         }
         else if (obj instanceof AtomType) {
-            return new AtomTypeWrapper((AtomType)obj);
+            return new AtomTypeWrapper((AtomType)obj,sim);
         }
-        return new PropertySourceWrapper(obj);
+        return new PropertySourceWrapper(obj,sim);
     }
     
 	/**
@@ -141,7 +157,7 @@ public class PropertySourceWrapper implements IPropertySource {
         catch(InvocationTargetException ex) {value = null;}
         catch(IllegalAccessException ex) {value = null;}
         if (value != null && value.getClass().isArray()) {
-            return PropertySourceWrapper.makeWrapper(value);
+            return PropertySourceWrapper.makeWrapper(value,simulation);
         }
         return value;
     }
@@ -253,130 +269,59 @@ public class PropertySourceWrapper implements IPropertySource {
         //if(etomica.utility.LinkedList.class.isAssignableFrom(type)) return null;
 		
 		IPropertyDescriptor pd = null;
-		try {
-//			//read the current value of the property
-			Object args[] = { };
+        Object value = null;
+        if ((Boundary.class.isAssignableFrom(type) && simulation != null)
+                || EnumeratedType.class.isAssignableFrom(type)) {
+            try {
+                value = getter.invoke(object, null);
+            }
+            catch (InvocationTargetException ex) {
+                System.err.println("Skipping property " + name + " ; exception on target: " + ex.getTargetException());
+    //          ex.getTargetException().printStackTrace();
+                return null;
+            } 
+            catch (Exception ex) {
+                System.err.println("Skipping property " + name + " ; exception: " + ex);
+    //          ex.printStackTrace();
+                return null;
+            }
+        }
 						
-			if(type == boolean.class) {
-				pd = new CheckboxPropertyDescriptor(property, name);
-			}
-            else if(type == int.class) {
-				pd = new IntegerPropertyDescriptor(property, name);
-			}
-            else if(type == double.class) {
-				pd = new DecimalPropertyDescriptor(property, name);
-			}
-			else if(EnumeratedType.class.isAssignableFrom(type)) {
-                Object value = getter.invoke(object, args);
-                if (value != null) {
-                    pd = new EnumeratedTypePropertyDescriptor(property,name,((EnumeratedType)value).choices());
-                }
-			}
-			else if(String.class.isAssignableFrom(type)) {
-				pd = new TextPropertyDescriptor(property, name);
-			}
-			if (pd == null) {
-				pd = new org.eclipse.ui.views.properties.PropertyDescriptor(property, name);
-			}
-//		
-//			//find and instantiate the editor used to modify value of the property
-//			if(property.isConstrained())
-//				editor = new ConstrainedPropertyEditor();
-//			//if property is a TypedConstant
-//			else if(etomica.Constants.TypedConstant.class.isAssignableFrom(type) && value != null) {
-//				editor = new TypedConstantEditor();
-//			}
-//			else if(etomica.units.Unit.class.isAssignableFrom(type)) {
-//				editor = new etomica.UnitEditor((Unit)value);
-//			}
-//			else if(etomica.MCMove[].class.isAssignableFrom(type)) {
-//				JavaWriter javaWriter = (JavaWriter)Etomica.javaWriters.get(target.parentSimulation());
-//				editor = new McMoveEditor((etomica.IntegratorMC)parentNode.object(),javaWriter);
-//			}
-//			else if(etomica.SimulationElement.class.isAssignableFrom(type)) {
-//				editor = new etomica.SimulationElementEditor(type);
-//			}
-//			else {
-//			//property is a dimensioned number
-//				if(type == Double.TYPE) {
-//					//try to get dimension from get(property)Dimension() method
-//					etomica.units.Dimension dimension = etomica.units.Dimension.introspect(parentNode.object(),name,bi);
-//					//try to get dimension from getDimension() method
-//					if(dimension == null) dimension = etomica.units.Dimension.introspect(parentNode.object(),"",bi);
-//					if(dimension != null) {
-//						editor = new DimensionedDoubleEditor(dimension);
-//					}
-//				}
-//			//property is not a dimensioned number; see if its editor was set explicitly
-//				if(editor == null) { 
-//					Class pec = property.getPropertyEditorClass();
-//					if (pec != null) {
-//						try {
-//							editor = (PropertyEditor)pec.newInstance();
-//						} catch (Exception ex) {}
-//					}
-//				}
-//			//property is not a dimensioned number and was not set explicitly
-//			//have editor manager look for an appropriate editor
-//			if (editor == null)
-//				editor = PropertyEditorManager.findEditor(type);
-//			}//done with trying to get an editor for the property
-//			
-//			// If we can't edit this component, skip it.
-//			if (editor == null) {
-//			// If it's a user-defined property we give a warning.
-//			String getterClass = property.getReadMethod().getDeclaringClass().getName();
-//				if (getterClass.indexOf("java.") != 0) {
-//					System.err.println("Warning: Can't find public property editor for property \"" + name + "\".  Skipping.");
-//				}
-//				return null;
-//			}
-//			
-//			//set the editor to the current value of the property
-//			try {
-//				editor.setValue(value);
-//			} catch(NullPointerException e) {}
-//			
-//			//add listener that causes the wasModified method to be 
-//			//invoked when editor fires property-change event
-//			editor.addPropertyChangeListener(adaptor);
-//			
-//			// Now figure out how to display it...
-//			if (editor.isPaintable() && editor.supportsCustomEditor())
-//				view = new PropertyCanvas(frame, editor);
-//			else if (editor instanceof etomica.UnitEditor) 
-//				view = ((etomica.UnitEditor)editor).unitSelector();
-//			else if (editor.getTags() != null)
-//				view = new PropertySelector(editor);
-//			else if (editor.getAsText() != null) {
-//				view = new PropertyText(editor);
-//			}
-//			else if (editor instanceof ConstrainedPropertyEditor) {
-//				view = new EmptyPanel();
-//			}
-//			else {
-//				System.err.println("Warning: Property \"" + name 
-//				+ "\" has non-displayable editor.  Skipping.");
-//				return null;
-//			}
-//			if(editor instanceof DimensionedDoubleEditor) {
-//				unitView = ((DimensionedDoubleEditor)editor).unitSelector();
-//				if(parentNode.object() instanceof etomica.Meter)
-//				((PropertyText)view).setEditable(false);
-//			}
-//			else unitView = new EmptyPanel();
-		} //end of try
-		catch (InvocationTargetException ex) {
-			System.err.println("Skipping property " + name + " ; exception on target: " + ex.getTargetException());
-//			ex.getTargetException().printStackTrace();
-			return null;
-		} 
-		catch (Exception ex) {
-			System.err.println("Skipping property " + name + " ; exception: " + ex);
-//			ex.printStackTrace();
-			return null;
+		if(type == boolean.class) {
+			pd = new CheckboxPropertyDescriptor(property, name);
 		}
-
+        else if(type == int.class) {
+			pd = new IntegerPropertyDescriptor(property, name);
+		}
+        else if(type == double.class) {
+			pd = new DecimalPropertyDescriptor(property, name);
+		}
+		else if(EnumeratedType.class.isAssignableFrom(type)) {
+            if (value != null) {
+                pd = new ComboPropertyDescriptor(property,name,((EnumeratedType)value).choices());
+            }
+		}
+		else if(String.class.isAssignableFrom(type)) {
+			pd = new TextPropertyDescriptor(property, name);
+		}
+        else if (Phase.class.isAssignableFrom(type) && simulation != null) {
+            pd = new ComboPropertyDescriptor(property, name, simulation.getPhases());
+        }
+        else if (Boundary.class.isAssignableFrom(type) && simulation != null) {
+            Object[] boundaryClasses = new Object[]{BoundaryRectangularPeriodic.class,BoundaryRectangularNonperiodic.class,
+                    BoundaryRectangularSlit.class,BoundaryDeformablePeriodic.class,BoundaryTruncatedOctahedron.class};
+            if (value != null) {
+                boundaryClasses = Arrays.resizeArray(boundaryClasses,boundaryClasses.length+1);
+                for (int i=boundaryClasses.length-1; i>0; i--) {
+                    boundaryClasses[i] = boundaryClasses[i-1];
+                }
+                boundaryClasses[0] = value;
+            }
+            pd = new ComboClassPropertyDescriptor(property, name, boundaryClasses, new Object[]{simulation});
+        }
+		if (pd == null) {
+			pd = new org.eclipse.ui.views.properties.PropertyDescriptor(property, name);
+		}
 		return pd;
 	}//end of processProperty
 
@@ -392,7 +337,7 @@ public class PropertySourceWrapper implements IPropertySource {
 	 * @param array the input array with elements to be wrapped
 	 * @return the array of wrapped elements
 	 */
-    public static PropertySourceWrapper[] wrapArrayElements(Object[] array) {
+    public static PropertySourceWrapper[] wrapArrayElements(Object[] array, Simulation sim) {
         int nonNullCount = 0;
         for(int i=0; i<array.length; i++) {
             if (array[i] != null) {
@@ -402,7 +347,7 @@ public class PropertySourceWrapper implements IPropertySource {
         PropertySourceWrapper[] wrappedArray = new PropertySourceWrapper[nonNullCount];
         for(int i=0; i<array.length; i++) {
             if (array[i] != null) {
-                wrappedArray[i] = PropertySourceWrapper.makeWrapper(array[i]);
+                wrappedArray[i] = PropertySourceWrapper.makeWrapper(array[i],sim);
             }
         }
         return wrappedArray;
@@ -444,8 +389,16 @@ public class PropertySourceWrapper implements IPropertySource {
         return false;
     }
     
+    /**
+     * returns an array of Actions relevant to the wrapped object.
+     */
+    public Action[] getActions() {
+        return new Action[0];
+    }
+    
     protected Object object;
 	protected IPropertyDescriptor[] descriptors;
     protected String displayName;
     protected PropertySourceWrapper[] children;
+    protected Simulation simulation;
 }

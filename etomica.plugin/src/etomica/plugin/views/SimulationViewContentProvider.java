@@ -17,6 +17,7 @@ import etomica.compatibility.FeatureSet;
 import etomica.plugin.wrappers.ArrayWrapper;
 import etomica.plugin.wrappers.AtomTypeWrapper;
 import etomica.plugin.wrappers.PropertySourceWrapper;
+import etomica.simulation.Simulation;
 import etomica.space.Vector;
 import etomica.util.Arrays;
 import etomica.util.EnumeratedType;
@@ -86,7 +87,7 @@ public class SimulationViewContentProvider implements ITreeContentProvider {
                 childWrappers[count-1] = (PropertySourceWrapper)value;
             }
             else {
-                childWrappers[count-1] = PropertySourceWrapper.makeWrapper(obj);
+                childWrappers[count-1] = PropertySourceWrapper.makeWrapper(obj,simulation);
             }
         }
         return childWrappers;
@@ -99,6 +100,7 @@ public class SimulationViewContentProvider implements ITreeContentProvider {
     //the call to viewer.setInput in createPartControl causes the list of
     //simulation instances to be the input element in this method
     public Object[] getElements(Object inputElement) {
+        simulation = (Simulation)((PropertySourceWrapper)inputElement).getObject();
         return ((PropertySourceWrapper)inputElement).getChildren();
     }
 
@@ -138,4 +140,5 @@ public class SimulationViewContentProvider implements ITreeContentProvider {
     Object currentSelection;
 
 	private TreeViewer viewer;
+    private Simulation simulation;
 }

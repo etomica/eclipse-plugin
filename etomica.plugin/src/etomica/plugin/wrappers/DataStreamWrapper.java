@@ -2,13 +2,13 @@ package etomica.plugin.wrappers;
 
 import etomica.data.DataPump;
 import etomica.simulation.DataStreamHeader;
+import etomica.simulation.Simulation;
 import etomica.util.Arrays;
 
 public class DataStreamWrapper extends PropertySourceWrapper {
 
-    public DataStreamWrapper(DataStreamHeader object) {
-        super(object);
-        // TODO Auto-generated constructor stub
+    public DataStreamWrapper(DataStreamHeader object, Simulation sim) {
+        super(object,sim);
     }
 
     public String toString() {
@@ -21,7 +21,7 @@ public class DataStreamWrapper extends PropertySourceWrapper {
         PropertySourceWrapper[] wrappers = new PropertySourceWrapper[0];
         if (client instanceof DataPump) {
             wrappers = (PropertySourceWrapper[])Arrays.addObject(wrappers,
-                    PropertySourceWrapper.makeWrapper(((DataPump)client).getDataSink()));
+                    PropertySourceWrapper.makeWrapper(((DataPump)client).getDataSink(),simulation));
         }
         return wrappers;
     }

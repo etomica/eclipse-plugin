@@ -1,13 +1,13 @@
 package etomica.plugin.wrappers;
 
-import etomica.data.DataPipeForked;
 import etomica.data.DataProcessor;
 import etomica.data.DataSink;
+import etomica.simulation.Simulation;
 
 public class DataProcessorWrapper extends PropertySourceWrapper {
 
-    public DataProcessorWrapper(DataProcessor object) {
-        super(object);
+    public DataProcessorWrapper(DataProcessor object, Simulation sim) {
+        super(object,sim);
     }
 
     public PropertySourceWrapper[] getChildren() {
@@ -15,7 +15,7 @@ public class DataProcessorWrapper extends PropertySourceWrapper {
         if (sink == null) {
             return new PropertySourceWrapper[0];
         }
-        return new PropertySourceWrapper[]{PropertySourceWrapper.makeWrapper(sink)};
+        return new PropertySourceWrapper[]{PropertySourceWrapper.makeWrapper(sink,simulation)};
     }
 
     public boolean removeChild(Object child) {

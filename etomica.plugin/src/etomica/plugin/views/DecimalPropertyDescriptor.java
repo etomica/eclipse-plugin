@@ -8,8 +8,6 @@ import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
-import etomica.plugin.views.DecimalCellEditor;
-
 /**
  * PropertyDescriptor for an enumerated type.  Method createPropertyEditor
  * gives an EnumeratedTypeCellEditor. 

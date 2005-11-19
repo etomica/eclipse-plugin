@@ -2,15 +2,17 @@ package etomica.plugin.wrappers;
 
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
+import etomica.simulation.Simulation;
+
 public class ArrayWrapper extends PropertySourceWrapper {
 
-    public ArrayWrapper(Object[] obj) {
-        super(obj);
+    public ArrayWrapper(Object[] obj, Simulation sim) {
+        super(obj,sim);
         setDisplayName(object.getClass().getComponentType().getSimpleName()+" array");
     }
 
     public PropertySourceWrapper[] getChildren() {
-        return PropertySourceWrapper.wrapArrayElements((Object[])object);
+        return PropertySourceWrapper.wrapArrayElements((Object[])object,simulation);
     }
 
     public Object getEditableValue() {
@@ -30,7 +32,7 @@ public class ArrayWrapper extends PropertySourceWrapper {
         int index = ((Integer)key).intValue();
         Object value = ((Object[])object)[index];
         if (value != null && value.getClass().isArray()) {
-            return PropertySourceWrapper.makeWrapper(value);
+            return PropertySourceWrapper.makeWrapper(value,simulation);
         }
         return value;
     }

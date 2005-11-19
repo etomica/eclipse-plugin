@@ -43,7 +43,7 @@ public class SpeciesViewContentProvider implements ITreeContentProvider {
         if (element instanceof AtomType) {
             //we just want to return the child atom types, if they exist
             if (element instanceof AtomTypeGroup) {
-                return PropertySourceWrapper.wrapArrayElements(((AtomTypeGroup)element).getChildTypes());
+                return PropertySourceWrapper.wrapArrayElements(((AtomTypeGroup)element).getChildTypes(),simulation);
             }
             return new Object[0];
         }
@@ -90,7 +90,7 @@ public class SpeciesViewContentProvider implements ITreeContentProvider {
                 childWrappers[count-1] = (PropertySourceWrapper)value;
             }
             else {
-                childWrappers[count-1] = PropertySourceWrapper.makeWrapper(value);
+                childWrappers[count-1] = PropertySourceWrapper.makeWrapper(value,simulation);
             }
         }
         return childWrappers;
@@ -113,9 +113,9 @@ public class SpeciesViewContentProvider implements ITreeContentProvider {
             agents[i] = phases[i].getAgent(species);
         }
         PropertySourceWrapper[] wrappers = new PropertySourceWrapper[3];
-        wrappers[0] = PropertySourceWrapper.makeWrapper(agents);
-        wrappers[1] = PropertySourceWrapper.makeWrapper(species.getFactory());
-        wrappers[2] = PropertySourceWrapper.makeWrapper(species.getFactory().getType());
+        wrappers[0] = PropertySourceWrapper.makeWrapper(agents,simulation);
+        wrappers[1] = PropertySourceWrapper.makeWrapper(species.getFactory(),simulation);
+        wrappers[2] = PropertySourceWrapper.makeWrapper(species.getFactory().getType(),simulation);
         return wrappers;
     }
 

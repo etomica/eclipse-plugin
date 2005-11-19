@@ -2,16 +2,16 @@ package etomica.plugin.wrappers;
 
 import etomica.potential.Potential;
 import etomica.potential.PotentialGroup;
-import etomica.util.Arrays;
+import etomica.simulation.Simulation;
 
 public class PotentialGroupWrapper extends PropertySourceWrapper {
 
-    public PotentialGroupWrapper(PotentialGroup object) {
-        super(object);
+    public PotentialGroupWrapper(PotentialGroup object, Simulation sim) {
+        super(object,sim);
     }
 
     public PropertySourceWrapper[] getChildren() {
-        return PropertySourceWrapper.wrapArrayElements(((PotentialGroup)object).getPotentials());
+        return PropertySourceWrapper.wrapArrayElements(((PotentialGroup)object).getPotentials(),simulation);
     }
     
     public boolean removeChild(Object obj) {

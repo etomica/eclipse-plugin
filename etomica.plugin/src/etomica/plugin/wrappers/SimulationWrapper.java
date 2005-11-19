@@ -19,7 +19,7 @@ import etomica.species.Species;
 public class SimulationWrapper extends PropertySourceWrapper {
 
     public SimulationWrapper(Simulation sim) {
-        super(sim);
+        super(sim,sim);
     }
 
     public PropertySourceWrapper[] getChildren() {
@@ -27,7 +27,7 @@ public class SimulationWrapper extends PropertySourceWrapper {
         Phase[] phases = sim.getPhases();
         Species[] species = sim.getSpecies();
         DataStreamHeader[] streams = sim.getDataStreams();
-        return PropertySourceWrapper.wrapArrayElements(new Object[]{sim.getController(),sim.potentialMaster,phases,species,streams,sim.getDefaults()});
+        return PropertySourceWrapper.wrapArrayElements(new Object[]{sim.getController(),sim.potentialMaster,phases,species,streams,sim.getDefaults()},(Simulation)object);
     }
 
     public boolean removeChild(Object obj) {
