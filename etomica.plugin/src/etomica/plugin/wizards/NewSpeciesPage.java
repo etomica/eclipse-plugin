@@ -67,7 +67,7 @@ public class NewSpeciesPage extends WizardPage {
 
 	    speciesSelector = new SpeciesSelector(root_container, org.eclipse.swt.SWT.NONE );
 	    
-	    speciesSelector.species_name.addModifyListener(new ModifyListener() {
+	    speciesSelector.speciesName.addModifyListener(new ModifyListener() {
 	        public void modifyText(ModifyEvent e) {
 	            speciesNameModified = true;
 	            dialogChanged();
@@ -100,12 +100,20 @@ public class NewSpeciesPage extends WizardPage {
 	
 	private boolean checkSpeciesName()
 	{
-		String container = getSpeciesName();
-		if ( ( container.length() == 0 )) {
+		String speciesName = getSpeciesName();
+		if (speciesName.length() == 0) {
 			updateStatus("Species name is empty");
 			return false;
 		}
 		
+        Species[] existingSpecies = simulation.speciesRoot.getSpecies();
+        for (int i=0; i<existingSpecies.length; i++) {
+            if (existingSpecies[i].getName().equals(speciesName)) {
+                updateStatus("Species "+speciesName+" already exists");
+                return false;
+            }
+        }
+        
 		return true;
 	}
 	
@@ -116,80 +124,7 @@ public class NewSpeciesPage extends WizardPage {
 	}
 
 	public String getSpeciesName() {
-		return speciesSelector.species_name.getText();
+		return speciesSelector.speciesName.getText();
 	}
 
 }
-
-
-/*
-/////// FILE ASSIGN
-Composite container = new Composite(root_container, SWT.NULL);
-GridLayout layout = new GridLayout();
-container.setLayout(layout);
-layout.numColumns = 3;
-layout.verticalSpacing = 9;
-Label label = new Label(container, SWT.NULL);
-label.setText("&Container:");
-
-containerText = new Text(container, SWT.BORDER | SWT.SINGLE);
-GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-containerText.setLayoutData(gd);
-containerText.addModifyListener(new ModifyListener() {
-	public void modifyText(ModifyEvent e) {
-		dialogChanged();
-	}
-});
-
-Button button = new Button(container, SWT.PUSH);
-button.setText("Browse...");
-button.addSelectionListener(new SelectionAdapter() {
-	public void widgetSelected(SelectionEvent e) {
-		handleBrowse();
-	}
-});
-label = new Label(container, SWT.NULL);
-label.setText("&File name:");
-
-fileText = new Text(container, SWT.BORDER | SWT.SINGLE);
-gd = new GridData(GridData.FILL_HORIZONTAL);
-fileText.setLayoutData(gd);
-fileText.addModifyListener(new ModifyListener() {
-	public void modifyText(ModifyEvent e) {
-		dialogChanged();
-	}
-});
-
-////////// SPACE SELECTION
-container = new Composite(root_container, SWT.NULL);
-layout = new GridLayout();
-container.setLayout(layout);
-layout.numColumns = 1;
-layout.verticalSpacing = 9;
-
-// List of spaces
-label = new Label(container, SWT.NULL);
-label.setText("&Space:");
-ListViewer spacelist = new ListViewer( container );
-Collection spaces_from_registry = Registry.queryWhoExtends( etomica.Space.class );
-
-spacelist.setContentProvider( 
-		new IStructuredContentProvider() 
-		{
-			public Object[] getElements( Object input ) {
-				return ((Collection)input).toArray();
-			}
-
-			public void dispose() {	}
-
-			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-			}
-		}
-	);
-spacelist.setLabelProvider( new ClassLabelProvider() );
-spacelist.setInput( spaces_from_registry );
-
-
-Collection pmaster_from_registry = Registry.queryWhoExtends( etomica.PotentialMaster.class );
-*/
-
