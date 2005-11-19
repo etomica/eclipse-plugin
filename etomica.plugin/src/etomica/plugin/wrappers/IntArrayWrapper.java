@@ -9,10 +9,6 @@ public class IntArrayWrapper extends PropertySourceWrapper {
         setDisplayName("integer array");
     }
 
-    public PropertySourceWrapper[] getChildren() {
-        return PropertySourceWrapper.wrapArrayElements((Object[])object);
-    }
-
     public Object getEditableValue() {
         return this;
     }
