@@ -40,6 +40,18 @@ public class ClassDiscovery {
             dirty = true;
         }
     }
+    
+    /**
+     * Utility method to chop the package names off the full
+     * Class name (etomica.simulation.Simulation => Simulation)
+     */
+    public static String chopClassName(String className) {
+        int i = className.lastIndexOf(".");
+        if (i == -1) {
+            return className;
+        }
+        return className.substring(i+1);
+    }
 
     public ArrayList queryWhoExtends(Class aclass) {
         if (dirty)
@@ -169,12 +181,8 @@ public class ClassDiscovery {
         name = name.replace('\\', '.');
         name = name.replace('/', '.');
         
-        if (name.startsWith("etomica.graphics"))
+        if (name.startsWith("etomica.graphics") || name.startsWith("etomica.junit"))
             return;
-        if ( name.startsWith("etomica.etomica3D") )
-        {
-        	System.err.println( "ETOMICA3D:: Class "+name+" found.");
-        }
 
         if (name.endsWith(".class")) {
             name = name.substring(0, name.length() - 6);
