@@ -20,6 +20,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import etomica.plugin.editors.EtomicaEditor;
 import etomica.plugin.wrappers.PropertySourceWrapper;
+import etomica.plugin.wrappers.SimulationWrapper;
 import etomica.simulation.Simulation;
 
 /**
@@ -84,7 +85,7 @@ public class SummaryView extends ViewPart {
         if (part instanceof EtomicaEditor) {
             Simulation sim = ((EtomicaEditor)part).getSimulation();
             if (sim != null) {
-                viewer.setInput(PropertySourceWrapper.makeWrapper(sim));
+                viewer.setInput(new SimulationWrapper(sim));
             }
             return;
         }
