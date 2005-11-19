@@ -14,12 +14,9 @@ import etomica.simulation.Simulation;
 import etomica.species.Species;
 
 /**
- * The "New" wizard page allows setting the container for
- * the new file as well as the file name. The page
- * will only accept file name without the extension OR
- * with the extension that matches the expected one (etom).
+ * The wizard page allows setting the potential name, 
+ * class and Species to which it applies.
  */
-
 public class NewSpeciesPotentialPage extends WizardPage {
     private Simulation simulation;
     private PotentialSpeciesSelector potentialSpeciesSelector;
@@ -116,24 +113,15 @@ public class NewSpeciesPotentialPage extends WizardPage {
             }
         });
 
-        initialize();
+        setPageComplete(false);
 		updateSpecies();
 		setControl(root_container);
 	}
 
 	/**
-	 * Tests if the current workbench selection is a suitable
-	 * container to use.
+	 * Ensures that the potential class is selected and has a name,
+     * and that the species to which it applies are selected.
 	 */
-	
-	private void initialize() {
-        setPageComplete(false);
-	}
-	
-	/**
-	 * Ensures that both text fields are set.
-	 */
-
 	private void dialogChanged() {
         if (potentialBodyModified || potentialHardSoftModified) {
             if (potentialBodyModified) {
@@ -158,12 +146,11 @@ public class NewSpeciesPotentialPage extends WizardPage {
 	
 	private boolean checkPotentialName()
 	{
-		String container = getPotentialName();
-		if ( ( container.length() == 0 )) {
+		String potentialName = getPotentialName();
+		if (potentialName.length() == 0) {
 			updateStatus("Potential name is empty");
 			return false;
 		}
-		
 		return true;
 	}
     
@@ -173,7 +160,6 @@ public class NewSpeciesPotentialPage extends WizardPage {
             updateStatus("You must select a Potential type");
             return false;
         }
-        
         return true;
     }
     
@@ -211,76 +197,3 @@ public class NewSpeciesPotentialPage extends WizardPage {
 	}
 
 }
-
-
-/*
-/////// FILE ASSIGN
-Composite container = new Composite(root_container, SWT.NULL);
-GridLayout layout = new GridLayout();
-container.setLayout(layout);
-layout.numColumns = 3;
-layout.verticalSpacing = 9;
-Label label = new Label(container, SWT.NULL);
-label.setText("&Container:");
-
-containerText = new Text(container, SWT.BORDER | SWT.SINGLE);
-GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-containerText.setLayoutData(gd);
-containerText.addModifyListener(new ModifyListener() {
-	public void modifyText(ModifyEvent e) {
-		dialogChanged();
-	}
-});
-
-Button button = new Button(container, SWT.PUSH);
-button.setText("Browse...");
-button.addSelectionListener(new SelectionAdapter() {
-	public void widgetSelected(SelectionEvent e) {
-		handleBrowse();
-	}
-});
-label = new Label(container, SWT.NULL);
-label.setText("&File name:");
-
-fileText = new Text(container, SWT.BORDER | SWT.SINGLE);
-gd = new GridData(GridData.FILL_HORIZONTAL);
-fileText.setLayoutData(gd);
-fileText.addModifyListener(new ModifyListener() {
-	public void modifyText(ModifyEvent e) {
-		dialogChanged();
-	}
-});
-
-////////// SPACE SELECTION
-container = new Composite(root_container, SWT.NULL);
-layout = new GridLayout();
-container.setLayout(layout);
-layout.numColumns = 1;
-layout.verticalSpacing = 9;
-
-// List of spaces
-label = new Label(container, SWT.NULL);
-label.setText("&Space:");
-ListViewer spacelist = new ListViewer( container );
-Collection spaces_from_registry = Registry.queryWhoExtends( etomica.Space.class );
-
-spacelist.setContentProvider( 
-		new IStructuredContentProvider() 
-		{
-			public Object[] getElements( Object input ) {
-				return ((Collection)input).toArray();
-			}
-
-			public void dispose() {	}
-
-			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-			}
-		}
-	);
-spacelist.setLabelProvider( new ClassLabelProvider() );
-spacelist.setInput( spaces_from_registry );
-
-
-Collection pmaster_from_registry = Registry.queryWhoExtends( etomica.PotentialMaster.class );
-*/
-
