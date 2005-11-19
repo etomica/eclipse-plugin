@@ -19,29 +19,27 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
-import etomica.util.*;
-
 /**
  * A cell editor that presents a list of items in a combo box.
- * The cell editor's value is one of the enumerated-type objects.
+ * The cell editor's value is one of the objects (instead of its index).
  * Developed from ComboBoxCellEditor
  * <p>
- * This class may be instantiated; it is not intended to be subclassed.
+ * This class may be instantiated.
  * </p>
  */
-public class EnumeratedTypeCellEditor extends CellEditor {
+public class ComboCellEditor extends CellEditor {
 
 	/**
 	 * The list of items to present in the combo box.
 	 */
 	private String[] items;
-	private EnumeratedType[] choices;
+	private Object[] choices;
 
 	/**
 	 * The zero-based index of the selected item.
 	 */
 	int selectionIndex;
-	EnumeratedType selection;
+	Object selection;
 
 	/**
 	 * The custom combo box control.
@@ -63,7 +61,7 @@ public class EnumeratedTypeCellEditor extends CellEditor {
 	 * @see #setItems
 	 * @see #dispose
 	 */
-	public EnumeratedTypeCellEditor() {
+	public ComboCellEditor() {
 		setStyle(defaultStyle);
 	}
 	
@@ -77,7 +75,7 @@ public class EnumeratedTypeCellEditor extends CellEditor {
 	 * @param parent the parent control
 	 * @param items the list of strings for the combo box
 	 */
-	public EnumeratedTypeCellEditor(Composite parent, EnumeratedType[] choices) {
+	public ComboCellEditor(Composite parent, Object[] choices) {
 		this(parent, choices, defaultStyle);
 	}
 	
@@ -93,7 +91,7 @@ public class EnumeratedTypeCellEditor extends CellEditor {
 	 * @param style the style bits
 	 * @since 2.1
 	 */
-	public EnumeratedTypeCellEditor(Composite parent, EnumeratedType[] choices, int style) {
+	public ComboCellEditor(Composite parent, Object[] choices, int style) {
 		super(parent, style);
 		setChoices(choices);
 	}
@@ -103,8 +101,8 @@ public class EnumeratedTypeCellEditor extends CellEditor {
 	 *
 	 * @return the list of choices for the combo box
 	 */
-	public EnumeratedType[] getChoices() {
-		return this.choices;
+	public Object[] getChoices() {
+		return choices;
 	}
 	
 	/**
@@ -112,7 +110,7 @@ public class EnumeratedTypeCellEditor extends CellEditor {
 	 *
 	 * @param items the list of choices for the combo box
 	 */
-	public void setChoices(EnumeratedType[] choices) {
+	public void setChoices(Object[] choices) {
 		Assert.isNotNull(choices);
 		this.choices = choices;
 		populateComboBoxItems();
@@ -153,7 +151,7 @@ public class EnumeratedTypeCellEditor extends CellEditor {
 	
 		comboBox.addFocusListener(new FocusAdapter() {
 			public void focusLost(FocusEvent e) {
-				EnumeratedTypeCellEditor.this.focusLost();
+				ComboCellEditor.this.focusLost();
 			}
 		});
 		return comboBox;
