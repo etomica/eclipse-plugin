@@ -1,9 +1,3 @@
-/*
- * Created on May 10, 2005
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 package etomica.plugin.wizards;
 
 import java.lang.reflect.Constructor;
@@ -13,6 +7,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
@@ -21,6 +17,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import etomica.EtomicaInfo;
+import etomica.plugin.ClassDiscovery;
 import etomica.plugin.Registry;
 import etomica.potential.Potential;
 import etomica.potential.PotentialGroup;
@@ -28,20 +25,19 @@ import etomica.potential.PotentialHard;
 import etomica.potential.PotentialSoft;
 import etomica.simulation.Simulation;
 import etomica.species.Species;
+
 /**
  * Selector for Potential class and the Species it will be act on.
  */
 public class PotentialSpeciesSelector extends Composite {
 
-	public Combo potentialCombo = null;
-    public Combo potentialBodyCombo = null;
-    public Combo potentialHardSoftCombo = null;
-	private Label label1 = null;
-	public Text potentialName = null;
-	private Label label2 = null;
-	public Combo speciesCombo = null;
-    public Combo speciesCombo2 = null;
-	private Label label3 = null;
+	public Combo potentialCombo;
+    public Combo potentialBodyCombo;
+    public Combo potentialHardSoftCombo;
+	public Text potentialName;
+	public Combo speciesCombo;
+    public Combo speciesCombo2;
+    private Label potentialDescription;
 	private HashMap potentialsMap = new HashMap();
 	private HashMap speciesMap = new HashMap();
     private Simulation simulation;
@@ -51,10 +47,10 @@ public class PotentialSpeciesSelector extends Composite {
 		Class potentialClass = getPotentialClass();
 		if ( potentialClass!=null )
 		{
+            if (potentialClass == etomica.potential.PotentialGroup.class) {
+                return new PotentialGroup(getPotenialNumBody(),simulation.space);
+            }
 			try {
-                if (potentialClass == etomica.potential.PotentialGroup.class) {
-                    return new PotentialGroup(getPotenialNumBody(),simulation.space);
-                }
                 Constructor constructor = potentialClass.getDeclaredConstructor(new Class[]{Simulation.class});
                 if (constructor != null) {
                     return (Potential)constructor.newInstance(new Object[]{simulation});
@@ -128,8 +124,6 @@ public class PotentialSpeciesSelector extends Composite {
         
 		initialize();
 		
-//		 Add all spaces from registry
-        
         potentialBodyCombo.add("1");
         potentialBodyCombo.add("2");
         potentialBodyCombo.select(1); // 2-body
@@ -140,6 +134,24 @@ public class PotentialSpeciesSelector extends Composite {
 
         rebuildPotentialList();
         
+        potentialCombo.addModifyListener(new ModifyListener() {
+            public void modifyText(ModifyEvent e) {
+                int item = potentialCombo.getSelectionIndex();
+                if (item == -1) {
+                    return;
+                }
+                Class speciesClass = (Class) potentialsMap.get( potentialCombo.getItem( item ) );
+                String str = speciesClass.getName();
+                EtomicaInfo info = EtomicaInfo.getInfo( speciesClass );
+                String longDesc = info.getDescription();
+                if (!str.equals(longDesc)) {
+                    str += ": \n"+longDesc;
+                }
+                potentialDescription.setText(str);
+                PotentialSpeciesSelector.this.layout();
+            }
+        });
+
         //add the Species from the simulation
         Species[] speciesArray = simulation.speciesRoot.getSpecies();
         for (int i=0; i<speciesArray.length; i++) {
@@ -149,7 +161,11 @@ public class PotentialSpeciesSelector extends Composite {
 			speciesMap.put(species.getName(), species);
 		}
 	}
-    
+
+    /**
+     * Builds the list of potentials in the combo box based on the selections
+     * in the numBody and Hard/Soft combo boxes.
+     */
     public void rebuildPotentialList() {
         potentialsMap.clear();
         potentialCombo.removeAll();
@@ -176,17 +192,17 @@ public class PotentialSpeciesSelector extends Composite {
         while( iterator.hasNext() )
         {
             Class potentialClass = (Class) iterator.next();
-            // start out with hard potentials
+            // pick potentials that implement hard/soft interface
             if (hardSoftClass.isAssignableFrom(potentialClass)) {
-                EtomicaInfo info = EtomicaInfo.getInfo( potentialClass );
-                potentialCombo.add( info.getShortDescription() );
-                potentialsMap.put( info.getShortDescription(), potentialClass );
+                EtomicaInfo info = EtomicaInfo.getInfo(potentialClass);
+                String str = ClassDiscovery.chopClassName(potentialClass.getName())+": "+info.getShortDescription();
+                potentialCombo.add(str);
+                potentialsMap.put(str, potentialClass );
             }
         }
         potentialCombo.add(nBody+"-body Potential Group");
         potentialsMap.put(nBody+"-body Potential Group",etomica.potential.PotentialGroup.class);
-//      int default_selection = potentialList.indexOf( "something");
-//      potentialList.select( default_selection );
+
     }
 
     /**
@@ -258,6 +274,7 @@ public class PotentialSpeciesSelector extends Composite {
 		GridData gridData8 = new org.eclipse.swt.layout.GridData();
 		GridData gridData6 = new org.eclipse.swt.layout.GridData();
 		GridData gridData5 = new org.eclipse.swt.layout.GridData();
+        GridData gridData1 = new org.eclipse.swt.layout.GridData();
 		GridLayout gridLayout2 = new GridLayout();
         this.setLayout(gridLayout2);
         gridLayout2.numColumns = 2;
@@ -279,18 +296,12 @@ public class PotentialSpeciesSelector extends Composite {
         gridData5.horizontalSpan = 1;
         label.setLayoutData(gridData5);
         label = new Label(this, SWT.NONE);
-        label.setText("Type of Potential:");
+        label.setText("Hard or soft Potential:");
         gridData5.horizontalSpan = 1;
         label.setLayoutData(gridData5);
         createPotentialBodyCombo();
         createPotentialHardSoftCombo();
         
-        label = new Label(this, SWT.NONE);
-        label.setText("Select a potential type");
-        gridData8.horizontalSpan = 2;
-        label.setLayoutData(gridData8);
-		createPotentialTypeCombo();
-
         label = new Label(this, SWT.NONE);
         label.setText("Species");
         gridData13.horizontalSpan = 2;
@@ -298,6 +309,18 @@ public class PotentialSpeciesSelector extends Composite {
 		createSpeciesCombo1();
         createSpeciesCombo2();
 
-        setSize(new org.eclipse.swt.graphics.Point(364,400));
+        label = new Label(this, SWT.NONE);
+        label.setText("Select a potential type");
+        gridData8.horizontalSpan = 2;
+        label.setLayoutData(gridData8);
+        createPotentialTypeCombo();
+        
+        potentialDescription = new Label(this, SWT.WRAP);
+        gridData1.horizontalSpan = 2;
+        gridData1.horizontalAlignment = org.eclipse.swt.layout.GridData.FILL;
+        potentialDescription.setLayoutData(gridData1);
+        potentialDescription.setText("");
+
+        setSize(new org.eclipse.swt.graphics.Point(364,462));
 	}
-}  //  @jve:decl-index=0:visual-constraint="38,24"
+}
