@@ -38,7 +38,11 @@ public class DefaultWrapper extends PropertySourceWrapper {
         }
         Field field = (Field)key;
         try {
-            return field.get(object);
+            Object value = field.get(object);
+            if (value != null && value.getClass().isArray()) {
+                return PropertySourceWrapper.makeWrapper(value,simulation);
+            }
+            return value;
         }
         catch (IllegalAccessException e) {
             System.err.println("illegal access exception trying to get "+field.getName()+" from Default");
