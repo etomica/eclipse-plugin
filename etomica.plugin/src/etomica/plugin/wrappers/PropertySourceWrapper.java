@@ -84,6 +84,9 @@ public class PropertySourceWrapper implements IPropertySource {
         if (obj instanceof int[]) {
             return new IntArrayWrapper((int[])obj);
         }
+        if (obj instanceof boolean[]) {
+            return new BooleanArrayWrapper((boolean[])obj);
+        }
         if (obj instanceof Simulation) {
             return new SimulationWrapper((Simulation)obj);
         }
