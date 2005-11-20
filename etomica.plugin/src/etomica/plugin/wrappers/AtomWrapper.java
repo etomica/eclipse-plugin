@@ -36,7 +36,7 @@ public class AtomWrapper extends PropertySourceWrapper {
         String keyString = (String)key;
         PropertySourceWrapper wrapper = null;
         if (keyString.equals("type")) {
-            wrapper = PropertySourceWrapper.makeWrapper(((Atom)object).type,simulation);
+            return ((Atom)object).type;
         }
         if (keyString.equals("children")) {
             iterator.setList(((AtomTreeNodeGroup)((Atom)object).node).childList);
