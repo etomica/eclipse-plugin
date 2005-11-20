@@ -30,18 +30,16 @@ public class ComboClassCellEditor extends ComboCellEditor {
         if (selection instanceof Class) {
             Class selectedClass = (Class)selection;
             Class[] parameterClasses = new Class[parameters.length];
+            boolean noConstructor = false;
             for (int i=0; i<parameters.length; i++) {
                 parameterClasses[i] = parameters[i].getClass();
             }
             try {
                 Constructor constructor = selectedClass.getConstructor(parameterClasses);
-                if (constructor != null) {
-                    return constructor.newInstance(parameters);
-                }
+                return constructor.newInstance(parameters);
             }
             catch (NoSuchMethodException e) {
-                System.out.println("Class "+selectedClass+" did not have a constructor that took "+parameterClasses);
-                e.printStackTrace();
+                noConstructor = true;
             }
             catch (InvocationTargetException e) {
                 System.out.println("Could not inoke constructor for class "+selectedClass);
@@ -54,6 +52,19 @@ public class ComboClassCellEditor extends ComboCellEditor {
             catch (IllegalAccessException e) {
                 System.out.println("Could not instantiate object of class "+selectedClass);
                 e.printStackTrace();
+            }
+            if (noConstructor) {
+                try {
+                    return selectedClass.newInstance();
+                }
+                catch (InstantiationException e) {
+                    System.out.println("Could not instantiate object of class "+selectedClass);
+                    e.printStackTrace();
+                }
+                catch (IllegalAccessException e) {
+                    System.out.println("Could not instantiate object of class "+selectedClass);
+                    e.printStackTrace();
+                }
             }
             return null;
         }
