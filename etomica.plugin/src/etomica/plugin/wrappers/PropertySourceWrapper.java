@@ -40,6 +40,7 @@ import etomica.space.BoundaryDeformablePeriodic;
 import etomica.space.BoundaryRectangularNonperiodic;
 import etomica.space.BoundaryRectangularPeriodic;
 import etomica.space.BoundaryRectangularSlit;
+import etomica.space.Vector;
 import etomica.space3d.BoundaryTruncatedOctahedron;
 import etomica.species.Species;
 import etomica.util.Arrays;
@@ -125,6 +126,9 @@ public class PropertySourceWrapper implements IPropertySource {
         else if (obj instanceof AtomType) {
             return new AtomTypeWrapper((AtomType)obj,sim);
         }
+        else if (obj instanceof Vector) {
+            return new VectorWrapper((Vector)obj);
+        }
         else if (obj instanceof Default) {
             return new DefaultWrapper((Default)obj,sim);
         }
@@ -163,6 +167,9 @@ public class PropertySourceWrapper implements IPropertySource {
         if (value != null && value.getClass().isArray()) {
             return PropertySourceWrapper.makeWrapper(value,simulation);
         }
+        if (value instanceof Vector) {
+            return new VectorWrapper((Vector)value);
+        }
         return value;
     }
 
@@ -189,6 +196,9 @@ public class PropertySourceWrapper implements IPropertySource {
 		java.beans.PropertyDescriptor pd = (java.beans.PropertyDescriptor)arg0;
 		Method setter = pd.getWriteMethod(); //method used to read value of property in this object
 		if(setter == null) return;
+        if (arg1 instanceof PropertySourceWrapper) {
+            arg1 = ((PropertySourceWrapper)arg1).getObject();
+        }
 		try {
 			setter.invoke(object, new Object[] {arg1});
 		} 
