@@ -20,6 +20,10 @@ import etomica.action.Action;
 import etomica.action.ActionGroup;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.Atom;
+import etomica.atom.AtomPositionDefinition;
+import etomica.atom.AtomPositionDefinitionSimple;
+import etomica.atom.AtomPositionFirstAtom;
+import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomType;
 import etomica.data.DataPipeForked;
 import etomica.data.DataProcessor;
@@ -284,8 +288,18 @@ public class PropertySourceWrapper implements IPropertySource {
 
         Object value = null;
         // Boundary and Enumerated can be set in PropertySheet, but need the current value
-        if ((Boundary.class.isAssignableFrom(type) && simulation != null)
-                || EnumeratedType.class.isAssignableFrom(type)) {
+        boolean getValue = false;
+        if (EnumeratedType.class.isAssignableFrom(type)) {
+            getValue = true;
+        }
+        else if (simulation != null) {
+            for (int i=0; i<classChoices.length; i++) {
+                if (type == classChoices[i][0]) {
+                    getValue = true;
+                }
+            }
+        }
+        if (getValue) {
             try {
                 value = getter.invoke(object, null);
             }
@@ -327,20 +341,25 @@ public class PropertySourceWrapper implements IPropertySource {
 		else if(String.class.isAssignableFrom(type)) {
 			pd = new TextPropertyDescriptor(property, name);
 		}
-        else if (Phase.class.isAssignableFrom(type) && simulation != null) {
+        else if (type == Phase.class && simulation != null) {
             pd = new ComboPropertyDescriptor(property, name, simulation.getPhases());
         }
-        else if (Boundary.class.isAssignableFrom(type) && simulation != null) {
-            Object[] boundaryClasses = new Object[]{BoundaryRectangularPeriodic.class,BoundaryRectangularNonperiodic.class,
-                    BoundaryRectangularSlit.class,BoundaryDeformablePeriodic.class,BoundaryTruncatedOctahedron.class};
-            if (value != null) {
-                boundaryClasses = Arrays.resizeArray(boundaryClasses,boundaryClasses.length+1);
-                for (int i=boundaryClasses.length-1; i>0; i--) {
-                    boundaryClasses[i] = boundaryClasses[i-1];
+        else if (simulation != null) {
+            for (int i=0; i<classChoices.length; i++) {
+                if (type == classChoices[i][0]) {
+                    Object[] classes = new Object[classChoices[i].length-1];
+                    System.arraycopy(classChoices[i],1,classes,0,classes.length);
+                    if (value != null) {
+                        classes = Arrays.resizeArray(classes,classes.length+1);
+                        //shift classes down so current object shows up first
+                        for (int j=classes.length-1; j>0; j--) {
+                            classes[j] = classes[j-1];
+                        }
+                        classes[0] = value;
+                    }
+                    pd = new ComboClassPropertyDescriptor(property, name, classes, new Object[]{simulation});
                 }
-                boundaryClasses[0] = value;
             }
-            pd = new ComboClassPropertyDescriptor(property, name, boundaryClasses, new Object[]{simulation});
         }
 		if (pd == null) {
 			pd = new org.eclipse.ui.views.properties.PropertyDescriptor(property, name);
@@ -424,4 +443,7 @@ public class PropertySourceWrapper implements IPropertySource {
     protected String displayName;
     protected PropertySourceWrapper[] children;
     protected Simulation simulation;
+    private Class[][] classChoices = {{Boundary.class,BoundaryRectangularPeriodic.class,BoundaryRectangularNonperiodic.class,
+            BoundaryRectangularSlit.class,BoundaryDeformablePeriodic.class,BoundaryTruncatedOctahedron.class},
+            {AtomPositionDefinition.class,AtomPositionDefinitionSimple.class,AtomPositionFirstAtom.class,AtomPositionGeometricCenter.class}};
 }
