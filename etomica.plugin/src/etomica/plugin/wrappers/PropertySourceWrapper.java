@@ -27,9 +27,9 @@ import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorMC;
 import etomica.phase.Phase;
 import etomica.plugin.views.CheckboxPropertyDescriptor;
-import etomica.plugin.views.DecimalPropertyDescriptor;
 import etomica.plugin.views.ComboClassPropertyDescriptor;
 import etomica.plugin.views.ComboPropertyDescriptor;
+import etomica.plugin.views.DecimalPropertyDescriptor;
 import etomica.plugin.views.IntegerPropertyDescriptor;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
@@ -43,6 +43,7 @@ import etomica.space.BoundaryRectangularSlit;
 import etomica.space3d.BoundaryTruncatedOctahedron;
 import etomica.species.Species;
 import etomica.util.Arrays;
+import etomica.util.Default;
 import etomica.util.EnumeratedType;
 
 /**
@@ -123,6 +124,9 @@ public class PropertySourceWrapper implements IPropertySource {
         }
         else if (obj instanceof AtomType) {
             return new AtomTypeWrapper((AtomType)obj,sim);
+        }
+        else if (obj instanceof Default) {
+            return new DefaultWrapper((Default)obj,sim);
         }
         return new PropertySourceWrapper(obj,sim);
     }
@@ -264,12 +268,9 @@ public class PropertySourceWrapper implements IPropertySource {
         }
 
         Class type = property.getPropertyType();  //Type (class) of this property
-		// Do not display dimension specifications as properties
-        if(etomica.units.Dimension.class.isAssignableFrom(type)) return null;
-        //if(etomica.utility.LinkedList.class.isAssignableFrom(type)) return null;
-		
-		IPropertyDescriptor pd = null;
+
         Object value = null;
+        // Boundary and Enumerated can be set in PropertySheet, but need the current value
         if ((Boundary.class.isAssignableFrom(type) && simulation != null)
                 || EnumeratedType.class.isAssignableFrom(type)) {
             try {
@@ -286,7 +287,16 @@ public class PropertySourceWrapper implements IPropertySource {
                 return null;
             }
         }
-						
+                        
+        return makeDescriptor(property,value,type,name);
+    }
+    
+    protected IPropertyDescriptor makeDescriptor(Object property, Object value, Class type, String name) {
+		// Do not display dimension specifications as properties
+        if(etomica.units.Dimension.class.isAssignableFrom(type)) return null;
+        //if(etomica.utility.LinkedList.class.isAssignableFrom(type)) return null;
+		
+		IPropertyDescriptor pd = null;
 		if(type == boolean.class) {
 			pd = new CheckboxPropertyDescriptor(property, name);
 		}
