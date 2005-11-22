@@ -42,6 +42,10 @@ public class OSGRenderer implements Renderable
 		public void setColorScheme(ColorScheme scheme) {
 			color_scheme = scheme;
 		}
+        
+        public void dispose() {
+            osg_render.removeObject(obj);
+        }
 		
 		private ColorScheme color_scheme;
 		private int color_index = 0; 
