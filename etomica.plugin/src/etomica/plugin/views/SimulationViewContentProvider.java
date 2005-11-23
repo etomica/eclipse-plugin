@@ -14,6 +14,7 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.action.activity.ActivityGroup;
 import etomica.compatibility.FeatureSet;
+import etomica.data.DataInfo;
 import etomica.plugin.wrappers.ArrayWrapper;
 import etomica.plugin.wrappers.AtomTypeWrapper;
 import etomica.plugin.wrappers.PropertySourceWrapper;
@@ -59,22 +60,24 @@ public class SimulationViewContentProvider implements ITreeContentProvider {
             if (obj instanceof PropertySourceWrapper) {
                 obj = ((PropertySourceWrapper)value).getObject();
             }
-            if (obj.getClass().isArray()) {
+            Class objClass = obj.getClass();
+            if (objClass.isArray()) {
                 if (!(obj instanceof Object[])) {
                     continue;
                 }
                 if (((Object[])obj).length == 0) {
                     continue;
                 }
+                objClass = objClass.getComponentType();
             }
-            else if (obj instanceof Number ||
-                    obj instanceof Boolean ||
-                    obj instanceof Color ||
-                    obj instanceof Vector ||
-                    obj instanceof EnumeratedType ||
-                    obj instanceof String ||
-                    obj instanceof FeatureSet ||
-                    obj instanceof LinkedList) {
+            boolean excluded = false;
+            for (int j=0; j<excludedClasses.length; j++) {
+                if (excludedClasses[j].isAssignableFrom(objClass)) {
+                    excluded = true;
+                    break;
+                }
+            }
+            if (excluded) {
                 continue;
             }
             if ((wrappedElement instanceof AtomTypeWrapper)
@@ -141,4 +144,7 @@ public class SimulationViewContentProvider implements ITreeContentProvider {
 
 	private TreeViewer viewer;
     private Simulation simulation;
+    private static final Class[] excludedClasses = new Class[]{Number.class,Boolean.class,
+            Color.class,Vector.class,DataInfo.class,EnumeratedType.class,
+            String.class,FeatureSet.class,LinkedList.class};
 }
