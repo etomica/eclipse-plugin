@@ -27,6 +27,7 @@ import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomType;
 import etomica.data.DataPipeForked;
 import etomica.data.DataProcessor;
+import etomica.data.DataSource;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorMC;
 import etomica.phase.Phase;
@@ -126,6 +127,9 @@ public class PropertySourceWrapper implements IPropertySource {
         }
         else if (obj instanceof DataProcessor) {
             return new DataProcessorWrapper((DataProcessor)obj,sim);
+        }
+        else if (obj instanceof DataSource) {
+            return new DataSourceWrapper((DataSource)obj,sim);
         }
         else if (obj instanceof Atom) {
             return new AtomWrapper((Atom)obj,sim);
