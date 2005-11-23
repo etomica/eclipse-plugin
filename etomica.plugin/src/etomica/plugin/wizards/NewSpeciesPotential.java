@@ -48,7 +48,7 @@ public class NewSpeciesPotential extends Wizard {
             return false;
 	  	
         Species[] speciesArray = speciesPotentialPage.getSpecies();
-        potentialMaster.setSpecies(potential,speciesArray);
+        potentialMaster.addPotential(potential,speciesArray);
         success = true;
         
         return true;
