@@ -49,10 +49,6 @@ public class PauseSimulationActionDelegate extends BaseSimulationActionDelegate 
 		{
 			current_action.setEnabled( false );
 		}
-		else if ( event.getType()==ControllerEvent.HALTED )
-		{
-			current_action.setEnabled( false );
-		}
 	}
 	
 	/* (non-Javadoc)
