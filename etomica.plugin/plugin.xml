@@ -179,7 +179,6 @@
          </menu>
          <action
                disabledIcon="src/etomica/plugin/actions/disabled/disabled_co.gif"
-               enablesFor="+"
                toolbarPath="additions/Etomica"
                label="&amp;Run simulation"
                class="etomica.plugin.actions.RunSimulationActionDelegate"
@@ -190,7 +189,6 @@
                id="RunSimulation"/>
          <action
                disabledIcon="src/etomica/plugin/actions/disabled/terminate_co.gif"
-               enablesFor="+"
                toolbarPath="additions/Etomica"
                label="&amp;Stop simulation"
                class="etomica.plugin.actions.StopSimulationActionDelegate"
