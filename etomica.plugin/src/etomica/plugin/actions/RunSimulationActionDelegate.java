@@ -83,10 +83,6 @@ public class RunSimulationActionDelegate extends BaseSimulationActionDelegate {
 		{
 			current_action.setEnabled( true );
 		}
-		else if ( event.getType()==ControllerEvent.HALTED )
-		{
-			current_action.setEnabled( true );
-		}
 	}
 	
 	/* (non-Javadoc)
