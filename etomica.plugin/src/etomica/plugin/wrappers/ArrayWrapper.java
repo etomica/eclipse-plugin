@@ -24,7 +24,7 @@ public class ArrayWrapper extends PropertySourceWrapper {
        //Introspection to get array of all properties
         descriptors= new PropertyDescriptor[objArray.length];
         for (int i=0; i<objArray.length; i++) {
-            descriptors[i] = new org.eclipse.ui.views.properties.PropertyDescriptor(new Integer(i),Integer.toString(i));
+            descriptors[i] = super.makeDescriptor(new Integer(i),((Object[])object)[i],object.getClass().getComponentType(),Integer.toString(i));
         }
     }
 
@@ -36,4 +36,10 @@ public class ArrayWrapper extends PropertySourceWrapper {
         }
         return value;
     }
+    
+    public void setPropertyValue(Object key, Object value) {
+        int index = ((Integer)key).intValue();
+        ((Object[])object)[index] = value;
+    }
+
 }

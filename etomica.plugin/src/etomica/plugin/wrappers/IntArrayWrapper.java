@@ -18,12 +18,17 @@ public class IntArrayWrapper extends PropertySourceWrapper {
        //Introspection to get array of all properties
         descriptors= new PropertyDescriptor[intArray.length];
         for (int i=0; i<intArray.length; i++) {
-            descriptors[i] = new org.eclipse.ui.views.properties.PropertyDescriptor(new Integer(i),Integer.toString(i));
+            descriptors[i] = makeDescriptor(new Integer(i),new Integer(((int[])object)[i]),int.class,Integer.toString(i));
         }
     }
 
     public Object getPropertyValue(Object key) {
         int index = ((Integer)key).intValue();
         return new Integer(((int[])object)[index]);
+    }
+    
+    public void setPropertyValue(Object key, Object value) {
+        int index = ((Integer)key).intValue();
+        ((int[])object)[index] = ((Integer)value).intValue();
     }
 }
