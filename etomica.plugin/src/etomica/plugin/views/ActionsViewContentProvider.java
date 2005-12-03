@@ -2,10 +2,17 @@
  * History
  * Created on Sep 20, 2004 by kofke
  */
-package etomica.plugin.editors;
+package etomica.plugin.views;
 
+import org.eclipse.jface.viewers.DecoratingLabelProvider;
+import org.eclipse.jface.viewers.IColorDecorator;
+import org.eclipse.jface.viewers.ILabelDecorator;
+import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Image;
 
 import etomica.action.Action;
 import etomica.action.ActionGroup;
@@ -18,6 +25,10 @@ import etomica.action.ActionGroup;
  */
 public class ActionsViewContentProvider implements ITreeContentProvider {
 
+    public ActionsViewContentProvider() {
+        
+    }
+    
     public Object[] getChildren(Object wrappedElement) {
     	if (wrappedElement instanceof ActionGroup) {
 			return ((ActionGroup)wrappedElement).getAllActions();
