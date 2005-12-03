@@ -3,6 +3,10 @@ package etomica.plugin.wrappers;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
 
+import etomica.action.Action;
+import etomica.nbr.PotentialMasterNbr;
+import etomica.nbr.cell.PotentialMasterCell;
+import etomica.phase.Phase;
 import etomica.plugin.wizards.NewSpeciesPotential;
 import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
@@ -56,4 +60,34 @@ public class PotentialMasterWrapper extends PropertySourceWrapper {
         }
         return false;
     }
+
+    public Action[] getActions() {
+        if (object instanceof PotentialMasterCell) {
+            UpdateTypeList updateTypeList = new UpdateTypeList((PotentialMasterNbr)object,simulation);
+            return new Action[]{updateTypeList};
+        }
+        return new Action[0];
+    }
+    
+    private static class UpdateTypeList implements Action {
+        public UpdateTypeList(PotentialMasterNbr potentialMasterNbr, Simulation simulation) {
+            potentialMaster = potentialMasterNbr;
+            sim = simulation;
+        }
+
+        public String getLabel() {
+            return "Update Type List";
+        }
+        
+        public void actionPerformed() {
+            Phase[] phases = sim.getPhases();
+            for (int i=0; i<phases.length; i++) {
+                potentialMaster.updateTypeList(phases[i]);
+            }
+        }
+        
+        private final PotentialMasterNbr potentialMaster;
+        private final Simulation sim;
+    }
+
 }
