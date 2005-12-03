@@ -34,12 +34,17 @@ public class Registry {
 		// Discovery methods
 		class_discovery.addClass( Space.class );
 		class_discovery.addClass( Species.class );
+        class_discovery.addClass( etomica.atom.iterator.AtomsetIterator.class );
+        class_discovery.addClass( etomica.atom.AtomPositionDefinition.class );
+        class_discovery.addClass( etomica.atom.AtomFactory.class );
 		class_discovery.addClass( etomica.potential.Potential1.class );
 		class_discovery.addClass( etomica.potential.Potential2.class );
 		class_discovery.addClass( etomica.integrator.Integrator.class );
 		class_discovery.addClass( etomica.phase.Phase.class );
+        class_discovery.addClass( etomica.space.Boundary.class );
 		class_discovery.addClass( etomica.action.activity.Controller.class );
 		class_discovery.addClass( etomica.data.DataSource.class );
+        class_discovery.addClass( etomica.data.DataSink.class );
 		class_discovery.addClass( etomica.graphics.Display.class );
 		class_discovery.addClass( etomica.action.Action.class );
 		class_discovery.addClass( etomica.action.Activity.class );
