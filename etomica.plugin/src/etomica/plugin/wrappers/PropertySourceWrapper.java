@@ -9,6 +9,8 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.eclipse.swt.widgets.Shell;
@@ -20,17 +22,18 @@ import etomica.action.Action;
 import etomica.action.ActionGroup;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.Atom;
+import etomica.atom.AtomFactory;
+import etomica.atom.AtomFactoryHetero;
 import etomica.atom.AtomPositionDefinition;
-import etomica.atom.AtomPositionDefinitionSimple;
-import etomica.atom.AtomPositionFirstAtom;
-import etomica.atom.AtomPositionGeometricCenter;
 import etomica.atom.AtomType;
 import etomica.data.DataPipeForked;
 import etomica.data.DataProcessor;
+import etomica.data.DataSink;
 import etomica.data.DataSource;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorMC;
 import etomica.phase.Phase;
+import etomica.plugin.Registry;
 import etomica.plugin.views.CheckboxPropertyDescriptor;
 import etomica.plugin.views.ComboClassPropertyDescriptor;
 import etomica.plugin.views.ComboPropertyDescriptor;
@@ -41,14 +44,8 @@ import etomica.potential.PotentialMaster;
 import etomica.simulation.DataStreamHeader;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
-import etomica.space.BoundaryDeformablePeriodic;
-import etomica.space.BoundaryRectangularNonperiodic;
-import etomica.space.BoundaryRectangularPeriodic;
-import etomica.space.BoundaryRectangularSlit;
 import etomica.space.Vector;
-import etomica.space3d.BoundaryTruncatedOctahedron;
 import etomica.species.Species;
-import etomica.util.Arrays;
 import etomica.util.Default;
 import etomica.util.EnumeratedType;
 
@@ -142,6 +139,9 @@ public class PropertySourceWrapper implements IPropertySource {
         }
         else if (obj instanceof Default) {
             return new DefaultWrapper((Default)obj,sim);
+        }
+        else if (obj instanceof AtomFactoryHetero) {
+            return new AtomFactoryHeteroWrapper((AtomFactoryHetero)obj,sim);
         }
         return new PropertySourceWrapper(obj,sim);
     }
@@ -278,17 +278,16 @@ public class PropertySourceWrapper implements IPropertySource {
 		if(name.equals("class")) return null;//skip getDimension(), getClass()
 		
 		Method getter = property.getReadMethod(); //method used to read value of property in this object
+        Class type = property.getPropertyType();
 
-		// Display only read/write properties.
+		// Display only readable properties.
 		if (getter == null) {
-            // getter will be null if it was an IndexedPropertyDescriptor
 //            if (property instanceof IndexedPropertyDescriptor) {
-                // do something!
+//                getter = ((IndexedPropertyDescriptor)property).getIndexedReadMethod();
+//                type = ((IndexedPropertyDescriptor)property).getIndexedPropertyType();
 //            }
             return null;
         }
-
-        Class type = property.getPropertyType();  //Type (class) of this property
 
         Object value = null;
         // Boundary and Enumerated can be set in PropertySheet, but need the current value
@@ -296,12 +295,10 @@ public class PropertySourceWrapper implements IPropertySource {
         if (EnumeratedType.class.isAssignableFrom(type)) {
             getValue = true;
         }
-        else if (simulation != null) {
-            for (int i=0; i<classChoices.length; i++) {
-                if (type == classChoices[i][0]) {
-                    getValue = true;
-                }
-            }
+        else if (simulation != null && (type == AtomPositionDefinition.class ||
+                type == Boundary.class || type == AtomFactory.class ||
+                type == DataSink.class)) {
+            getValue = true;
         }
         if (getValue) {
             try {
@@ -312,9 +309,9 @@ public class PropertySourceWrapper implements IPropertySource {
     //          ex.getTargetException().printStackTrace();
                 return null;
             } 
-            catch (Exception ex) {
-                System.err.println("Skipping property " + name + " ; exception: " + ex);
-    //          ex.printStackTrace();
+            catch (IllegalAccessException ex) {
+                System.err.println("Skipping property " + name + " ; exception on target: " + ex.getMessage());
+    //          ex.getTargetException().printStackTrace();
                 return null;
             }
         }
@@ -348,22 +345,24 @@ public class PropertySourceWrapper implements IPropertySource {
         else if (type == Phase.class && simulation != null) {
             pd = new ComboPropertyDescriptor(property, name, simulation.getPhases());
         }
-        else if (simulation != null) {
-            for (int i=0; i<classChoices.length; i++) {
-                if (type == classChoices[i][0]) {
-                    Object[] classes = new Object[classChoices[i].length-1];
-                    System.arraycopy(classChoices[i],1,classes,0,classes.length);
-                    if (value != null) {
-                        classes = Arrays.resizeArray(classes,classes.length+1);
-                        //shift classes down so current object shows up first
-                        for (int j=classes.length-1; j>0; j--) {
-                            classes[j] = classes[j-1];
-                        }
-                        classes[0] = value;
-                    }
-                    pd = new ComboClassPropertyDescriptor(property, name, classes, new Object[]{simulation});
-                }
+        else if (simulation != null && (type == AtomPositionDefinition.class ||
+                type == Boundary.class || type == AtomFactory.class ||
+                type == DataSink.class)) {
+            Collection collection = Registry.queryWhoExtends(type);
+            Iterator classIterator = collection.iterator();
+            int length = collection.size();
+            if (value != null) {
+                length++;
             }
+            Object[] classes = new Object[length];
+            int i = 0;
+            if (value != null) {
+                classes[i++] = value;
+            }
+            while (classIterator.hasNext()) {
+                classes[i++] = classIterator.next();
+            }
+            pd = new ComboClassPropertyDescriptor(property, name, classes, new Object[]{simulation});
         }
 		if (pd == null) {
 			pd = new org.eclipse.ui.views.properties.PropertyDescriptor(property, name);
@@ -447,7 +446,4 @@ public class PropertySourceWrapper implements IPropertySource {
     protected String displayName;
     protected PropertySourceWrapper[] children;
     protected Simulation simulation;
-    private Class[][] classChoices = {{Boundary.class,BoundaryRectangularPeriodic.class,BoundaryRectangularNonperiodic.class,
-            BoundaryRectangularSlit.class,BoundaryDeformablePeriodic.class,BoundaryTruncatedOctahedron.class},
-            {AtomPositionDefinition.class,AtomPositionDefinitionSimple.class,AtomPositionFirstAtom.class,AtomPositionGeometricCenter.class}};
 }
