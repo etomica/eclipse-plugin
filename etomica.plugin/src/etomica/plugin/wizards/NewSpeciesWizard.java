@@ -2,24 +2,19 @@ package etomica.plugin.wizards;
 
 import org.eclipse.jface.wizard.Wizard;
 
+import etomica.plugin.wizards.NewObjectSimplePage.SimpleClassWizard;
 import etomica.simulation.Simulation;
 import etomica.species.Species;
 
 /**
- * This is a sample new wizard. Its role is to create a new file 
- * resource in the provided container. If the container resource
- * (a folder or a project) is selected in the workspace 
- * when the wizard is opened, it will accept it as the target
- * container. The wizard creates one file with the extension
- * "etom". If a sample multi-page editor (also available
- * as a template) is registered for the same extension, it will
- * be able to open it.
+ * This wizard allows the user to create a new Species.  The user can choose
+ * the Species class and it is added to the Simulation.
  */
-public class NewSpecies extends Wizard {
+public class NewSpeciesWizard extends Wizard implements SimpleClassWizard {
     /**
      * Constructor for NewEtomicaDocument.
      */
-    public NewSpecies(Simulation sim) {
+    public NewSpeciesWizard(Simulation sim) {
         super();
         simulation = sim;
         setNeedsProgressMonitor(false);
@@ -29,8 +24,12 @@ public class NewSpecies extends Wizard {
      * Adding the page to the wizard.
      */
     public void addPages() {
-        page = new NewSpeciesPage(simulation);
+        page = new NewObjectSimplePage(this,simulation,"Species");
         addPage(page);
+    }
+    
+    public void fixupSelector(SimpleClassSelector selector) {
+        selector.setBaseClass(Species.class);
     }
 
     /**
@@ -40,7 +39,7 @@ public class NewSpecies extends Wizard {
      */
     public boolean performFinish() {
         // Create simulation based on user's choices
-        Species species = page.createSpecies();
+        Species species = (Species)page.createObject();
         if ( species==null )
             return false;
 	  	
@@ -53,6 +52,6 @@ public class NewSpecies extends Wizard {
     }
     
     private final Simulation simulation;
-    private NewSpeciesPage page;
+    private NewObjectSimplePage page;
     private boolean success = false;
 }

@@ -5,22 +5,19 @@ import org.eclipse.jface.wizard.Wizard;
 import etomica.action.ActionGroup;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.integrator.Integrator;
+import etomica.integrator.IntegratorMC;
+import etomica.integrator.IntegratorMD;
+import etomica.integrator.IntegratorManagerMC;
+import etomica.plugin.wizards.NewObjectSimplePage.SimpleClassWizard;
 import etomica.simulation.Simulation;
 
 /**
- * This is a sample new wizard. Its role is to create a new file 
- * resource in the provided container. If the container resource
- * (a folder or a project) is selected in the workspace 
- * when the wizard is opened, it will accept it as the target
- * container. The wizard creates one file with the extension
- * "etom". If a sample multi-page editor (also available
- * as a template) is registered for the same extension, it will
- * be able to open it.
+ * This wizard allows the user to create a new Integrator.  The user can choose
+ * the Integrator class and it is added in an ActivityIntegrate to the 
+ * ActionGroup if given.
  */
-public class NewIntegratorWizard extends Wizard {
-    /**
-     * Constructor for NewEtomicaDocument.
-     */
+public class NewIntegratorWizard extends Wizard implements SimpleClassWizard {
+
     public NewIntegratorWizard(ActionGroup parent, Simulation sim) {
         super();
         actionGroup = parent;
@@ -32,8 +29,16 @@ public class NewIntegratorWizard extends Wizard {
      * Adding the page to the wizard.
      */
     public void addPages() {
-        integratorPage = new NewIntegratorPage(simulation);
+        integratorPage = new NewObjectSimplePage(this,simulation,"Integrator");
         addPage(integratorPage);
+    }
+    
+    public void fixupSelector(SimpleClassSelector selector) {
+        selector.setBaseClass(Integrator.class);
+        selector.addCategory("Integrator",Integrator.class);
+        selector.addCategory("IntegratorMD",IntegratorMD.class);
+        selector.addCategory("IntegratorMC",IntegratorMC.class);
+        selector.addCategory("Integrator Manager",IntegratorManagerMC.class);
     }
 
     /**
@@ -43,7 +48,7 @@ public class NewIntegratorWizard extends Wizard {
      */
     public boolean performFinish() {
         // Create simulation based on user's choices
-        integrator = integratorPage.createIntegrator();
+        integrator = (Integrator)integratorPage.createObject();
         if (integrator==null)
             return false;
 	  	
@@ -61,7 +66,7 @@ public class NewIntegratorWizard extends Wizard {
     
     private final ActionGroup actionGroup;
     private final Simulation simulation;
-    private NewIntegratorPage integratorPage;
+    private NewObjectSimplePage integratorPage;
     private Integrator integrator;
     private boolean success = false;
 }

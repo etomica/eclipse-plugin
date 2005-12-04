@@ -2,26 +2,37 @@ package etomica.plugin.wizards;
 
 import org.eclipse.jface.wizard.Wizard;
 
+import etomica.action.Action;
+import etomica.action.Activity;
+import etomica.action.AtomAction;
+import etomica.action.IntegratorAction;
+import etomica.action.PhaseAction;
+import etomica.action.SimulationAction;
+import etomica.data.DataPump;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalListener;
+import etomica.integrator.IntervalActionAdapter;
+import etomica.nbr.list.PotentialMasterList;
+import etomica.plugin.wizards.NewObjectSimplePage.SimpleClassWizard;
+import etomica.simulation.DataStreamHeader;
+import etomica.simulation.Simulation;
+import etomica.util.Arrays;
 
 /**
- * This is a sample new wizard. Its role is to create a new file 
- * resource in the provided container. If the container resource
- * (a folder or a project) is selected in the workspace 
- * when the wizard is opened, it will accept it as the target
- * container. The wizard creates one file with the extension
- * "etom". If a sample multi-page editor (also available
- * as a template) is registered for the same extension, it will
- * be able to open it.
+ * This wizard allows the user to create a new IntegratorIntervalListener.  
+ * The user can choose the Action class and it is wrapped in an 
+ * IntervalActionAdapter and added to the given Integrator.  Alternatively,
+ * the user can also select a NeighborListManager or a DataPump from a 
+ * DataStream registered with the simulation.
  */
-public class NewIntervalListenerWizard extends Wizard {
+public class NewIntervalListenerWizard extends Wizard implements SimpleClassWizard {
     /**
      * Constructor for NewEtomicaDocument.
      */
-    public NewIntervalListenerWizard(Integrator integrator) {
+    public NewIntervalListenerWizard(Integrator integrator, Simulation sim) {
         super();
         this.integrator = integrator;
+        simulation = sim;
         setNeedsProgressMonitor(false);
     }
     
@@ -29,8 +40,44 @@ public class NewIntervalListenerWizard extends Wizard {
      * Adding the page to the wizard.
      */
     public void addPages() {
-        intervalListenerPage = new NewIntervalListenerPage();
+        intervalListenerPage = new NewObjectSimplePage(this,simulation,"Interval Listener");
         addPage(intervalListenerPage);
+    }
+    
+    public void fixupSelector(SimpleClassSelector selector) {
+        selector.setBaseClass(Action.class);
+        selector.addCategory("Action",Action.class);
+        selector.addCategory("Phase Action",PhaseAction.class);
+        selector.addCategory("Integrator Action",IntegratorAction.class);
+        selector.addCategory("Simulation Action",SimulationAction.class);
+        selector.setExcludedClasses(new Class[]{AtomAction.class,Activity.class});
+        
+        IntegratorIntervalListener[] extras = null;
+        if (simulation.potentialMaster instanceof PotentialMasterList) {
+            extras = new IntegratorIntervalListener[]{((PotentialMasterList)simulation.potentialMaster).getNeighborManager()};
+        }
+        DataStreamHeader[] dataStreams = simulation.getDataStreams();
+        for (int i=0; i<dataStreams.length; i++) {
+            boolean alreadyAdded = false;
+            if (!(dataStreams[i].getClient() instanceof DataPump)) {
+                continue;
+            }
+            IntegratorIntervalListener[] listeners = integrator.getIntervalListeners();
+            for (int j=0; j<listeners.length; j++) {
+                if (listeners[j] instanceof IntervalActionAdapter) {
+                    if (((IntervalActionAdapter)listeners[j]).getAction() == dataStreams[i].getClient()) {
+                        alreadyAdded = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (!alreadyAdded) {
+                IntervalActionAdapter adapter = new IntervalActionAdapter((DataPump)dataStreams[i].getClient());
+                extras = (IntegratorIntervalListener[])Arrays.addObject(extras,adapter);
+            }
+        }
+        selector.setExtraObjects(extras);
     }
 
     /**
@@ -39,11 +86,19 @@ public class NewIntervalListenerWizard extends Wizard {
      * using wizard as execution context.
      */
     public boolean performFinish() {
-        // Create simulation based on user's choices
-        IntegratorIntervalListener listener = intervalListenerPage.createListener();
-        if (listener==null)
+        IntegratorIntervalListener listener = null;
+        Object obj = intervalListenerPage.createObject();
+        
+        if (obj==null)
             return false;
-	  	
+        
+        if (obj instanceof Action) {
+            listener = new IntervalActionAdapter((Action)obj);
+        }
+        else if (!(obj instanceof IntegratorIntervalListener)) {
+            return false;
+        }
+        
         if (integrator != null) {
             integrator.addListener(listener);
         }
@@ -57,6 +112,7 @@ public class NewIntervalListenerWizard extends Wizard {
     }
     
     private final Integrator integrator;
-    private NewIntervalListenerPage intervalListenerPage;
+    private final Simulation simulation;
+    private NewObjectSimplePage intervalListenerPage;
     private boolean success = false;
 }

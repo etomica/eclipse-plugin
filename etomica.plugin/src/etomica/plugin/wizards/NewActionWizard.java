@@ -4,19 +4,20 @@ import org.eclipse.jface.wizard.Wizard;
 
 import etomica.action.Action;
 import etomica.action.ActionGroup;
-import etomica.species.Species;
+import etomica.action.Activity;
+import etomica.action.AtomAction;
+import etomica.action.IntegratorAction;
+import etomica.action.PhaseAction;
+import etomica.action.SimulationAction;
+import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.Controller;
+import etomica.plugin.wizards.NewObjectSimplePage.SimpleClassWizard;
 
 /**
- * This is a sample new wizard. Its role is to create a new file 
- * resource in the provided container. If the container resource
- * (a folder or a project) is selected in the workspace 
- * when the wizard is opened, it will accept it as the target
- * container. The wizard creates one file with the extension
- * "etom". If a sample multi-page editor (also available
- * as a template) is registered for the same extension, it will
- * be able to open it.
+ * This wizard allows the user to create a new Action.  The user can choose
+ * the Action class and it is added to the ActionGroup if given.
  */
-public class NewActionWizard extends Wizard {
+public class NewActionWizard extends Wizard implements SimpleClassWizard {
     /**
      * Constructor for NewEtomicaDocument.
      */
@@ -30,8 +31,18 @@ public class NewActionWizard extends Wizard {
      * Adding the page to the wizard.
      */
     public void addPages() {
-        actionPage = new NewActionPage();
+        actionPage = new NewObjectSimplePage(this,null,"Action");
         addPage(actionPage);
+    }
+    
+    public void fixupSelector(SimpleClassSelector selector) {
+        selector.setBaseClass(Action.class);
+        selector.setExcludedClasses(new Class[]{AtomAction.class,Controller.class,ActivityIntegrate.class});
+        selector.addCategory("Action",Action.class);
+        selector.addCategory("Activity",Activity.class);
+        selector.addCategory("Phase Action",PhaseAction.class);
+        selector.addCategory("Integrator Action",IntegratorAction.class);
+        selector.addCategory("Simulation Action",SimulationAction.class);
     }
 
     /**
@@ -41,7 +52,7 @@ public class NewActionWizard extends Wizard {
      */
     public boolean performFinish() {
         // Create simulation based on user's choices
-        Action action = actionPage.createAction();
+        Action action = (Action)actionPage.createObject();
         if (action==null)
             return false;
 	  	
@@ -58,6 +69,6 @@ public class NewActionWizard extends Wizard {
     }
     
     private final ActionGroup actionGroup;
-    private NewActionPage actionPage;
+    private NewObjectSimplePage actionPage;
     private boolean success = false;
 }
