@@ -11,7 +11,8 @@ import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.phase.Phase;
-import etomica.plugin.wizards.NewSpecies;
+import etomica.plugin.wizards.NewDataStreamWizard;
+import etomica.plugin.wizards.NewSpeciesWizard;
 import etomica.simulation.DataStreamHeader;
 import etomica.simulation.Simulation;
 import etomica.species.Species;
@@ -76,7 +77,7 @@ public class SimulationWrapper extends PropertySourceWrapper {
     }
 
     public Class[] getAdders() {
-        return new Class[]{Phase.class,Species.class};
+        return new Class[]{Phase.class,Species.class,DataStreamHeader.class};
     }
     
     public boolean addObjectClass(Simulation sim, Class newObjectClass, Shell shell) {
@@ -85,7 +86,16 @@ public class SimulationWrapper extends PropertySourceWrapper {
             return true;
         }
         if (newObjectClass == Species.class) {
-            NewSpecies wizard = new NewSpecies((Simulation)object);
+            NewSpeciesWizard wizard = new NewSpeciesWizard((Simulation)object);
+
+            WizardDialog dialog = new WizardDialog(shell, wizard);
+            dialog.create();
+            dialog.getShell().setSize(500,400);
+            dialog.open();
+            return wizard.getSuccess();
+        }
+        if (newObjectClass == DataStreamHeader.class) {
+            NewDataStreamWizard wizard = new NewDataStreamWizard((Simulation)object);
 
             WizardDialog dialog = new WizardDialog(shell, wizard);
             dialog.create();
