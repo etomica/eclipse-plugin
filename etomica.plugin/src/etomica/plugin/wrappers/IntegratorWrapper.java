@@ -73,12 +73,12 @@ public class IntegratorWrapper extends PropertySourceWrapper {
     }
     
     public Class[] getAdders() {
-        return new Class[]{IntegratorIntervalListener.class,IntegratorNonintervalListener.class};
+        return new Class[]{IntegratorIntervalListener.class};
     }
     
     public boolean addObjectClass(Simulation sim, Class newObjectClass, Shell shell) {
         if (newObjectClass == IntegratorIntervalListener.class) {
-            NewIntervalListenerWizard wizard = new NewIntervalListenerWizard((Integrator)object);
+            NewIntervalListenerWizard wizard = new NewIntervalListenerWizard((Integrator)object,simulation);
 
             WizardDialog dialog = new WizardDialog(shell, wizard);
             dialog.create();
