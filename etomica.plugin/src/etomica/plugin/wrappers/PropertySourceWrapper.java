@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;
@@ -440,6 +441,12 @@ public class PropertySourceWrapper implements IPropertySource {
     public Action[] getActions() {
         return new Action[0];
     }
+    
+    public boolean canBeOpened() {
+        return false;
+    }
+    
+    public void open(IWorkbenchPage page) {}
     
     protected Object object;
 	protected IPropertyDescriptor[] descriptors;
