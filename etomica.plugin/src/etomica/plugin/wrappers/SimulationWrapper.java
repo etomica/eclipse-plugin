@@ -46,7 +46,6 @@ public class SimulationWrapper extends PropertySourceWrapper {
             Object client = ((DataStreamHeader)obj).getClient();
             if (!removeDataStream(object,client)) {
                 System.out.println("couldn't find "+client+" in "+object);
-                return false;
             }
             ((Simulation)object).unregister(((DataStreamHeader)obj).getDataSource(),client);
             return true;
