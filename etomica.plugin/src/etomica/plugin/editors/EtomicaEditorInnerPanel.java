@@ -13,6 +13,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.TreeItem;
@@ -20,6 +21,7 @@ import org.eclipse.swt.widgets.TreeItem;
 import etomica.etomica3D.OrientedObject;
 import etomica.plugin.EtomicaPlugin;
 import etomica.plugin.editors.listeners.EditorSelectionChangedListener;
+import etomica.plugin.editors.listeners.OpenSelectionListener;
 import etomica.plugin.editors.listeners.RefreshItemSelectionListener;
 import etomica.plugin.editors.listeners.RemoveItemSelectionListener;
 import etomica.plugin.views.ActionsViewContentProvider;
@@ -52,7 +54,7 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
 	 * @param parent
 	 * @param style
 	 */
-	public EtomicaEditorInnerPanel(Composite parent, int style) {
+	public EtomicaEditorInnerPanel(Composite parent, EtomicaEditor editor, int style) {
 		super(parent, style);
 		
 		viewer = new TreeViewer( objectTree  );
@@ -60,17 +62,19 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
         viewer.setLabelProvider(new LabelProvider());
 
         Menu viewMenu = new Menu(viewer.getTree());
-        MenuItem removeItem = new MenuItem(viewMenu,SWT.NONE);
-        removeItem.setText("Remove");
-        // stash the viewer in the MenuItem so the listeners can get it
-        removeItem.setData(viewer);
-        removeItem.addSelectionListener(new RemoveItemSelectionListener());
+
         MenuItem refreshItem = new MenuItem(viewMenu,SWT.NONE);
         refreshItem.setText("Refresh");
         // stash the viewer in the MenuItem so the listeners can get it
         refreshItem.setData(viewer);
         refreshItem.addSelectionListener(new RefreshItemSelectionListener());
         
+        MenuItem removeItem = new MenuItem(viewMenu,SWT.NONE);
+        removeItem.setText("Remove");
+        // stash the viewer in the MenuItem so the listeners can get it
+        removeItem.setData(viewer);
+        removeItem.addSelectionListener(new RemoveItemSelectionListener());
+
         MenuItem addItem = new MenuItem(viewMenu,SWT.CASCADE);
         addItem.setText("Add");
         Menu addSubMenu = new Menu(addItem);
@@ -78,6 +82,14 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
         // stash the viewer in the MenuItem so the listeners can get it
         addItem.setData(viewer);
 
+        MenuItem openItem = new MenuItem(viewMenu,SWT.NONE);
+        openItem.setText("Open");
+        // stash the viewer in the MenuItem so the listeners can get it
+        openItem.setData("viewer",viewer);
+        openItem.setData("page",editor.getSite().getPage());
+        openItem.setEnabled(false);
+        openItem.addSelectionListener(new OpenSelectionListener());
+        
         MenuItem actionItem = new MenuItem(viewMenu,SWT.CASCADE);
         actionItem.setText("Actions");
         Menu actionSubMenu = new Menu(actionItem);
@@ -85,14 +97,14 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
         // stash the viewer in the MenuItem so the listeners can get it
         actionItem.setData(viewer);
         
-        viewer.addSelectionChangedListener(new EditorSelectionChangedListener(removeItem,addItem,actionItem));
+        viewer.addSelectionChangedListener(new EditorSelectionChangedListener(openItem,removeItem,addItem,actionItem));
         viewer.getTree().setMenu(viewMenu);
 	
-        actionsViewer = new TreeViewer( actionsTree );
+        actionsViewer = new TreeViewer(actionsTree);
         actionsViewer.setContentProvider(new ActionsViewContentProvider());
         actionsViewer.setLabelProvider(new DecoratingLabelProvider(new LabelProvider(),null));
 
-        viewMenu = new Menu(viewer.getTree());
+        viewMenu = new Menu(actionsViewer.getTree());
         refreshItem = new MenuItem(viewMenu,SWT.NONE);
         refreshItem.setText("Refresh");
         // stash the viewer in the MenuItem so the listeners can get it
