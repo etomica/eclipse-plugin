@@ -1,21 +1,21 @@
 package etomica.plugin.wrappers;
 
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.internal.ExceptionHandler;
+
 import etomica.data.DataProcessor;
 import etomica.data.DataSink;
+import etomica.data.DataSource;
+import etomica.plugin.views.DataSourceView;
+import etomica.plugin.views.DataSourceViewContentProvider;
+import etomica.plugin.views.DataSourceViewLabelProvider;
 import etomica.simulation.Simulation;
 
 public class DataProcessorWrapper extends PropertySourceWrapper {
 
     public DataProcessorWrapper(DataProcessor object, Simulation sim) {
         super(object,sim);
-    }
-
-    public PropertySourceWrapper[] getChildren() {
-        DataSink sink = ((DataProcessor)object).getDataSink();
-        if (sink == null) {
-            return new PropertySourceWrapper[0];
-        }
-        return new PropertySourceWrapper[]{PropertySourceWrapper.makeWrapper(sink,simulation)};
     }
 
     public boolean removeChild(Object child) {
@@ -37,4 +37,5 @@ public class DataProcessorWrapper extends PropertySourceWrapper {
         }
         return (((DataProcessor)object).getDataSink() == child);
     }
+    
 }
