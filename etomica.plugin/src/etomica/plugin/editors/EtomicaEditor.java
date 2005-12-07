@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
@@ -207,7 +208,7 @@ public class EtomicaEditor extends EditorPart {
 	 */
 	public void createPartControl(Composite parent) {
 
-		inner_panel = new EtomicaEditorInnerPanel(parent, 0 );
+		inner_panel = new EtomicaEditorInnerPanel(parent, this, SWT.NONE);
 		inner_panel.setSimulation( simulation );
         getSite().setSelectionProvider(inner_panel.getViewer());
 	}
