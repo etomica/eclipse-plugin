@@ -132,7 +132,7 @@
             icon="icons/sample.gif"
             class="etomica.plugin.views.SpeciesView"
             category="etomica.plugin"
-            name="Species View"
+            name="Species"
             id="etomica.plugin.views.SpeciesView"/>
       <view
             allowMultiple="false"
@@ -140,21 +140,28 @@
             class="etomica.plugin.views.SummaryView"
             icon="icons/sample.gif"
             id="etomica.plugin.views.SummaryView"
-            name="Summary View"/>
+            name="Summary"/>
       <view
             allowMultiple="false"
             category="etomica.plugin"
             class="etomica.plugin.views.PhaseView"
             icon="icons/sample.gif"
             id="etomica.plugin.views.PhaseView"
-            name="Phase View"/>
+            name="Phase"/>
       <view
             allowMultiple="false"
             category="etomica.plugin"
             class="etomica.plugin.views.ConfigurationView"
             icon="icons/sample.gif"
             id="etomica.plugin.views.ConfigurationView"
-            name="Configuration View"/>
+            name="Configuration"/>
+      <view
+            allowMultiple="true"
+            category="etomica.plugin"
+            class="etomica.plugin.views.DataSourceView"
+            icon="icons/sample.gif"
+            id="etomica.plugin.views.DataSourceView"
+            name="Data"/>
    </extension>
    <extension
          point="org.eclipse.ui.editors">
@@ -214,6 +221,14 @@
                style="push"
                menubarPath="EtomicaMenu/group1"
                id="RepeatActivities"/>
+         <action
+               toolbarPath="additions/Etomica"
+               label="Reset Controller"
+               icon="src/etomica/plugin/icons/repeat.gif"
+               class="etomica.plugin.actions.ResetControllerActionDelegate"
+               style="push"
+               menubarPath="EtomicaMenu/group1"
+               id="ResetController"/>
       </editorContribution>
    </extension>
    <extension
