@@ -20,8 +20,9 @@ import etomica.util.Arrays;
  * PropertySourceWrapper of the selected item.
  */
 public class EditorSelectionChangedListener implements ISelectionChangedListener {
-    public EditorSelectionChangedListener(MenuItem remove, MenuItem add, 
-            MenuItem action) {
+    public EditorSelectionChangedListener(MenuItem open, MenuItem remove, 
+            MenuItem add, MenuItem action) {
+        openItem = open;
         removeItem = remove;
         addItem = add;
         actionItem = action;
@@ -35,6 +36,9 @@ public class EditorSelectionChangedListener implements ISelectionChangedListener
         //retrieve the selected tree item from the tree so we can get its parent
         TreeItem selectedItem = simViewer.getTree().getSelection()[0];
         Object selectedObj = selectedItem.getData();
+        if (selectedObj instanceof PropertySourceWrapper) {
+            openItem.setEnabled(((PropertySourceWrapper)selectedObj).canBeOpened());
+        }
         //retrieve the selected item's parent
         TreeItem parentItem = selectedItem.getParentItem();
         Object parentObj = null;
@@ -124,5 +128,5 @@ public class EditorSelectionChangedListener implements ISelectionChangedListener
         }
     }
     
-    private final MenuItem removeItem, addItem, actionItem;
+    private final MenuItem openItem, removeItem, addItem, actionItem;
 }
