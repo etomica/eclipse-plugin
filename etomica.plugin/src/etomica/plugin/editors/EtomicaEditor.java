@@ -14,6 +14,8 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -25,7 +27,9 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.SaveAsDialog;
+import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
 
@@ -63,7 +67,8 @@ public class EtomicaEditor extends EditorPart {
 		IFile[] files = workspace.getRoot().findFilesForLocation( path );
 		if ( files.length!=1 )
 		{
-			System.out.println( "(Etomica) Error saving editor to location " + path.toOSString() );
+            WorkbenchPlugin.getDefault().getLog().log(
+                    new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID, 0, "(Etomica) Error saving editor to location " + path.toOSString(), null));
 			return;
 		}
 		String filename = files[0].getFullPath().toOSString();
@@ -134,7 +139,7 @@ public class EtomicaEditor extends EditorPart {
 
 	
 	
-    void readFromFile( String filename ) {
+    protected Exception readFromFile( String filename ) {
         FileInputStream fis = null;
         EtomicaObjectInputStream in = null;
         try
@@ -144,13 +149,18 @@ public class EtomicaEditor extends EditorPart {
             simulation = (etomica.simulation.Simulation) in.readObject();
             in.finalizeRead();
             in.close();
+        }
+		catch( Exception ex ) {
+            WorkbenchPlugin.getDefault().getLog().log(
+                    new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID, 0, "Could not read simulation from file " + filename, ex));
+			simulation = null;
+            return ex;
+		}
+        if (simulation != null) {
             simulation.clearDataStreams();
             new DataStreamRegister(simulation).registerDataStreams(simulation);
         }
-		catch( Exception ex ) {
-			System.err.println( "Could not read simulation from file " + filename + ". Cause: " + ex.getLocalizedMessage() );
-			simulation = new Simulation();
-		}
+        return null;
 	}
     
 	/* (non-Javadoc)
@@ -189,7 +199,10 @@ public class EtomicaEditor extends EditorPart {
 		if (resource == null) 
 			return;
 		IPath location = resource.getLocation();
-		readFromFile(location.toOSString());
+		Exception ex = readFromFile(location.toOSString());
+        if (ex != null) {
+            throw new PartInitException("Could not read file "+location.toOSString(),ex);
+        }
         
 		// Update inner panel 
 		if ( inner_panel != null )
@@ -199,18 +212,15 @@ public class EtomicaEditor extends EditorPart {
 		}
 	}
 
-	public void runSimulation() {
-		if ( simulation != null )
-			simulation.getController().start();
-	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IWorkbenchPart#createPartControl(org.eclipse.swt.widgets.Composite)
 	 */
 	public void createPartControl(Composite parent) {
-
-		inner_panel = new EtomicaEditorInnerPanel(parent, this, SWT.NONE);
-		inner_panel.setSimulation( simulation );
-        getSite().setSelectionProvider(inner_panel.getViewer());
+	    if (simulation != null) {
+    		inner_panel = new EtomicaEditorInnerPanel(parent, this, SWT.NONE);
+    		inner_panel.setSimulation( simulation );
+            getSite().setSelectionProvider(inner_panel.getViewer());
+        }
 	}
 	
 	
