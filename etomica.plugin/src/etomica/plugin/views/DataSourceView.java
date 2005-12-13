@@ -44,7 +44,6 @@ public class DataSourceView extends ViewPart {
         getViewSite().getActionBars().getToolBarManager().add(refreshAction);
         
         ActionContributionItem toggleAutoUpdate = new ActionContributionItem(toggleUpdateAction);
-        toggleAutoUpdate.getAction().getStyle();
         getViewSite().getActionBars().getMenuManager().add(toggleAutoUpdate);
 	}
 	
