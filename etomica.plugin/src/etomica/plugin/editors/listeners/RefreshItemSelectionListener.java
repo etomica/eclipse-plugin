@@ -15,6 +15,11 @@ public class RefreshItemSelectionListener implements SelectionListener {
     public void widgetSelected(SelectionEvent e){
         TreeViewer simViewer = (TreeViewer)e.widget.getData();
         //retrieve the object from the tree viewer directly
+        TreeItem[] selection = simViewer.getTree().getSelection();
+        if (selection.length == 0) {
+            simViewer.refresh();
+            return;
+        }
         TreeItem selectedItem = simViewer.getTree().getSelection()[0];
         TreeItem parentItem = selectedItem.getParentItem();
         if (parentItem == null) {
