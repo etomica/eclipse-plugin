@@ -23,7 +23,6 @@ import etomica.data.DataSource;
 public class DataSourceViewContentProvider implements IStructuredContentProvider {
 
     public DataSourceViewContentProvider(DataSource dataSource) {
-        this.dataSource = dataSource;
         dataSinkTable = new DataSinkTable();
         pump = new DataPump(dataSource,dataSinkTable);
     }
@@ -79,7 +78,6 @@ public class DataSourceViewContentProvider implements IStructuredContentProvider
     }
     
     Object currentSelection;
-    private final DataSource dataSource;
     private final DataSinkTable dataSinkTable;
     private final DataPump pump;
 	private TableViewer viewer;
