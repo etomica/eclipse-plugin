@@ -13,7 +13,6 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.TreeItem;
@@ -21,6 +20,7 @@ import org.eclipse.swt.widgets.TreeItem;
 import etomica.etomica3D.OrientedObject;
 import etomica.plugin.EtomicaPlugin;
 import etomica.plugin.editors.listeners.EditorSelectionChangedListener;
+import etomica.plugin.editors.listeners.OpenActionListener;
 import etomica.plugin.editors.listeners.OpenSelectionListener;
 import etomica.plugin.editors.listeners.RefreshItemSelectionListener;
 import etomica.plugin.editors.listeners.RemoveItemSelectionListener;
@@ -113,6 +113,8 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
         refreshItem.setData(actionsViewer);
         refreshItem.addSelectionListener(new RefreshItemSelectionListener());
         actionsViewer.getTree().setMenu(viewMenu);
+        OpenActionListener openActionListener = new OpenActionListener();
+        actionsViewer.addDoubleClickListener(openActionListener);
 	}
 
 	public void setSimulation( Simulation simulation )
