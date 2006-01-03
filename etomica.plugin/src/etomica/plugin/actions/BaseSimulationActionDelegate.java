@@ -4,15 +4,15 @@
  */
 package etomica.plugin.actions;
 
-import etomica.plugin.editors.EtomicaEditor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorPart;
+
 import etomica.action.activity.Controller;
 import etomica.action.activity.ControllerListener;
+import etomica.plugin.editors.EtomicaEditor;
 import etomica.simulation.Simulation;
-import etomica.simulation.SimulationEvent;
 
 /**
  * @author Henrique
@@ -55,20 +55,9 @@ public abstract class BaseSimulationActionDelegate implements IEditorActionDeleg
 		
 	}
 
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.IActionDelegate#selectionChanged(org.eclipse.jface.action.IAction, org.eclipse.jface.viewers.ISelection)
-	 */
 	public void selectionChanged(IAction action, ISelection selection) {
 	}
 		
-	/* (non-Javadoc)
-	 * @see etomica.SimulationListener#actionPerformed(etomica.SimulationEvent)
-	 */
-	public void actionPerformed(SimulationEvent event) {
-	}
-	
-	
 	protected EtomicaEditor current_editor;
 	protected IAction current_action;
 	protected Simulation simulation;

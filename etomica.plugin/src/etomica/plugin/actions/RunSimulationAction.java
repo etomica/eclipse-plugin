@@ -4,14 +4,17 @@
  */
 package etomica.plugin.actions;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.WorkbenchPlugin;
 
 import etomica.action.activity.Controller;
 import etomica.action.activity.ControllerEvent;
 import etomica.action.activity.ControllerListener;
 import etomica.simulation.Simulation;
-import etomica.simulation.SimulationEvent;
 
 /**
  * Action that causes simulation to resume execution.  
@@ -51,8 +54,18 @@ public class RunSimulationAction extends Action implements ControllerListener {
 		if(simulation == null) return;
 		Controller controller = simulation.getController();
 		if(controller == null || controller.isActive()) return;
-		controller.start();	
-		//view.setSimulation(simulation);//update all buttons
+        Thread runner = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    simulation.getController().actionPerformed();
+                }
+                catch (RuntimeException e) {
+                    WorkbenchPlugin.getDefault().getLog().log(
+                            new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID, 0, e.getMessage(), e.getCause()));
+                }
+            }
+        });
+        runner.start();
 	}
 	
 	//may not need this
@@ -80,9 +93,4 @@ public class RunSimulationAction extends Action implements ControllerListener {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see etomica.SimulationListener#actionPerformed(etomica.SimulationEvent)
-	 */
-	public void actionPerformed(SimulationEvent event) {
-	}
 }
