@@ -49,7 +49,7 @@ public class AtomFactoryHeteroWrapper extends PropertySourceWrapper {
     public boolean addObjectClass(Simulation sim, Class newObjectClass, Shell shell) {
         if (newObjectClass == AtomFactoryMono.class) {
             AtomTypeSphere leafType = new AtomTypeSphere(sim,(AtomTypeGroup)((AtomFactory)object).getType());
-            AtomFactoryMono childFactory = new AtomFactoryMono(new CoordinateFactorySphere(sim),leafType,sim.potentialMaster.sequencerFactory());
+            AtomFactoryMono childFactory = new AtomFactoryMono(new CoordinateFactorySphere(sim),leafType);
             ((AtomFactoryHetero)object).addChildFactory(childFactory);
         }
         return false;
