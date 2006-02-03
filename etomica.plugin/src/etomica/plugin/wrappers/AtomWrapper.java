@@ -3,6 +3,7 @@ package etomica.plugin.wrappers;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.simulation.Simulation;
@@ -21,9 +22,9 @@ public class AtomWrapper extends PropertySourceWrapper {
         if (((Atom)object).node.childAtomCount() > 0) {
             descriptors = (IPropertyDescriptor[])Arrays.addObject(descriptors,new org.eclipse.ui.views.properties.PropertyDescriptor("children","children"));
         }
-        if (((Atom)object).coord != null) {
+        if (object instanceof AtomLeaf) {
             descriptors = (IPropertyDescriptor[])Arrays.addObject(descriptors,new org.eclipse.ui.views.properties.PropertyDescriptor("position","position"));
-            if (((Atom)object).coord instanceof ICoordinateKinetic) {
+            if (((AtomLeaf)object).coord instanceof ICoordinateKinetic) {
                 descriptors = (IPropertyDescriptor[])Arrays.addObject(descriptors,new org.eclipse.ui.views.properties.PropertyDescriptor("velocity","velocity"));
             }
         }
@@ -39,21 +40,15 @@ public class AtomWrapper extends PropertySourceWrapper {
             return ((Atom)object).type;
         }
         if (keyString.equals("children")) {
-            iterator.setList(((AtomTreeNodeGroup)((Atom)object).node).childList);
-            iterator.reset();
-            Atom[] childAtoms = new Atom[iterator.size()];
-            int i=0;
-            while (iterator.hasNext()) {
-                childAtoms[i++] = iterator.nextAtom();
-            }
+            Atom[] childAtoms = ((AtomTreeNodeGroup)((Atom)object).node).childList.toArray();
             wrapper = PropertySourceWrapper.makeWrapper(childAtoms,simulation);
             wrapper.setDisplayName("Child Atoms");
         }
         if (keyString.equals("position")) {
-            wrapper = PropertySourceWrapper.makeWrapper(((Atom)object).coord.position(),simulation);
+            wrapper = PropertySourceWrapper.makeWrapper(((AtomLeaf)object).coord.position(),simulation);
         }
         if (keyString.equals("velocity")) {
-            wrapper = PropertySourceWrapper.makeWrapper(((ICoordinateKinetic)((Atom)object).coord).velocity(),simulation);
+            wrapper = PropertySourceWrapper.makeWrapper(((ICoordinateKinetic)((AtomLeaf)object).coord).velocity(),simulation);
         }
         return wrapper;
     }
