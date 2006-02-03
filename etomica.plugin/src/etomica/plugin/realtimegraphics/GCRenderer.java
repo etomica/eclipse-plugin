@@ -66,10 +66,7 @@ public class GCRenderer implements Renderable {
 	static final float[] tmp = new float[4];
 
 	Mapper mapper = new Mapper();
-    private int[] shiftOrigin = new int[2];     //work vector for drawing overflow images
     private Color[] colors;
-    private final int[] phaseOrigin = new int[2];
-    private double toPixels;
     protected ColorScheme color_scheme;
     protected ArrayList objects = new ArrayList();
     protected Display display;

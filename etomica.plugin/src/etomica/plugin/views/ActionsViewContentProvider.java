@@ -4,15 +4,8 @@
  */
 package etomica.plugin.views;
 
-import org.eclipse.jface.viewers.DecoratingLabelProvider;
-import org.eclipse.jface.viewers.IColorDecorator;
-import org.eclipse.jface.viewers.ILabelDecorator;
-import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITreeContentProvider;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Image;
 
 import etomica.action.Action;
 import etomica.action.ActionGroup;
