@@ -81,13 +81,13 @@ public class SimpleClassSelector extends Composite {
             Class[] parameterClasses = constructors[i].getParameterTypes();
             Object[] parameters = new Object[parameterClasses.length];
             for (int j=0; j<parameters.length; j++) {
-                if (parameterClasses[i] == Simulation.class) {
+                if (parameterClasses[j] == Simulation.class) {
                     parameters[j] = sim;
                 }
-                else if (parameterClasses[i] == PotentialMaster.class) {
+                else if (parameterClasses[j] == PotentialMaster.class) {
                     parameters[j] = sim.potentialMaster;
                 }
-                else if (parameterClasses[i] == Space.class) {
+                else if (parameterClasses[j] == Space.class) {
                     parameters[j] = sim.space;
                 }
                 else {
@@ -102,15 +102,15 @@ public class SimpleClassSelector extends Composite {
                 return constructors[i].newInstance(parameters);
             }
             catch (InstantiationException e) {
-                System.err.println( "Could not instantiate class: " + e.getMessage() );
+                System.err.println("Could not instantiate class: " + e.getMessage() );
                 e.printStackTrace();
             }
             catch (IllegalAccessException e) {
-                System.err.println( "Illegal access while creating class: " + e.getMessage() );
+                System.err.println("Illegal access while creating class: " + e.getMessage() );
                 e.printStackTrace();
             }
             catch (InvocationTargetException e) {
-                System.err.println( "Exception creating class: " + e.getMessage() );
+                System.err.println("Exception creating class: " + e.getMessage() );
                 e.printStackTrace();
             }
             return null;
