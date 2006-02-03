@@ -26,6 +26,7 @@ import etomica.atom.Atom;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryHetero;
 import etomica.atom.AtomPositionDefinition;
+import etomica.atom.AtomSource;
 import etomica.atom.AtomType;
 import etomica.data.DataPipeForked;
 import etomica.data.DataProcessor;
@@ -33,6 +34,8 @@ import etomica.data.DataSink;
 import etomica.data.DataSource;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorMC;
+import etomica.integrator.MCMove;
+import etomica.integrator.mcmove.MCMoveManager;
 import etomica.phase.Phase;
 import etomica.plugin.Registry;
 import etomica.plugin.views.CheckboxPropertyDescriptor;
@@ -116,6 +119,15 @@ public class PropertySourceWrapper implements IPropertySource {
                 return new IntegratorMCWrapper((IntegratorMC)obj,sim);
             }
             return new IntegratorWrapper((Integrator)obj,sim);
+        }
+        else if (obj instanceof MCMoveManager) {
+            return new MCMoveManagerWrapper((MCMoveManager)obj,sim);
+        }
+        else if (obj instanceof MCMove) {
+            return new MCMoveWrapper((MCMove)obj,sim);
+        }
+        else if (obj instanceof AtomSource) {
+            return new AtomSourceWrapper((AtomSource)obj,sim);
         }
         else if (obj instanceof DataStreamHeader) {
             return new DataStreamWrapper((DataStreamHeader)obj,sim);
@@ -446,7 +458,7 @@ public class PropertySourceWrapper implements IPropertySource {
         return false;
     }
     
-    public void open(IWorkbenchPage page) {}
+    public void open(IWorkbenchPage page, Shell shell) {}
     
     protected Object object;
 	protected IPropertyDescriptor[] descriptors;
