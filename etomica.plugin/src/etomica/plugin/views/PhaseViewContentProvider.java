@@ -9,6 +9,7 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 
 import etomica.atom.Atom;
+import etomica.atom.AtomArrayList;
 import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNode;
 import etomica.atom.AtomTreeNodeGroup;
@@ -22,9 +23,7 @@ import etomica.plugin.wrappers.PropertySourceWrapper;
  */
 public class PhaseViewContentProvider implements ITreeContentProvider {
 
-    public PhaseViewContentProvider() {
-        iterator = new AtomIteratorListSimple();
-    }
+    public PhaseViewContentProvider() {}
 	/**
 	 * Simulation is root.
 	 * Controller is child of simulation.
@@ -46,17 +45,14 @@ public class PhaseViewContentProvider implements ITreeContentProvider {
     //simulation instances to be the input element in this method
     public Object[] getElements(Object inputElement) {
         Phase phase = (Phase)((PropertySourceWrapper)inputElement).getObject();
-        AtomList agentList = ((AtomTreeNodeGroup)phase.getSpeciesMaster().node).childList;
+        AtomArrayList agentList = ((AtomTreeNodeGroup)phase.getSpeciesMaster().node).childList;
         return wrapAtomList(agentList);
     }
     
-    private PropertySourceWrapper[] wrapAtomList(AtomList list) {
-        iterator.setList(list);
-        iterator.reset();
+    private PropertySourceWrapper[] wrapAtomList(AtomArrayList list) {
         PropertySourceWrapper[] wrappers = new PropertySourceWrapper[list.size()];
-        int i=0;
-        while (iterator.hasNext()) {
-            wrappers[i++] = PropertySourceWrapper.makeWrapper(iterator.nextAtom());
+        for (int i=0; i<list.size(); i++) {
+            wrappers[i++] = PropertySourceWrapper.makeWrapper(list.get(i));
         }
         return wrappers;
     }
@@ -97,5 +93,4 @@ public class PhaseViewContentProvider implements ITreeContentProvider {
     Object currentSelection;
 
 	private TreeViewer viewer;
-    private final AtomIteratorListSimple iterator;
 }
