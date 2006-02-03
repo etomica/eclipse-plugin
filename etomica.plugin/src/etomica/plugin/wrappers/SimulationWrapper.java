@@ -124,7 +124,7 @@ public class SimulationWrapper extends PropertySourceWrapper {
             IntegratorIntervalListener[] listeners = ((Integrator)obj).getIntervalListeners();
             for (int i=0; i<listeners.length; i++) {
                 if (listeners[i] instanceof IntervalActionAdapter) {
-                    Action action = ((IntervalActionAdapter)obj).getAction();
+                    Action action = ((IntervalActionAdapter)listeners[i]).getAction();
                     if (action == client) {
                         ((Integrator)obj).removeListener(listeners[i]);
                         return true;
