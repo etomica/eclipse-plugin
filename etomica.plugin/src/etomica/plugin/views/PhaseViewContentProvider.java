@@ -10,10 +10,8 @@ import org.eclipse.jface.viewers.Viewer;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomList;
 import etomica.atom.AtomTreeNode;
 import etomica.atom.AtomTreeNodeGroup;
-import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.phase.Phase;
 import etomica.plugin.wrappers.PropertySourceWrapper;
 
@@ -24,12 +22,9 @@ import etomica.plugin.wrappers.PropertySourceWrapper;
 public class PhaseViewContentProvider implements ITreeContentProvider {
 
     public PhaseViewContentProvider() {}
-	/**
-	 * Simulation is root.
-	 * Controller is child of simulation.
-	 * ActivityGroups are parents of actions/activities
-	 */
+
     public Object[] getChildren(Object wrappedElement) {
+        // wrapped element is an atom.  If it's a parent, return the children
         AtomTreeNode node = ((Atom)((PropertySourceWrapper)wrappedElement).getObject()).node;
         if (!(node instanceof AtomTreeNodeGroup)) {
             return new Object[0];
