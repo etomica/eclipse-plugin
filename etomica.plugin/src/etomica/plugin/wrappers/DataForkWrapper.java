@@ -74,11 +74,11 @@ public class DataForkWrapper extends PropertySourceWrapper {
         return dataSourceWrapper != null && dataSourceWrapper.canBeOpened();
     }
     
-    public void open(IWorkbenchPage page) {
+    public void open(IWorkbenchPage page, Shell shell) {
         if (dataSourceWrapper == null) {
             return;
         }
-        dataSourceWrapper.open(page);
+        dataSourceWrapper.open(page,shell);
     }
 
     private final DataSourceWrapper dataSourceWrapper;

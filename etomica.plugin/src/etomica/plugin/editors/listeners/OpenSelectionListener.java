@@ -35,7 +35,7 @@ public class OpenSelectionListener implements SelectionListener, IDoubleClickLis
         TreeItem selectedItem = viewer.getTree().getSelection()[0];
         Object obj = selectedItem.getData();
         if (obj instanceof PropertySourceWrapper && ((PropertySourceWrapper)obj).canBeOpened()) {
-            ((PropertySourceWrapper)obj).open(workbenchPage);
+            ((PropertySourceWrapper)obj).open(workbenchPage,viewer.getControl().getShell());
         }
     }
     

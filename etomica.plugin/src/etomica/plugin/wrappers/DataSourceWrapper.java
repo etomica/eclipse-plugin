@@ -1,5 +1,6 @@
 package etomica.plugin.wrappers;
 
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.internal.ExceptionHandler;
@@ -40,7 +41,7 @@ public class DataSourceWrapper extends PropertySourceWrapper {
         return true;
     }
     
-    public void open(IWorkbenchPage page) {
+    public void open(IWorkbenchPage page, Shell shell) {
         try {
             DataSourceView view = (DataSourceView)page.showView("etomica.plugin.views.DataSourceView",toString(),IWorkbenchPage.VIEW_VISIBLE);
             DataSourceViewContentProvider vcp = new DataSourceViewContentProvider((DataSource)object);
