@@ -36,8 +36,8 @@ public class NewSpeciesPotentialPage extends WizardPage {
     public NewSpeciesPotentialPage(Simulation sim) {
         super("wizardPage");
         simulation = sim;
-        setTitle("Etomica New Species Wizard");
-        setDescription("This wizard creates a new Species.");
+        setTitle("Etomica New Potential Wizard");
+        setDescription("This wizard creates a new molecular potential.");
     }
 
     public class ClassLabelProvider extends LabelProvider {
