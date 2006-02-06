@@ -1,16 +1,24 @@
 package etomica.plugin.wizards;
 
+import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.swt.widgets.Composite;
 
 import etomica.data.DataPump;
 import etomica.data.DataSink;
 import etomica.data.DataSource;
+import etomica.data.meter.Meter;
+import etomica.integrator.Integrator;
+import etomica.integrator.IntegratorPhase;
+import etomica.integrator.IntervalActionAdapter;
+import etomica.phase.Phase;
 import etomica.plugin.wizards.NewObjectSimplePage.SimpleClassWizard;
 import etomica.simulation.Simulation;
 
 /**
  * This wizard allows the user to create a new DataStream.  The user can choose
- * the DataSource class and the DataStream is added to the Simulation.
+ * the DataSource class and the DataStream is added to the Simulation.  The user 
+ * can then select to hook up the DataStream to an Integrator.
  */
 public class NewDataStreamWizard extends Wizard implements SimpleClassWizard {
     /**
@@ -28,6 +36,8 @@ public class NewDataStreamWizard extends Wizard implements SimpleClassWizard {
     public void addPages() {
         page = new NewObjectSimplePage(this,simulation,"Data Source");
         addPage(page);
+        page2 = new IntegratorSelectionPage(simulation,"Data Source");
+        addPage(page2);
     }
     
     public void fixupSelector(SimpleClassSelector selector) {
@@ -46,7 +56,20 @@ public class NewDataStreamWizard extends Wizard implements SimpleClassWizard {
         if (dataSource == null)
             return false;
 	  	
-        simulation.register(dataSource,new DataPump(dataSource,null));
+        DataPump pump = new DataPump(dataSource,null);
+        simulation.register(dataSource,pump);
+        if (page2.getControl() != null && page2.isPageComplete()) {
+            Integrator integrator = page2.getIntegrator();
+            if (integrator != null) {
+                integrator.addListener(new IntervalActionAdapter(pump));
+                if (integrator instanceof IntegratorPhase && dataSource instanceof Meter) {
+                    Phase phase = ((IntegratorPhase)integrator).getPhase();
+                    if (phase != null) {
+                        ((Meter)dataSource).setPhase(phase);
+                    }
+                }
+            }
+        }
         
         success = true;
         return true;
@@ -56,7 +79,16 @@ public class NewDataStreamWizard extends Wizard implements SimpleClassWizard {
         return success;
     }
     
+    public void createPageControls(Composite pageContainer) {
+        // the default behavior is to create all the pages controls
+        IWizardPage[] pages = getPages();
+        for (int i = 0; i < pages.length; i++) {
+            pages[i].createControl(pageContainer);
+        }
+    }
+    
     private final Simulation simulation;
     private NewObjectSimplePage page;
+    private IntegratorSelectionPage page2;
     private boolean success = false;
 }
