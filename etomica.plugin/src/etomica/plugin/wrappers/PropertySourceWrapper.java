@@ -348,8 +348,26 @@ public class PropertySourceWrapper implements IPropertySource {
 			pd = new DecimalPropertyDescriptor(property, name);
 		}
 		else if(EnumeratedType.class.isAssignableFrom(type)) {
-            if (value != null) {
-                pd = new ComboPropertyDescriptor(property,name,((EnumeratedType)value).choices());
+            EnumeratedType[] choices = null;
+            try {
+                Method method = type.getMethod("choices",null);
+                if (method != null) {
+                    choices = (EnumeratedType[])method.invoke(null,null);
+                }
+            }
+            catch (InvocationTargetException e) {
+                // choices threw an excpetion
+            }
+            catch (NoSuchMethodException e) {
+                // choices doesn't exist
+            }
+            catch (IllegalAccessException e) {
+            }
+            catch (NullPointerException e) {
+                // choices() wasn't static as it should be
+            }
+            if (choices != null) {
+                pd = new ComboPropertyDescriptor(property,name,choices);
             }
 		}
 		else if(String.class.isAssignableFrom(type)) {

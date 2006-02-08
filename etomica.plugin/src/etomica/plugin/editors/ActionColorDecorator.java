@@ -3,7 +3,6 @@
  */
 package etomica.plugin.editors;
 
-import org.eclipse.jface.viewers.LabelProviderChangedEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.ui.internal.decorators.DecoratorManager;
 
@@ -11,6 +10,7 @@ import etomica.action.Action;
 import etomica.action.activity.Controller;
 import etomica.action.activity.ControllerEvent;
 import etomica.action.activity.ControllerListener;
+import etomica.action.activity.Controller.ActionStatus;
 
 /**
  * This informs the ActionViewer how to color the Controller's actions
@@ -23,10 +23,10 @@ public class ActionColorDecorator extends DecoratorManager implements Controller
     
     public Color decorateForeground(Object element) {
         Controller.ActionStatus status = controller.getActionStatus((Action)element);
-        if (status == Controller.CURRENT) {
+        if (status == ActionStatus.CURRENT) {
             return red;
         }
-        if (status == Controller.PENDING) {
+        if (status == ActionStatus.PENDING) {
             return black;
         }
         // must be COMPLETED
@@ -35,10 +35,10 @@ public class ActionColorDecorator extends DecoratorManager implements Controller
     
     public Color decorateBackground(Object element) {
         Controller.ActionStatus status = controller.getActionStatus((Action)element);
-        if (status == Controller.COMPLETED || status == Controller.CURRENT || status == Controller.PENDING) {
+        if (status == ActionStatus.COMPLETED || status == ActionStatus.CURRENT || status == ActionStatus.PENDING) {
             return white;
         }
-        if (status == Controller.STOPPED) {
+        if (status == ActionStatus.STOPPED) {
             return yellow;
         }
         // must be FAILED
