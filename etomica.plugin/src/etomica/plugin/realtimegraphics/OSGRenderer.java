@@ -2,7 +2,8 @@
 package etomica.plugin.realtimegraphics;
 import org.eclipse.swt.widgets.Control;
 
-import etomica.etomica3D.*;
+import etomica.etomica3D.OrientedObject;
+import etomica.etomica3D.RenderWindow;
 import etomica.graphics2.Color;
 import etomica.graphics2.ColorScheme;
 import etomica.graphics2.Renderable;
@@ -31,11 +32,15 @@ public class OSGRenderer implements Renderable
 		}
 
 		public void setColor(int cindex) {
-			color_index =cindex;
+            if (color_index == cindex) {
+                return;
+            }
+			color_index = cindex;
 			if ( color_scheme!=null )
 			{
 				Color color = color_scheme.getColor( cindex );
-				// obj.setColor( color );
+                float[] rgba = new float[]{color.r,color.g,color.b,1.0f};
+				obj.setColor(rgba) ;
 			}
 		}
 
@@ -124,10 +129,15 @@ public class OSGRenderer implements Renderable
     public void resize(int width, int height) {
         osg_render.resize(width,height);
     }
+    
+    public void setColorScheme(ColorScheme scheme) {
+        colorScheme = scheme;
+    }
 	
 	protected Control render_in_control;
 	protected RenderWindow osg_render;
 	static protected float[] tmp_float_array = new float[3];
+    protected ColorScheme colorScheme;
 	protected float[] toFloatArray( Vector v )
 	{
 		tmp_float_array[0] = (float)v.x(0);
@@ -142,13 +152,17 @@ public class OSGRenderer implements Renderable
 	 * @see etomica.graphics2.Renderable#createSphere()
 	 */
 	public Renderable.Sphere createSphere() {
-		return new OSGRenderer.Sphere();
-	}
+        Renderable.Sphere sphere = new OSGRenderer.Sphere();
+        sphere.setColorScheme(colorScheme);
+		return sphere;
+    }
 	/* (non-Javadoc)
 	 * @see etomica.graphics2.Renderable#createPoly()
 	 */
 	public Renderable.Polyline createPoly() {
-		return new OSGRenderer.Polyline();
+		Renderable.Polyline line = new OSGRenderer.Polyline();
+        line.setColorScheme(colorScheme);
+        return line;
 	}
 } 
 
