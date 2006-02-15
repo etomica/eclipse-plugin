@@ -62,7 +62,7 @@ public class PotentialMasterWrapper extends PropertySourceWrapper {
     }
 
     public Action[] getActions() {
-        if (object instanceof PotentialMasterCell) {
+        if (object instanceof PotentialMasterNbr) {
             UpdateTypeList updateTypeList = new UpdateTypeList((PotentialMasterNbr)object,simulation);
             return new Action[]{updateTypeList};
         }
