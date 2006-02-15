@@ -31,7 +31,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.part.EditorPart;
-import org.eclipse.ui.part.FileEditorInput;
 
 import etomica.simulation.Simulation;
 import etomica.simulation.prototypes.HSMD3D;
@@ -58,20 +57,14 @@ public class EtomicaEditor extends EditorPart {
 		// Use XML to stream simulation
 		
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		IFile file = workspace.getRoot().getFile(path);
-		new FileEditorInput(file);
 
 		if (progressMonitor != null)
 			progressMonitor.setCanceled( false );
 
-		IFile[] files = workspace.getRoot().findFilesForLocation( path );
-		if ( files.length!=1 )
-		{
-            WorkbenchPlugin.getDefault().getLog().log(
-                    new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID, 0, "(Etomica) Error saving editor to location " + path.toOSString(), null));
-			return;
-		}
-		String filename = files[0].getFullPath().toOSString();
+        IPath dir = path.removeLastSegments(1);
+        IResource resource = workspace.getRoot().findMember(dir);
+		IPath absPath = resource.getLocation();
+		String filename = absPath.append(path.lastSegment()).toOSString();
 		
 		FileOutputStream fos = null;
 		ObjectOutputStream out = null;
