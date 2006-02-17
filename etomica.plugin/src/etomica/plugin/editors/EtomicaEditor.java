@@ -50,7 +50,8 @@ public class EtomicaEditor extends EditorPart {
 		super.dispose();
 	}
 	
-	/** Save the contents of this simulation into the file pointed by the IPath object "path". 
+	/**
+     * Save the contents of this simulation into the file pointed by the IPath object "path". 
 	 * doSaveAs() will ask for a file name and set the "path" variable before calling doSave().
 	 */
 	public void doSave(IProgressMonitor progressMonitor) {
@@ -74,6 +75,8 @@ public class EtomicaEditor extends EditorPart {
 		  	out = new ObjectOutputStream(fos);
 		  	out.writeObject( simulation );
 		  	out.close();
+            dirty_flag = false;
+            firePropertyChange(PROP_DIRTY);
 		}
 		catch(IOException ex)
 		{
@@ -83,7 +86,8 @@ public class EtomicaEditor extends EditorPart {
 	}
 	
 
-	/* Asks for a file name (sets file name in "path" variable) and then makes a runnable thread to call doSave(). 
+	/**
+     * Asks for a file name (sets file name in "path" variable) and then makes a runnable thread to call doSave(). 
 	 * @see org.eclipse.ui.ISaveablePart#doSaveAs()
 	 */
 	public void doSaveAs() {
@@ -129,8 +133,6 @@ public class EtomicaEditor extends EditorPart {
 		    path=old_path;
 		 }
 	}
-
-	
 	
     protected Exception readFromFile( String filename ) {
         FileInputStream fis = null;
@@ -156,24 +158,21 @@ public class EtomicaEditor extends EditorPart {
         return null;
 	}
     
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.ISaveablePart#isDirty()
-	 */
 	public boolean isDirty() {
-		// TODO Auto-generated method stub
 		return dirty_flag;
 	}
+    
+    public void markDirty() {
+        if (!dirty_flag) {
+            dirty_flag = true;
+            firePropertyChange(PROP_DIRTY);
+        }
+    }
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.ISaveablePart#isSaveAsAllowed()
-	 */
 	public boolean isSaveAsAllowed() {
-		return true;
+		return !simulation.getController().isActive();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.IEditorPart#init(org.eclipse.ui.IEditorSite, org.eclipse.ui.IEditorInput)
-	 */
 	public void init(IEditorSite site, IEditorInput input)
 			throws PartInitException {
 		this.setSite( site );

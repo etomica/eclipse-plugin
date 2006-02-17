@@ -73,7 +73,7 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
         removeItem.setText("Remove");
         // stash the viewer in the MenuItem so the listeners can get it
         removeItem.setData(viewer);
-        removeItem.addSelectionListener(new RemoveItemSelectionListener());
+        removeItem.addSelectionListener(new RemoveItemSelectionListener(editor));
 
         MenuItem addItem = new MenuItem(viewMenu,SWT.CASCADE);
         addItem.setText("Add");
@@ -97,7 +97,7 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
         // stash the viewer in the MenuItem so the listeners can get it
         actionItem.setData(viewer);
         
-        viewer.addSelectionChangedListener(new EditorSelectionChangedListener(openItem,removeItem,addItem,actionItem));
+        viewer.addSelectionChangedListener(new EditorSelectionChangedListener(openItem,removeItem,addItem,actionItem,editor));
         viewer.getTree().setMenu(viewMenu);
         
         viewer.addDoubleClickListener(openListener);

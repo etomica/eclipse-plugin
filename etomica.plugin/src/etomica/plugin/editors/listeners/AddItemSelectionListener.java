@@ -5,6 +5,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.TreeItem;
 
+import etomica.plugin.editors.EtomicaEditor;
 import etomica.plugin.wrappers.ArrayWrapper;
 import etomica.plugin.wrappers.PropertySourceWrapper;
 import etomica.plugin.wrappers.SimulationWrapper;
@@ -16,6 +17,10 @@ import etomica.simulation.Simulation;
  * wrapper.
  */
 public class AddItemSelectionListener implements SelectionListener {
+    public AddItemSelectionListener(EtomicaEditor editor) {
+        etomicaEditor = editor;
+    }
+    
     public void widgetSelected(SelectionEvent e){
         TreeViewer simViewer = (TreeViewer)e.widget.getData("viewer");
         SimulationWrapper simWrapper = (SimulationWrapper)simViewer.getInput();
@@ -45,10 +50,13 @@ public class AddItemSelectionListener implements SelectionListener {
         if (((PropertySourceWrapper)parentObj).addObjectClass((Simulation)simWrapper.getObject(),
                 (Class)e.widget.getData("newClass"),simViewer.getControl().getShell())) {
             simViewer.refresh(parentItem);
+            etomicaEditor.markDirty();
         }
     }
 
     public void widgetDefaultSelected(SelectionEvent e){
         widgetSelected(e);
     }
+    
+    private final EtomicaEditor etomicaEditor;
 }

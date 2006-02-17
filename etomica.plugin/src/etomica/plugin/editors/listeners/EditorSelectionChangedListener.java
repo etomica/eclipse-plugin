@@ -9,6 +9,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.TreeItem;
 
 import etomica.action.Action;
+import etomica.plugin.editors.EtomicaEditor;
 import etomica.plugin.wrappers.ArrayWrapper;
 import etomica.plugin.wrappers.PropertySourceWrapper;
 import etomica.plugin.wrappers.SimulationWrapper;
@@ -20,12 +21,14 @@ import etomica.util.Arrays;
  * PropertySourceWrapper of the selected item.
  */
 public class EditorSelectionChangedListener implements ISelectionChangedListener {
+    
     public EditorSelectionChangedListener(MenuItem open, MenuItem remove, 
-            MenuItem add, MenuItem action) {
+            MenuItem add, MenuItem action, EtomicaEditor editor) {
         openItem = open;
         removeItem = remove;
         addItem = add;
         actionItem = action;
+        etomicaEditor = editor;
     }
     
     public void selectionChanged(SelectionChangedEvent e) {
@@ -36,9 +39,12 @@ public class EditorSelectionChangedListener implements ISelectionChangedListener
         //retrieve the selected tree item from the tree so we can get its parent
         TreeItem selectedItem = simViewer.getTree().getSelection()[0];
         Object selectedObj = selectedItem.getData();
+        
+        // enable or disable the open item
         if (selectedObj instanceof PropertySourceWrapper) {
             openItem.setEnabled(((PropertySourceWrapper)selectedObj).canBeOpened());
         }
+
         //retrieve the selected item's parent
         TreeItem parentItem = selectedItem.getParentItem();
         Object parentObj = null;
@@ -55,6 +61,7 @@ public class EditorSelectionChangedListener implements ISelectionChangedListener
             // selected item's parent must be the simulation
             parentObj = (SimulationWrapper)simViewer.getInput();
         }
+        
         // query the parent's wrapper to see if the selected child can be removed 
         if (parentObj instanceof PropertySourceWrapper
               && ((PropertySourceWrapper)parentObj).canRemoveChild(selectedObj)) {
@@ -63,6 +70,7 @@ public class EditorSelectionChangedListener implements ISelectionChangedListener
         else {
             removeItem.setEnabled(false);
         }
+        
         if (selectedObj instanceof PropertySourceWrapper) {
             // fix up add menu item
             Class[] adders;
@@ -101,7 +109,7 @@ public class EditorSelectionChangedListener implements ISelectionChangedListener
                     addSubItem.setText(adders[i].getName());
                     addSubItem.setData("viewer",simViewer);
                     addSubItem.setData("newClass",adders[i]);
-                    addSubItem.addSelectionListener(new AddItemSelectionListener());
+                    addSubItem.addSelectionListener(new AddItemSelectionListener(etomicaEditor));
                 }
             }
 
@@ -122,11 +130,12 @@ public class EditorSelectionChangedListener implements ISelectionChangedListener
                     actionSubItem.setText(actions[i].getLabel());
                     actionSubItem.setData("viewer",simViewer);
                     actionSubItem.setData("action",actions[i]);
-                    actionSubItem.addSelectionListener(new ActionSelectionListener());
+                    actionSubItem.addSelectionListener(new ActionSelectionListener(etomicaEditor));
                 }
             }
         }
     }
     
     private final MenuItem openItem, removeItem, addItem, actionItem;
+    private final EtomicaEditor etomicaEditor;
 }
