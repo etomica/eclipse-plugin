@@ -30,6 +30,7 @@ public class RunSimulationActionDelegate extends BaseSimulationActionDelegate {
 		current_action = action;
 		if(controller == null || controller.isActive()) return;
 		
+        current_editor.markDirty();
         Thread runner = new Thread(new Runnable() {
             public void run() {
                 try {
