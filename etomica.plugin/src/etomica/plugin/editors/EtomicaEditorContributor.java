@@ -15,11 +15,6 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.part.EditorActionBarContributor;
 
-import etomica.plugin.actions.ResumeSimulationAction;
-import etomica.plugin.actions.RunSimulationAction;
-import etomica.plugin.actions.SuspendSimulationAction;
-import etomica.plugin.actions.TerminateSimulationAction;
-
 /**
  * @author Henrique
  *
@@ -110,9 +105,5 @@ public class EtomicaEditorContributor extends EditorActionBarContributor {
 		// TODO Auto-generated constructor stub
 	}
 	EtomicaEditor editor;
-	private RunSimulationAction run;
-	private ResumeSimulationAction resume;
-	private SuspendSimulationAction suspend;
-	private TerminateSimulationAction terminate;
 
 }
