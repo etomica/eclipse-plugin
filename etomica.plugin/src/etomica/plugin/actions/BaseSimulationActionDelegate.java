@@ -31,7 +31,7 @@ public abstract class BaseSimulationActionDelegate implements IEditorActionDeleg
 	{
 		if ( controller!=null )
 		{
-			controller.removeListener( this );
+			controller.getEventManager().removeListener(this);
 		}
 	}
 	/* (non-Javadoc)
@@ -49,7 +49,7 @@ public abstract class BaseSimulationActionDelegate implements IEditorActionDeleg
 			{
 				controller = simulation.getController();
 				action.setEnabled( !controller.isActive() );
-				controller.addListener( this );
+				controller.getEventManager().addListener(this, false);
 			}
 		}
 		

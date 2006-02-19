@@ -28,7 +28,7 @@ public class ResetControllerActionDelegate extends BaseSimulationActionDelegate
             if (simulation!=null && simulation.getController()!=null) {
                 controller = simulation.getController();
                 action.setEnabled(controller.getCurrentActions().length == 0);
-                controller.addListener( this );
+                controller.getEventManager().addListener(this, false);
             }
         }
     }

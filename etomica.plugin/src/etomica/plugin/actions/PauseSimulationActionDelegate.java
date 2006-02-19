@@ -32,7 +32,7 @@ public class PauseSimulationActionDelegate extends BaseSimulationActionDelegate 
 			{
 				controller = simulation.getController();
 				action.setEnabled( controller.isActive() );
-				controller.addListener( this );
+				controller.getEventManager().addListener(this, false);
 			}
 		}
 		

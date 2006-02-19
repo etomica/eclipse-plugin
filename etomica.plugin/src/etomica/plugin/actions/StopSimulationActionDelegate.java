@@ -28,7 +28,7 @@ public class StopSimulationActionDelegate extends BaseSimulationActionDelegate
             if (simulation!=null && simulation.getController()!=null) {
                 controller = simulation.getController();
                 action.setEnabled(controller.getCurrentActions().length == 1);
-                controller.addListener( this );
+                controller.getEventManager().addListener(this, false);
             }
         }
     }

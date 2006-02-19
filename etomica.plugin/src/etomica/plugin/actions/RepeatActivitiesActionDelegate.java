@@ -50,7 +50,7 @@ public class RepeatActivitiesActionDelegate extends BaseSimulationActionDelegate
 			{
 				controller = simulation.getController();
 				action.setEnabled( controller.isRepeatCurrentAction() );
-				controller.addListener( this );
+				controller.getEventManager().addListener(this, false);
 			}
 		}
 		

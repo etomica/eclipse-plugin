@@ -18,7 +18,7 @@ import etomica.action.activity.Controller.ActionStatus;
 public class ActionColorDecorator extends DecoratorManager implements ControllerListener {
     public ActionColorDecorator(Controller controller) {
         this.controller = controller;
-        controller.addListener( this );
+        controller.getEventManager().addListener(this, false);
     }
     
     public Color decorateForeground(Object element) {
