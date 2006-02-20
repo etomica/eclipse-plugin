@@ -11,7 +11,8 @@ public class IntegratorMCWrapper extends IntegratorWrapper {
     }
 
     public PropertySourceWrapper[] getChildren() {
-        return PropertySourceWrapper.wrapArrayElements(((IntegratorMC)object).getMoveManager().getMCMoves(),simulation);
+        return PropertySourceWrapper.wrapArrayElements(((IntegratorMC)object).getMoveManager().getMCMoves(), 
+                simulation, etomicaEditor);
     }
 
     public boolean removeChild(Object obj) {

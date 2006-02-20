@@ -18,7 +18,8 @@ public class ActionGroupWrapper extends PropertySourceWrapper {
     }
 
     public PropertySourceWrapper[] getChildren() {
-        return PropertySourceWrapper.wrapArrayElements(((ActionGroup)object).getAllActions(),simulation);
+        return PropertySourceWrapper.wrapArrayElements(((ActionGroup)object).getAllActions(),
+                simulation, etomicaEditor);
     }
     
     public boolean removeChild(Object obj) {

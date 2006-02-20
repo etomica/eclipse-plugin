@@ -12,7 +12,7 @@ public class ArrayWrapper extends PropertySourceWrapper {
     }
 
     public PropertySourceWrapper[] getChildren() {
-        return PropertySourceWrapper.wrapArrayElements((Object[])object,simulation);
+        return PropertySourceWrapper.wrapArrayElements((Object[])object, simulation, etomicaEditor);
     }
 
     public Object getEditableValue() {
@@ -32,7 +32,7 @@ public class ArrayWrapper extends PropertySourceWrapper {
         int index = ((Integer)key).intValue();
         Object value = ((Object[])object)[index];
         if (value != null && value.getClass().isArray()) {
-            return PropertySourceWrapper.makeWrapper(value,simulation);
+            return PropertySourceWrapper.makeWrapper(value, simulation, etomicaEditor);
         }
         return value;
     }
@@ -40,6 +40,9 @@ public class ArrayWrapper extends PropertySourceWrapper {
     public void setPropertyValue(Object key, Object value) {
         int index = ((Integer)key).intValue();
         ((Object[])object)[index] = value;
+        if (etomicaEditor != null) {
+            etomicaEditor.markDirty();
+        }
     }
 
 }

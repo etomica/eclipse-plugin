@@ -17,7 +17,7 @@ public class PotentialGroupWrapper extends PropertySourceWrapper {
     }
 
     public PropertySourceWrapper[] getChildren() {
-        return PropertySourceWrapper.wrapArrayElements(((PotentialGroup)object).getPotentials(),simulation);
+        return PropertySourceWrapper.wrapArrayElements(((PotentialGroup)object).getPotentials(),simulation,etomicaEditor);
     }
     
     public boolean removeChild(Object obj) {

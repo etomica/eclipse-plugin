@@ -7,7 +7,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.DecoratingLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -35,9 +34,6 @@ import etomica.simulation.Simulation;
  */
 public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly {
 
-	private TreeViewer viewer;
-    private TreeViewer actionsViewer;
-
 	/**
 	 * @return the ListViewer used to display data for this view.
 	 */
@@ -46,10 +42,6 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
 	}
 	
 
-	public void propertyChange(PropertyChangeEvent event) {
-		viewer.refresh();
-	}
-
 	/**
 	 * @param parent
 	 * @param style
@@ -57,6 +49,8 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
 	public EtomicaEditorInnerPanel(Composite parent, EtomicaEditor editor, int style) {
 		super(parent, style);
 		
+        etomicaEditor = editor;
+        
 		viewer = new TreeViewer( objectTree  );
 		viewer.setContentProvider(new SimulationViewContentProvider());
         viewer.setLabelProvider(new LabelProvider());
@@ -117,9 +111,10 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
         actionsViewer.addDoubleClickListener(openActionListener);
 	}
 
-	public void setSimulation( Simulation simulation )
-	{
-		viewer.setInput( new SimulationWrapper(simulation) );
+	public void setSimulation( Simulation simulation ) {
+        SimulationWrapper simWrapper = new SimulationWrapper(simulation);
+        simWrapper.setEditor(etomicaEditor);
+		viewer.setInput(simWrapper);
         actionsViewer.setInput(simulation.getController());
         ((DecoratingLabelProvider)actionsViewer.getLabelProvider()).setLabelDecorator(new ActionColorDecorator(simulation.getController()));
 	}
@@ -172,4 +167,7 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
         }
     }
 
+    private final EtomicaEditor etomicaEditor;
+    private TreeViewer viewer;
+    private TreeViewer actionsViewer;
 }

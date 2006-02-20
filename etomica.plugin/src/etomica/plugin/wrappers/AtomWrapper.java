@@ -41,14 +41,16 @@ public class AtomWrapper extends PropertySourceWrapper {
         }
         if (keyString.equals("children")) {
             Atom[] childAtoms = ((AtomTreeNodeGroup)((Atom)object).node).childList.toArray();
-            wrapper = PropertySourceWrapper.makeWrapper(childAtoms,simulation);
+            wrapper = PropertySourceWrapper.makeWrapper(childAtoms, simulation, etomicaEditor);
             wrapper.setDisplayName("Child Atoms");
         }
         if (keyString.equals("position")) {
-            wrapper = PropertySourceWrapper.makeWrapper(((AtomLeaf)object).coord.position(),simulation);
+            wrapper = PropertySourceWrapper.makeWrapper(((AtomLeaf)object).coord.position(), 
+                    simulation, etomicaEditor);
         }
         if (keyString.equals("velocity")) {
-            wrapper = PropertySourceWrapper.makeWrapper(((ICoordinateKinetic)((AtomLeaf)object).coord).velocity(),simulation);
+            wrapper = PropertySourceWrapper.makeWrapper(((ICoordinateKinetic)((AtomLeaf)object).coord).velocity(),
+                    simulation, etomicaEditor);
         }
         return wrapper;
     }

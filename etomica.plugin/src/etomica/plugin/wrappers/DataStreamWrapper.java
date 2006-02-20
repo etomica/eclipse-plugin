@@ -27,7 +27,7 @@ public class DataStreamWrapper extends PropertySourceWrapper {
         PropertySourceWrapper[] wrappers = new PropertySourceWrapper[0];
         if (client instanceof DataPump) {
             wrappers = (PropertySourceWrapper[])Arrays.addObject(wrappers,
-                    PropertySourceWrapper.makeWrapper(((DataPump)client).getDataSink(),simulation));
+                    PropertySourceWrapper.makeWrapper(((DataPump)client).getDataSink(), simulation, etomicaEditor));
         }
         return wrappers;
     }

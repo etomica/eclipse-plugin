@@ -38,6 +38,7 @@ import etomica.integrator.MCMove;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.phase.Phase;
 import etomica.plugin.Registry;
+import etomica.plugin.editors.EtomicaEditor;
 import etomica.plugin.views.CheckboxPropertyDescriptor;
 import etomica.plugin.views.ComboClassPropertyDescriptor;
 import etomica.plugin.views.ComboPropertyDescriptor;
@@ -81,82 +82,99 @@ public class PropertySourceWrapper implements IPropertySource {
     }
     
     public static PropertySourceWrapper makeWrapper(Object obj, Simulation sim) {
+        return makeWrapper(obj, sim, null);
+    }
+    
+    public static PropertySourceWrapper makeWrapper(Object obj, Simulation sim, EtomicaEditor editor) {
+        PropertySourceWrapper wrapper = null;
         if (obj instanceof Object[]) {
-            return new ArrayWrapper((Object[])obj,sim);
+            wrapper = new ArrayWrapper((Object[])obj,sim);
         }
-        if (obj instanceof double[]) {
-            return new DoubleArrayWrapper((double[])obj);
+        else if (obj instanceof double[]) {
+            wrapper = new DoubleArrayWrapper((double[])obj);
         }
-        if (obj instanceof int[]) {
-            return new IntArrayWrapper((int[])obj);
+        else if (obj instanceof int[]) {
+            wrapper = new IntArrayWrapper((int[])obj);
         }
-        if (obj instanceof boolean[]) {
-            return new BooleanArrayWrapper((boolean[])obj);
+        else if (obj instanceof boolean[]) {
+            wrapper = new BooleanArrayWrapper((boolean[])obj);
         }
-        if (obj instanceof Simulation) {
-            return new SimulationWrapper((Simulation)obj);
+        else if (obj instanceof Simulation) {
+            wrapper = new SimulationWrapper((Simulation)obj);
         }
         else if (obj instanceof PotentialMaster) {
-            return new PotentialMasterWrapper((PotentialMaster)obj,sim);
+            wrapper = new PotentialMasterWrapper((PotentialMaster)obj,sim);
         }
         else if (obj instanceof PotentialGroup) {
-            return new PotentialGroupWrapper((PotentialGroup)obj,sim);
+            wrapper = new PotentialGroupWrapper((PotentialGroup)obj,sim);
         }
         else if (obj instanceof Phase) {
-            return new PhaseWrapper((Phase)obj,sim);
+            wrapper = new PhaseWrapper((Phase)obj,sim);
         }
         else if (obj instanceof Species) {
-            return new SpeciesWrapper((Species)obj,sim);
+            wrapper = new SpeciesWrapper((Species)obj,sim);
         }
         else if (obj instanceof ActionGroup) {
-            return new ActionGroupWrapper((ActionGroup)obj,sim);
+            wrapper = new ActionGroupWrapper((ActionGroup)obj,sim);
         }
         else if (obj instanceof ActivityIntegrate) {
-            return new ActivityIntegrateWrapper((ActivityIntegrate)obj,sim);
+            wrapper = new ActivityIntegrateWrapper((ActivityIntegrate)obj,sim);
         }
         else if (obj instanceof Integrator) {
             if (obj instanceof IntegratorMC) {
-                return new IntegratorMCWrapper((IntegratorMC)obj,sim);
+                wrapper = new IntegratorMCWrapper((IntegratorMC)obj,sim);
             }
-            return new IntegratorWrapper((Integrator)obj,sim);
+            else {
+                wrapper = new IntegratorWrapper((Integrator)obj,sim);
+            }
         }
         else if (obj instanceof MCMoveManager) {
-            return new MCMoveManagerWrapper((MCMoveManager)obj,sim);
+            wrapper = new MCMoveManagerWrapper((MCMoveManager)obj,sim);
         }
         else if (obj instanceof MCMove) {
-            return new MCMoveWrapper((MCMove)obj,sim);
+            wrapper = new MCMoveWrapper((MCMove)obj,sim);
         }
         else if (obj instanceof AtomSource) {
-            return new AtomSourceWrapper((AtomSource)obj,sim);
+            wrapper = new AtomSourceWrapper((AtomSource)obj,sim);
         }
         else if (obj instanceof DataStreamHeader) {
-            return new DataStreamWrapper((DataStreamHeader)obj,sim);
+            wrapper = new DataStreamWrapper((DataStreamHeader)obj,sim);
         }
         else if (obj instanceof DataPipeForked) {
-            return new DataForkWrapper((DataPipeForked)obj,sim);
+            wrapper = new DataForkWrapper((DataPipeForked)obj,sim);
         }
         else if (obj instanceof DataProcessor) {
-            return new DataProcessorWrapper((DataProcessor)obj,sim);
+            wrapper = new DataProcessorWrapper((DataProcessor)obj,sim);
         }
         else if (obj instanceof DataSource) {
-            return new DataSourceWrapper((DataSource)obj,sim);
+            wrapper = new DataSourceWrapper((DataSource)obj,sim);
         }
         else if (obj instanceof Atom) {
-            return new AtomWrapper((Atom)obj,sim);
+            wrapper = new AtomWrapper((Atom)obj,sim);
         }
         else if (obj instanceof AtomType) {
-            return new AtomTypeWrapper((AtomType)obj,sim);
+            wrapper = new AtomTypeWrapper((AtomType)obj,sim);
         }
         else if (obj instanceof Vector) {
-            return new VectorWrapper((Vector)obj);
+            wrapper = new VectorWrapper((Vector)obj);
         }
         else if (obj instanceof Default) {
-            return new DefaultWrapper((Default)obj,sim);
+            wrapper = new DefaultWrapper((Default)obj,sim);
         }
         else if (obj instanceof AtomFactoryHetero) {
-            return new AtomFactoryHeteroWrapper((AtomFactoryHetero)obj,sim);
+            wrapper = new AtomFactoryHeteroWrapper((AtomFactoryHetero)obj,sim);
         }
-        return new PropertySourceWrapper(obj,sim);
+        else {
+            wrapper = new PropertySourceWrapper(obj,sim);
+        }
+        if (editor != null) {
+            wrapper.setEditor(editor);
+        }
+        return wrapper;
+    }
+    
+    public void setEditor(EtomicaEditor editor) {
+        etomicaEditor = editor;
     }
     
 	/**
@@ -189,7 +207,7 @@ public class PropertySourceWrapper implements IPropertySource {
         catch(InvocationTargetException ex) {value = null;}
         catch(IllegalAccessException ex) {value = null;}
         if (value != null && value.getClass().isArray()) {
-            return PropertySourceWrapper.makeWrapper(value,simulation);
+            return PropertySourceWrapper.makeWrapper(value, simulation, etomicaEditor);
         }
         if (value instanceof Vector) {
             return new VectorWrapper((Vector)value);
@@ -225,7 +243,10 @@ public class PropertySourceWrapper implements IPropertySource {
         }
 		try {
 			setter.invoke(object, new Object[] {arg1});
-		} 
+            if (etomicaEditor != null) {
+                etomicaEditor.markDirty();
+            }
+		}
 		catch(IllegalAccessException ex) {error("Cannot set value", ex);}
 		catch(InvocationTargetException ex) {error("Cannot set value", ex);}
 	}
@@ -413,7 +434,7 @@ public class PropertySourceWrapper implements IPropertySource {
 	 * @param array the input array with elements to be wrapped
 	 * @return the array of wrapped elements
 	 */
-    public static PropertySourceWrapper[] wrapArrayElements(Object[] array, Simulation sim) {
+    public static PropertySourceWrapper[] wrapArrayElements(Object[] array, Simulation sim, EtomicaEditor editor) {
         int nonNullCount = 0;
         for(int i=0; i<array.length; i++) {
             if (array[i] != null) {
@@ -423,7 +444,7 @@ public class PropertySourceWrapper implements IPropertySource {
         PropertySourceWrapper[] wrappedArray = new PropertySourceWrapper[nonNullCount];
         for(int i=0; i<array.length; i++) {
             if (array[i] != null) {
-                wrappedArray[i] = PropertySourceWrapper.makeWrapper(array[i],sim);
+                wrappedArray[i] = PropertySourceWrapper.makeWrapper(array[i], sim, editor);
             }
         }
         return wrappedArray;
@@ -483,4 +504,5 @@ public class PropertySourceWrapper implements IPropertySource {
     protected String displayName;
     protected PropertySourceWrapper[] children;
     protected Simulation simulation;
+    protected EtomicaEditor etomicaEditor;
 }

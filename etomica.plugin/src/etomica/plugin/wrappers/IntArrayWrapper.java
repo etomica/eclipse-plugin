@@ -30,5 +30,8 @@ public class IntArrayWrapper extends PropertySourceWrapper {
     public void setPropertyValue(Object key, Object value) {
         int index = ((Integer)key).intValue();
         ((int[])object)[index] = ((Integer)value).intValue();
+        if (etomicaEditor != null) {
+            etomicaEditor.markDirty();
+        }
     }
 }

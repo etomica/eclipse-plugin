@@ -4,8 +4,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.integrator.IntegratorIntervalListener;
-import etomica.integrator.IntegratorNonintervalListener;
+import etomica.plugin.editors.EtomicaEditor;
 import etomica.simulation.Simulation;
 
 public class ActivityIntegrateWrapper extends PropertySourceWrapper {
@@ -14,6 +13,11 @@ public class ActivityIntegrateWrapper extends PropertySourceWrapper {
         super(object,sim);
         integratorWrapper = (IntegratorWrapper)PropertySourceWrapper.makeWrapper(object.getIntegrator(),sim);
         setDisplayName(integratorWrapper.toString());
+    }
+    
+    public void setEditor(EtomicaEditor editor) {
+        super.setEditor(editor);
+        integratorWrapper.setEditor(editor);
     }
 
     public IPropertyDescriptor[] getPropertyDescriptors() {

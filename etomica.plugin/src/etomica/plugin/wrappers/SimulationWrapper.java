@@ -28,7 +28,9 @@ public class SimulationWrapper extends PropertySourceWrapper {
         Phase[] phases = sim.getPhases();
         Species[] species = sim.getSpecies();
         DataStreamHeader[] streams = sim.getDataStreams();
-        return PropertySourceWrapper.wrapArrayElements(new Object[]{sim.getController(),sim.potentialMaster,phases,species,streams,sim.getDefaults()},(Simulation)object);
+        return PropertySourceWrapper.wrapArrayElements(new Object[]{
+                sim.getController(),sim.potentialMaster,phases,species,streams,sim.getDefaults()},
+                (Simulation)object,etomicaEditor);
     }
 
     public boolean removeChild(Object obj) {

@@ -40,7 +40,7 @@ public class DefaultWrapper extends PropertySourceWrapper {
         try {
             Object value = field.get(object);
             if (value != null && value.getClass().isArray()) {
-                return PropertySourceWrapper.makeWrapper(value,simulation);
+                return PropertySourceWrapper.makeWrapper(value, simulation, etomicaEditor);
             }
             return value;
         }
@@ -59,6 +59,9 @@ public class DefaultWrapper extends PropertySourceWrapper {
         Field field = (Field)arg0;
         try {
             field.set(object,arg1);
+            if (etomicaEditor != null) {
+                etomicaEditor.markDirty();
+            }
             return;
         }
         catch (IllegalAccessException e) {

@@ -26,5 +26,8 @@ public class BooleanArrayWrapper extends PropertySourceWrapper {
     public void setPropertyValue(Object key, Object value) {
         int index = ((Integer)key).intValue();
         ((boolean[])object)[index] = ((Boolean)value).booleanValue();
+        if (etomicaEditor != null) {
+            etomicaEditor.markDirty();
+        }
     }
 }
