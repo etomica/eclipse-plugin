@@ -187,7 +187,8 @@ public class EtomicaEditor extends EditorPart {
 
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IWorkspaceRoot root = workspace.getRoot();
-		IResource resource = root.findMember(original.getFullPath());
+		path = original.getFullPath()
+		IResource resource = root.findMember(path);
 		if (resource == null) 
 			return;
 		IPath location = resource.getLocation();
