@@ -5,7 +5,6 @@
 package etomica.plugin.views;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
-import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 
 import etomica.plugin.wrappers.PropertySourceWrapper;
@@ -17,17 +16,16 @@ import etomica.plugin.wrappers.PropertySourceWrapper;
 public class SummaryViewContentProvider implements ITreeContentProvider {
 
     public SummaryViewContentProvider() {
-        //Simulation.instantiationEventManager.addListener(this); 
-        
     }
-	/**
-	 * Simulation is root.
-	 * Controller is child of simulation.
-	 * ActivityGroups are parents of actions/activities
-	 */
-	public Object[] getChildren(Object wrappedElement) {
+    
+    /**
+     * Simulation is root.
+     * Controller is child of simulation.
+     * ActivityGroups are parents of actions/activities
+     */
+    public Object[] getChildren(Object wrappedElement) {
         return ((PropertySourceWrapper)wrappedElement).getChildren();
-	}
+    }
     
     /**
      * @param inputElement a linked list containing the simulation instances,
@@ -40,39 +38,17 @@ public class SummaryViewContentProvider implements ITreeContentProvider {
     }
 
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.ITreeContentProvider#getParent(java.lang.Object)
-	 */
-	public Object getParent(Object element) {
-		System.out.println("SimulationViewContentProvide.getParent");
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.ITreeContentProvider#hasChildren(java.lang.Object)
-	 */
-	public boolean hasChildren(Object wrappedElement) {
-        return ((PropertySourceWrapper)wrappedElement).getChildren().length > 0;
-	}
-	
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.IContentProvider#dispose()
-	 */
-	public void dispose() {
-        //Simulation.instantiationEventManager.removeListener(this);
-		viewer = null;
-	}
-
-    /* (non-Javadoc)
-     * @see org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse.jface.viewers.Viewer, java.lang.Object, java.lang.Object)
-     */
-    public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-        this.viewer = (TreeViewer)viewer;
-        currentSelection = newInput;
+    public Object getParent(Object element) {
+        return null;
     }
-    
-    Object currentSelection;
 
-	private TreeViewer viewer;
+    public boolean hasChildren(Object wrappedElement) {
+        return ((PropertySourceWrapper)wrappedElement).getChildren().length > 0;
+    }
+
+    public void dispose() {
+    }
+
+    public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+    }
 }
