@@ -30,6 +30,7 @@ public class RunSimulationActionDelegate extends BaseSimulationActionDelegate {
 		current_action = action;
 		if(controller == null || controller.isActive()) return;
 		
+        current_editor.markBusy(true);
         current_editor.markDirty();
         Thread runner = new Thread(new Runnable() {
             public void run() {
@@ -53,6 +54,7 @@ public class RunSimulationActionDelegate extends BaseSimulationActionDelegate {
 		else if ( event.getType()==ControllerEvent.NO_MORE_ACTIONS )
 		{
 			current_action.setEnabled( true );
+            current_editor.markBusy(false);
 		}
 	}
 	

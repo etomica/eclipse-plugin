@@ -159,18 +159,33 @@ public class EtomicaEditor extends EditorPart {
 	}
     
 	public boolean isDirty() {
-		return dirty_flag;
+		return dirty_flag && !isBusy;
 	}
     
+    /**
+     * Marks the editor's simulation as "dirty", meaning it's somewhat 
+     * different than it used to be
+     */
     public void markDirty() {
         if (!dirty_flag) {
             dirty_flag = true;
             firePropertyChange(PROP_DIRTY);
         }
     }
+    
+    /**
+     * Marks the editor's simulation as busy or not busy, meaning it can't be 
+     * saved (probably because it's running).
+     */
+    public void markBusy(boolean busyNow) {
+        if (isBusy != busyNow) {
+            isBusy = busyNow;
+            firePropertyChange(PROP_DIRTY);
+        }
+    }
 
 	public boolean isSaveAsAllowed() {
-		return !simulation.getController().isActive();
+		return isDirty();
 	}
 
 	public void init(IEditorSite site, IEditorInput input)
@@ -234,6 +249,7 @@ public class EtomicaEditor extends EditorPart {
 	private Simulation simulation = null;
 	private ISelectionListener pageSelectionListener;
 	private boolean dirty_flag = false;
+        private boolean isBusy = false;
 	//private java.util.HashMap property_bag_list = new HashMap(8);
 	
 	
