@@ -39,6 +39,7 @@ public class Registry {
         class_discovery.addClass( etomica.atom.AtomFactory.class );
 		class_discovery.addClass( etomica.potential.Potential1.class );
 		class_discovery.addClass( etomica.potential.Potential2.class );
+        class_discovery.addClass( etomica.nbr.NeighborCriterion.class );
 		class_discovery.addClass( etomica.integrator.Integrator.class );
         class_discovery.addClass( etomica.integrator.MCMove.class );
 		class_discovery.addClass( etomica.phase.Phase.class );
@@ -102,7 +103,7 @@ public class Registry {
 		return listofchanges;
 	}
 	/** The routine that handles notifications from the etomica.plugin workspace */
-	private void handleNotification( IResourceChangeEvent event ){
+	protected void handleNotification( IResourceChangeEvent event ){
 		if ( event==null )
 			return; // nothing to notify
 		LinkedList changes = getDeltaLeaves( event.getDelta() );
