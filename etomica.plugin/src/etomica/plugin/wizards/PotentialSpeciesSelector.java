@@ -9,8 +9,11 @@ import java.util.Iterator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -19,7 +22,9 @@ import org.eclipse.swt.widgets.Text;
 import etomica.EtomicaInfo;
 import etomica.plugin.ClassDiscovery;
 import etomica.plugin.Registry;
+import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential;
+import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialHard;
 import etomica.potential.PotentialSoft;
@@ -31,17 +36,21 @@ import etomica.species.Species;
  */
 public class PotentialSpeciesSelector extends Composite {
 
-	public Combo potentialCombo;
-    public Combo potentialBodyCombo;
-    public Combo potentialHardSoftCombo;
-	public Text potentialName;
-	public Combo speciesCombo;
-    public Combo speciesCombo2;
-    private Label potentialDescription;
-	private HashMap potentialsMap = new HashMap();
+	protected Combo potentialCombo;
+    protected Combo potentialBodyCombo;
+    protected Combo potentialHardSoftCombo;
+	protected Text potentialName;
+	protected Combo speciesCombo;
+    protected Combo speciesCombo2;
+    protected Button truncatedCheckbox;
+    protected Label potentialDescription;
+	protected HashMap potentialsMap = new HashMap();
 	private HashMap speciesMap = new HashMap();
     private Simulation simulation;
 	
+    /**
+     * Returns an instance of the potential the user selected
+     */
 	public Potential createPotential()
 	{
 		Class potentialClass = getPotentialClass();
@@ -50,10 +59,15 @@ public class PotentialSpeciesSelector extends Composite {
             if (potentialClass == etomica.potential.PotentialGroup.class) {
                 return new PotentialGroup(getPotenialNumBody(),simulation.space);
             }
+            Potential potential = null;
 			try {
                 Constructor constructor = potentialClass.getDeclaredConstructor(new Class[]{Simulation.class});
                 if (constructor != null) {
-                    return (Potential)constructor.newInstance(new Object[]{simulation});
+                    potential = (Potential)constructor.newInstance(new Object[]{simulation});
+                }
+                if (getIsPotentialTruncated()) {
+                    // use 0 as initial truncation.  user must set an appropriate value
+                    potential = new P2SoftSphericalTruncated((Potential2SoftSpherical)potential,0);
                 }
 			} catch (InstantiationException e) {
 				System.err.println( "Could not instantiate Potential: " + e.getMessage() );
@@ -70,10 +84,15 @@ public class PotentialSpeciesSelector extends Composite {
                 System.err.println( "Exception creating Potential: " + e.getMessage() );
                 e.printStackTrace();
             }
+            return potential;
 		}
         return null;
 	}
-    
+
+    /**
+     * Returns the number of bodies the user selected, or -1 if 
+     * no selection was made.
+     */
     public int getPotenialNumBody() {
         String str = potentialBodyCombo.getText();
         if (str.length() == 0) {
@@ -82,11 +101,18 @@ public class PotentialSpeciesSelector extends Composite {
         return Integer.parseInt(str);
     }
     
+    /**
+     * Returns true if the user selected to use a soft potential
+     */
     public boolean getPotenialIsSoft() {
         String str = potentialHardSoftCombo.getText();
         return str.equals("Soft");
     }
     
+    /**
+     * Returns the Potential class the user chose, or null if the user did not
+     * select a Potential class.
+     */
     public Class getPotentialClass() {
         int item = potentialCombo.getSelectionIndex();
         if (item == -1) {
@@ -97,6 +123,13 @@ public class PotentialSpeciesSelector extends Composite {
             
     }
     
+    /**
+     * Returns of Species the user selected for the potential to apply to.
+     * The array might have one or two null entries if one or both of the 
+     * Species are not selected.  The length of the array is equal to the 
+     * number of bodies for the potential (return value of 
+     * getPotentialNumBody()) 
+     */
     public Species[] getSpecies() {
         Species[] speciesArray = new Species[getPotenialNumBody()];
         int item = speciesCombo.getSelectionIndex();
@@ -112,11 +145,11 @@ public class PotentialSpeciesSelector extends Composite {
         }
         return speciesArray;
     }
-	
-	/**
-	 * @param parent
-	 * @param style
-	 */
+    
+    public boolean getIsPotentialTruncated() {
+        return truncatedCheckbox.isEnabled() && truncatedCheckbox.getSelection();
+    }
+    
 	public PotentialSpeciesSelector(Simulation sim, Composite parent, int style) {
 		super(parent, style);
 		
@@ -131,6 +164,8 @@ public class PotentialSpeciesSelector extends Composite {
         potentialHardSoftCombo.add("Hard");
         potentialHardSoftCombo.add("Soft");
         potentialHardSoftCombo.select(0); // hard
+        
+        truncatedCheckbox.setEnabled(false);
 
         rebuildPotentialList();
         
@@ -138,20 +173,23 @@ public class PotentialSpeciesSelector extends Composite {
             public void modifyText(ModifyEvent e) {
                 int item = potentialCombo.getSelectionIndex();
                 if (item == -1) {
+                    truncatedCheckbox.setEnabled(false);
                     return;
                 }
-                Class speciesClass = (Class) potentialsMap.get( potentialCombo.getItem( item ) );
-                String str = speciesClass.getName();
-                EtomicaInfo info = EtomicaInfo.getInfo( speciesClass );
+                Class potentialClass = (Class)potentialsMap.get(potentialCombo.getItem(item));
+                String str = potentialClass.getName();
+                EtomicaInfo info = EtomicaInfo.getInfo(potentialClass);
                 String longDesc = info.getDescription();
                 if (!str.equals(longDesc)) {
-                    str += ": \n"+longDesc;
+                    str += ":\n"+longDesc;
                 }
                 potentialDescription.setText(str);
                 PotentialSpeciesSelector.this.layout();
+                
+                truncatedCheckbox.setEnabled(Potential2SoftSpherical.class.isAssignableFrom(potentialClass));
             }
         });
-
+        
         //add the Species from the simulation
         Species[] speciesArray = simulation.speciesRoot.getSpecies();
         for (int i=0; i<speciesArray.length; i++) {
@@ -161,7 +199,7 @@ public class PotentialSpeciesSelector extends Composite {
 			speciesMap.put(species.getName(), species);
 		}
 	}
-
+    
     /**
      * Builds the list of potentials in the combo box based on the selections
      * in the numBody and Hard/Soft combo boxes.
@@ -189,9 +227,14 @@ public class PotentialSpeciesSelector extends Composite {
             hardSoftClass = PotentialHard.class;
         }
         Iterator iterator = potentials_from_registry.iterator(); 
-        while( iterator.hasNext() )
+        while(iterator.hasNext())
         {
             Class potentialClass = (Class) iterator.next();
+
+            if (P2SoftSphericalTruncated.class == potentialClass) {
+                // we handle truncation ourselves
+                continue;
+            }
             // pick potentials that implement hard/soft interface
             if (hardSoftClass.isAssignableFrom(potentialClass)) {
                 EtomicaInfo info = EtomicaInfo.getInfo(potentialClass);
@@ -235,90 +278,102 @@ public class PotentialSpeciesSelector extends Composite {
 	 * This method initializes the combo box for the Potential classes	
 	 */
 	private void createPotentialTypeCombo() {
-		GridData gridData9 = new org.eclipse.swt.layout.GridData();
+		GridData gridData = new org.eclipse.swt.layout.GridData();
 		potentialCombo = new Combo(this, SWT.READ_ONLY | SWT.DROP_DOWN);		   
-		gridData9.horizontalSpan = 2;
-		gridData9.horizontalAlignment = org.eclipse.swt.layout.GridData.FILL;
-		gridData9.verticalAlignment = org.eclipse.swt.layout.GridData.CENTER;
-		gridData9.grabExcessHorizontalSpace = true;
-		potentialCombo.setLayoutData(gridData9);
+		gridData.horizontalSpan = 3;
+		gridData.horizontalAlignment = org.eclipse.swt.layout.GridData.FILL;
+		gridData.verticalAlignment = org.eclipse.swt.layout.GridData.CENTER;
+		gridData.grabExcessHorizontalSpace = true;
+		potentialCombo.setLayoutData(gridData);
 	}
 
     /**
 	 * This method initializes the combo box for the first Species
 	 */    
 	private void createSpeciesCombo1() {
-		GridData gridData11 = new org.eclipse.swt.layout.GridData();
+		GridData gridData = new org.eclipse.swt.layout.GridData();
 		speciesCombo = new Combo(this, SWT.READ_ONLY);		   
-		gridData11.horizontalSpan = 2;
-		gridData11.horizontalAlignment = org.eclipse.swt.layout.GridData.FILL;
-		gridData11.verticalAlignment = org.eclipse.swt.layout.GridData.CENTER;
-		gridData11.grabExcessHorizontalSpace = true;
-		speciesCombo.setLayoutData(gridData11);
+		gridData.horizontalSpan = 3;
+		gridData.horizontalAlignment = org.eclipse.swt.layout.GridData.FILL;
+		gridData.verticalAlignment = org.eclipse.swt.layout.GridData.CENTER;
+		gridData.grabExcessHorizontalSpace = true;
+		speciesCombo.setLayoutData(gridData);
 	}
 
     /**
 	 * This method initializes the combo box for the second Species
 	 */    
 	private void createSpeciesCombo2() {
-		GridData gridData12 = new org.eclipse.swt.layout.GridData();
+		GridData gridData = new org.eclipse.swt.layout.GridData();
 		speciesCombo2 = new Combo(this, SWT.READ_ONLY);		   
-		gridData12.horizontalSpan = 2;
-		gridData12.horizontalAlignment = org.eclipse.swt.layout.GridData.FILL;
-		gridData12.verticalAlignment = org.eclipse.swt.layout.GridData.CENTER;
-		speciesCombo2.setLayoutData(gridData12);
+		gridData.horizontalSpan = 3;
+		gridData.horizontalAlignment = org.eclipse.swt.layout.GridData.FILL;
+		gridData.verticalAlignment = org.eclipse.swt.layout.GridData.CENTER;
+		speciesCombo2.setLayoutData(gridData);
 	}
 
 	private void initialize() {
-		GridData gridData13 = new org.eclipse.swt.layout.GridData();
-		GridData gridData8 = new org.eclipse.swt.layout.GridData();
-		GridData gridData6 = new org.eclipse.swt.layout.GridData();
-		GridData gridData5 = new org.eclipse.swt.layout.GridData();
-        GridData gridData1 = new org.eclipse.swt.layout.GridData();
-		GridLayout gridLayout2 = new GridLayout();
-        this.setLayout(gridLayout2);
-        gridLayout2.numColumns = 2;
-        gridLayout2.makeColumnsEqualWidth = false;
+        GridData simpleGridData = new org.eclipse.swt.layout.GridData();
+        simpleGridData.horizontalSpan = 1;
+
+		GridData wideGridData = new org.eclipse.swt.layout.GridData();
+        wideGridData.horizontalSpan = 3;
+
+        GridData tallGridData = new org.eclipse.swt.layout.GridData();
+        simpleGridData.horizontalSpan = 1;
+        tallGridData.verticalSpan = 2;
+
+        GridData textGridData = new org.eclipse.swt.layout.GridData();
+        textGridData.horizontalSpan = 1;
+        textGridData.horizontalAlignment = org.eclipse.swt.layout.GridData.FILL;
+        textGridData.verticalAlignment = org.eclipse.swt.layout.GridData.CENTER;
+        textGridData.grabExcessHorizontalSpace = true;
+
+        GridData doubleTextGridData = new org.eclipse.swt.layout.GridData();
+        doubleTextGridData.horizontalSpan = 2;
+        doubleTextGridData.horizontalAlignment = org.eclipse.swt.layout.GridData.FILL;
+        doubleTextGridData.verticalAlignment = org.eclipse.swt.layout.GridData.CENTER;
+        doubleTextGridData.grabExcessHorizontalSpace = true;
+
+        GridLayout gridLayout = new GridLayout();
+        gridLayout.numColumns = 3;
+        gridLayout.makeColumnsEqualWidth = false;
+        this.setLayout(gridLayout);
 
         Label label = new Label(this, SWT.NONE);
         label.setText("Potential name:");
-        gridData5.horizontalSpan = 1;
-        label.setLayoutData(gridData5);
+        label.setLayoutData(simpleGridData);
 		potentialName = new Text(this, SWT.BORDER);
-        gridData6.horizontalSpan = 1;
-        gridData6.horizontalAlignment = org.eclipse.swt.layout.GridData.FILL;
-        gridData6.verticalAlignment = org.eclipse.swt.layout.GridData.CENTER;
-        gridData6.grabExcessHorizontalSpace = true;
-        potentialName.setLayoutData(gridData6);
+        potentialName.setLayoutData(doubleTextGridData);
         
         label = new Label(this, SWT.NONE);
         label.setText("Number of bodies:");
-        gridData5.horizontalSpan = 1;
-        label.setLayoutData(gridData5);
+        label.setLayoutData(simpleGridData);
         label = new Label(this, SWT.NONE);
-        label.setText("Hard or soft Potential:");
-        gridData5.horizontalSpan = 1;
-        label.setLayoutData(gridData5);
+        label.setText("Hard or soft:");
+        label.setLayoutData(simpleGridData);
+        
+        truncatedCheckbox = new Button(this, SWT.CHECK);
+        truncatedCheckbox.setText("Truncated");
+        truncatedCheckbox.setLayoutData(tallGridData);
+        
         createPotentialBodyCombo();
         createPotentialHardSoftCombo();
-        
+
         label = new Label(this, SWT.NONE);
         label.setText("Species");
-        gridData13.horizontalSpan = 2;
-        label.setLayoutData(gridData13);
+        label.setLayoutData(wideGridData);
 		createSpeciesCombo1();
         createSpeciesCombo2();
 
         label = new Label(this, SWT.NONE);
         label.setText("Select a potential type");
-        gridData8.horizontalSpan = 2;
-        label.setLayoutData(gridData8);
+        label.setLayoutData(wideGridData);
         createPotentialTypeCombo();
         
         potentialDescription = new Label(this, SWT.WRAP);
-        gridData1.horizontalSpan = 2;
-        gridData1.horizontalAlignment = org.eclipse.swt.layout.GridData.FILL;
-        potentialDescription.setLayoutData(gridData1);
+        wideGridData.horizontalAlignment = org.eclipse.swt.layout.GridData.FILL;
+        potentialDescription.setLayoutData(wideGridData);
         potentialDescription.setText("");
 
         setSize(new org.eclipse.swt.graphics.Point(364,462));

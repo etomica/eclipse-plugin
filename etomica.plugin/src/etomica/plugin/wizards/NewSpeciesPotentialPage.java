@@ -6,6 +6,8 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 
@@ -23,11 +25,8 @@ public class NewSpeciesPotentialPage extends WizardPage {
 	
     // These are to follow eclipse UI guidelines - not to present an error message while the user 
     //   did not input anything yet
-    private boolean potentialNameModified = false;
-    private boolean potentialTypeModified = false;
-    private boolean potentialBodyModified = false;
-    private boolean potentialHardSoftModified = false;
-    private boolean speciesModified = false;
+    protected boolean potentialBodyModified = false;
+    protected boolean potentialHardSoftModified = false;
 
     /**
      * Constructor for SampleNewWizardPage.
@@ -73,7 +72,6 @@ public class NewSpeciesPotentialPage extends WizardPage {
 	    
 	    potentialSpeciesSelector.potentialName.addModifyListener(new ModifyListener() {
 	        public void modifyText(ModifyEvent e) {
-	            potentialNameModified = true;
 	            dialogChanged();
 	        }
 		});
@@ -94,21 +92,27 @@ public class NewSpeciesPotentialPage extends WizardPage {
 
         potentialSpeciesSelector.potentialCombo.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
-                potentialTypeModified = true;
                 dialogChanged();
             }
         });
 
         potentialSpeciesSelector.speciesCombo.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
-                speciesModified = true;
                 dialogChanged();
             }
         });
 
         potentialSpeciesSelector.speciesCombo2.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
-                speciesModified = true;
+                dialogChanged();
+            }
+        });
+
+        potentialSpeciesSelector.truncatedCheckbox.addSelectionListener(new SelectionListener() {
+            public void widgetDefaultSelected(SelectionEvent e) {
+                widgetSelected(e);
+            }
+            public void widgetSelected(SelectionEvent e) {
                 dialogChanged();
             }
         });
@@ -122,7 +126,7 @@ public class NewSpeciesPotentialPage extends WizardPage {
 	 * Ensures that the potential class is selected and has a name,
      * and that the species to which it applies are selected.
 	 */
-	private void dialogChanged() {
+	protected void dialogChanged() {
         if (potentialBodyModified || potentialHardSoftModified) {
             if (potentialBodyModified) {
                 updateSpecies();
@@ -138,6 +142,9 @@ public class NewSpeciesPotentialPage extends WizardPage {
             return;
         }
         if (!checkSpecies()) {
+            return;
+        }
+        if (!checkTruncation()) {
             return;
         }
 		// Everything went ok, just clean up the error bar
@@ -184,6 +191,11 @@ public class NewSpeciesPotentialPage extends WizardPage {
             updateStatus("You must select the second Species");
             return false;
         }
+        return true;
+    }
+    
+    // truncation is either on or off
+    private boolean checkTruncation() {
         return true;
     }
 
