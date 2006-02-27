@@ -1,5 +1,6 @@
 package etomica.plugin.editors;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IFile;
@@ -29,6 +30,7 @@ import org.eclipse.ui.views.properties.PropertySheetEntry;
 import etomica.plugin.editors.eclipse.EtomicaPropertyViewer;
 import etomica.plugin.wrappers.ParamObjectWrapper;
 import etomica.util.ReadParams;
+import etomica.util.WriteParams;
 
 
 public class EtomicaInputEditor extends EditorPart {
@@ -42,26 +44,39 @@ public class EtomicaInputEditor extends EditorPart {
      * doSaveAs() will ask for a file name and set the "path" variable before calling doSave().
      */
     public void doSave(IProgressMonitor progressMonitor) {
-        // Use XML to stream simulation
+        
+        doSave(path, progressMonitor);
+
+        dirty_flag = false;
+        firePropertyChange(PROP_DIRTY);
+    }
+    
+    protected void doSave(IPath savePath, IProgressMonitor progressMonitor) {
+        if (progressMonitor != null)
+            progressMonitor.setCanceled( false );
         
         IWorkspace workspace = ResourcesPlugin.getWorkspace();
 
-        if (progressMonitor != null)
-            progressMonitor.setCanceled( false );
-
-        IPath dir = path.removeLastSegments(1);
+        IPath dir = savePath.removeLastSegments(1);
         IResource resource = workspace.getRoot().findMember(dir);
         IPath absPath = resource.getLocation();
-        String filename = absPath.append(path.lastSegment()).toOSString();
+        String filename = absPath.append(savePath.lastSegment()).toOSString();
+        WriteParams paramWriter = new WriteParams(filename,paramObject);
         
-//        try {
+        try {
+            paramWriter.writeParameters(); 
             // actually write the file
-            dirty_flag = false;
-            firePropertyChange(PROP_DIRTY);
-//        }
-//        catch(IOException ex) {
-//            ex.printStackTrace();
-//        }
+        }
+        catch (IOException ex) {
+            WorkbenchPlugin.getDefault().getLog().log(
+                    new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID, 0, "Unable to write input file " + filename, ex));
+            return;
+        }
+        catch (RuntimeException ex) {
+            WorkbenchPlugin.getDefault().getLog().log(
+                    new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID, 0, "Unable to write input file " + filename, ex));
+            return;
+        }
 
     }
     
@@ -85,13 +100,11 @@ public class EtomicaInputEditor extends EditorPart {
 		if (dialog.open() == Window.CANCEL) 
 			return;
 
-        IPath filePath = dialog.getResult();
+        final IPath filePath = dialog.getResult();
         if (filePath == null) 
             return;
 
         // Save the old path - it is subject to non-cancellation - next
-        IPath old_path = path;
-        path = filePath;
         
         // Create a progress dialog
         new ProgressMonitorDialog( shell );
@@ -100,18 +113,17 @@ public class EtomicaInputEditor extends EditorPart {
         try {
             IRunnableWithProgress op = new IRunnableWithProgress() {
                 public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-                    doSave( monitor );
+                    doSave(filePath, monitor);
                 }
             };
             // go go go 
             new ProgressMonitorDialog( shell ).run(true, true, op);
          } catch (InvocationTargetException e) {
              // Handle exception
-            path=old_path;
          } catch (InterruptedException e) {
              // Handle cancellation
-            path=old_path;
          }
+         
     }
     
     protected void readFromFile( String filename ) {
@@ -123,7 +135,7 @@ public class EtomicaInputEditor extends EditorPart {
         }
         catch (RuntimeException ex) {
             WorkbenchPlugin.getDefault().getLog().log(
-                    new Status(IStatus.WARNING, PlatformUI.PLUGIN_ID, 0, "Unable to read input file " + filename, ex));
+                    new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID, 0, "Unable to read input file " + filename, ex));
         }
         if (!success) {
             WorkbenchPlugin.getDefault().getLog().log(
@@ -163,7 +175,7 @@ public class EtomicaInputEditor extends EditorPart {
     }
 
     public boolean isSaveAsAllowed() {
-        return isDirty();
+        return !isBusy;
     }
 
     public void init(IEditorSite site, IEditorInput input)
