@@ -172,6 +172,13 @@
             name="Etomica Editor"
             id="etomica.plugin.editors.EtomicaEditor"
             extensions="etom"/>
+      <editor
+            class="etomica.plugin.editors.EtomicaInputEditor"
+            default="true"
+            extensions="inp"
+            icon="icons/sample.gif"
+            id="etomica.plugin.editors.EtomicaInputEditor"
+            name="Etomica Input Editor"/>
    </extension>
    <extension
          point="org.eclipse.ui.editorActions">
