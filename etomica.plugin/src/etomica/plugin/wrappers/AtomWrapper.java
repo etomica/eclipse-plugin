@@ -5,7 +5,6 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import etomica.atom.Atom;
 import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTreeNodeGroup;
-import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
 import etomica.util.Arrays;
@@ -75,6 +74,4 @@ public class AtomWrapper extends PropertySourceWrapper {
         }
         return false;
     }
-
-    private static final AtomIteratorListSimple iterator = new AtomIteratorListSimple();
 }
