@@ -18,6 +18,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.internal.ExceptionHandler;
 
 import etomica.EtomicaInfo;
 import etomica.plugin.ClassDiscovery;
@@ -60,29 +61,37 @@ public class PotentialSpeciesSelector extends Composite {
                 return new PotentialGroup(getPotenialNumBody(),simulation.space);
             }
             Potential potential = null;
-			try {
-                Constructor constructor = potentialClass.getDeclaredConstructor(new Class[]{Simulation.class});
-                if (constructor != null) {
-                    potential = (Potential)constructor.newInstance(new Object[]{simulation});
+            Constructor[] constructors = potentialClass.getDeclaredConstructors();
+            try {
+                for (int i=0; i<constructors.length; i++) {
+                    Class[] parameterTypes = constructors[i].getParameterTypes();
+                    if (parameterTypes.length != 1) {
+                        continue;
+                    }
+                    if (parameterTypes[0].isInstance(simulation)) {
+                        potential = (Potential)constructors[i].newInstance(new Object[]{simulation});
+                    }
+                    else if (parameterTypes[0].isInstance(simulation.space)) {
+                        potential = (Potential)constructors[i].newInstance(new Object[]{simulation.space});
+                    }
+                    else {
+                        continue;
+                    }
+                    break;
                 }
-                if (getIsPotentialTruncated()) {
-                    // use 0 as initial truncation.  user must set an appropriate value
-                    potential = new P2SoftSphericalTruncated((Potential2SoftSpherical)potential,0);
-                }
-			} catch (InstantiationException e) {
-				System.err.println( "Could not instantiate Potential: " + e.getMessage() );
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				System.err.println( "Illegal access while creating Potential: " + e.getMessage() );
-				e.printStackTrace();
-			}
-            catch (NoSuchMethodException e) {
-                System.err.println( "Constructor didn't exist while creating Potential: " + e.getMessage() );
-                e.printStackTrace();
             }
+            catch (InstantiationException e) {
+                ExceptionHandler.getInstance().handleException(e);
+			}
+            catch (IllegalAccessException e) {
+                ExceptionHandler.getInstance().handleException(e);
+			}
             catch (InvocationTargetException e) {
-                System.err.println( "Exception creating Potential: " + e.getMessage() );
-                e.printStackTrace();
+                ExceptionHandler.getInstance().handleException(e);
+            }
+            if (potential != null && getIsPotentialTruncated()) {
+                // use 0 as initial truncation.  user must set an appropriate value
+                potential = new P2SoftSphericalTruncated((Potential2SoftSpherical)potential,0);
             }
             return potential;
 		}
