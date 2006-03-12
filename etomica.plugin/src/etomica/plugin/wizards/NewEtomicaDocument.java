@@ -11,7 +11,6 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -97,15 +96,8 @@ public class NewEtomicaDocument extends Wizard implements INewWizard {
 		// Run the creation
 	  	IRunnableWithProgress op = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
-				try {
-					doFinish( containerName, fileName, monitor );
-				} catch (CoreException e) {
-					System.err.println( e.getMessage() );
-					e.printStackTrace();
-					throw new InvocationTargetException(e);
-				} finally {
-					monitor.done();
-				}
+			    doFinish( containerName, fileName, monitor );
+				monitor.done();
 			}
 		};
 		try {
@@ -128,18 +120,19 @@ public class NewEtomicaDocument extends Wizard implements INewWizard {
 	 * the editor on the newly created file.
 	 */
 
-	private void doFinish( String containerName, String fileName,
-		IProgressMonitor monitor)
-		throws CoreException {
+	protected void doFinish( String containerName, String fileName,
+		IProgressMonitor monitor) {
 		try
 		{
 
 			// Get the workspace root
-			IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			IResource resource = root.findMember(new Path(containerName));
 			if ( resource==null || !resource.exists() || !(resource instanceof IContainer)) {
-				throwCoreException("Container \"" + containerName + "\" does not exist.");
+                IStatus status =
+                    new Status(IStatus.ERROR, "etomica.plugin", IStatus.OK, 
+                            "Container \"" + containerName + "\" does not exist.", null);
+                throw new CoreException(status);
 			}
 
 			// Create a new file in the container
@@ -171,10 +164,10 @@ public class NewEtomicaDocument extends Wizard implements INewWizard {
 			monitor.setTaskName("Opening file for editing...");
 			getShell().getDisplay().asyncExec(new Runnable() {
 				public void run() {
-					IWorkbenchPage page =
+					IWorkbenchPage activePage =
 						PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 					try {
-						IDE.openEditor(page, file, true);
+						IDE.openEditor(activePage, file, true);
 					} catch (PartInitException e) {
 						System.err.println( "Error opening editor in NewEtomicaDocument.doFinish(): " + e.getMessage() );
 						e.printStackTrace();
@@ -212,19 +205,13 @@ public class NewEtomicaDocument extends Wizard implements INewWizard {
 		return new ByteArrayInputStream( fos.toByteArray() );
 	}
 
-	private void throwCoreException(String message) throws CoreException {
-		IStatus status =
-			new Status(IStatus.ERROR, "etomica.plugin", IStatus.OK, message, null);
-		throw new CoreException(status);
-	}
-
 	/**
 	 * We will accept the selection in the workbench to see if
 	 * we can initialize from it.
 	 * @see IWorkbenchWizard#init(IWorkbench, IStructuredSelection)
 	 */
-	public void init(IWorkbench workbench, IStructuredSelection selection) {
-		this.selection = selection;
+	public void init(IWorkbench workbench, IStructuredSelection newSelection) {
+		selection = newSelection;
 	}
 	/*
 	protected void createProject(IProgressMonitor monitor)
