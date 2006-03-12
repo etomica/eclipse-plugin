@@ -19,7 +19,7 @@ public class DataStreamWrapper extends PropertySourceWrapper {
         if (dataSource instanceof Meter) {
             return ((Meter)dataSource).getName()+" stream";
         }
-        return ((DataStreamHeader)object).getDataSource().toString();
+        return ((DataStreamHeader)object).getDataSource().getDataInfo().getLabel()+" stream";
     }
     
     public PropertySourceWrapper[] getChildren() {
