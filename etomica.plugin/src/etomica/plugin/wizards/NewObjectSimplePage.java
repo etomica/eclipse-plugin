@@ -21,6 +21,7 @@ import etomica.simulation.Simulation;
  */
 public class NewObjectSimplePage extends WizardPage {
     private final Simulation simulation;
+    private Object[] extraParameters = new Object[0];
     public SimpleClassSelector classSelector;
 	
     // These are to follow eclipse UI guidelines - not to present an error message while the user 
@@ -55,7 +56,7 @@ public class NewObjectSimplePage extends WizardPage {
      * @return new Simulation based on user's choices 
      */
     public Object createObject() {
-        Object obj = classSelector.createObject(simulation);
+        Object obj = classSelector.createObject(simulation, extraParameters);
         if (obj == null) {
             return null;
         }
@@ -79,6 +80,11 @@ public class NewObjectSimplePage extends WizardPage {
         }
         return obj;
     }
+    
+    public void setExtraParameters(Object[] moreParameters) {
+        extraParameters = (Object[])moreParameters.clone();
+    }
+        
 	
     /**
      * @see IDialogPage#createControl(Composite)

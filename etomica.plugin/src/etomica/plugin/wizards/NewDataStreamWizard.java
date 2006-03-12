@@ -9,6 +9,7 @@ import etomica.data.DataSink;
 import etomica.data.DataSource;
 import etomica.data.meter.Meter;
 import etomica.integrator.Integrator;
+import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorPhase;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.phase.Phase;
@@ -51,23 +52,39 @@ public class NewDataStreamWizard extends Wizard implements SimpleClassWizard {
      * using wizard as execution context.
      */
     public boolean performFinish() {
+        // some DataSources are tied to an integrator
+        Integrator integrator = page2.getIntegrator();
+        if (integrator != null) {
+            page.setExtraParameters(new Object[]{integrator});
+        }
+
         // Create simulation based on user's choices
         DataSource dataSource = (DataSource)page.createObject();
         if (dataSource == null)
             return false;
 	  	
+        
         DataPump pump = new DataPump(dataSource,null);
         simulation.register(dataSource,pump);
         if (page2.getControl() != null && page2.isPageComplete()) {
-            Integrator integrator = page2.getIntegrator();
             if (integrator != null) {
-                integrator.addListener(new IntervalActionAdapter(pump));
+                if (dataSource instanceof IntegratorIntervalListener) {
+                    integrator.addListener((IntegratorIntervalListener)dataSource);
+                    // we still need the pump so a Data stream exists
+                }
+                else {
+                    integrator.addListener(new IntervalActionAdapter(pump));
+                }
                 if (integrator instanceof IntegratorPhase && dataSource instanceof Meter) {
                     Phase phase = ((IntegratorPhase)integrator).getPhase();
                     if (phase != null) {
                         ((Meter)dataSource).setPhase(phase);
                     }
                 }
+                //FIXME we should call setIntegrator on DataSources that have 
+                //such a method, but some will already have an Integrator (passed
+                //to the constructor), so we need to audit the relevant classes to
+                //ensure they handle the Integrator being set again
             }
         }
         

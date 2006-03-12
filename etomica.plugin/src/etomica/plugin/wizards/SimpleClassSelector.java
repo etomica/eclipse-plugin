@@ -46,7 +46,7 @@ public class SimpleClassSelector extends Composite {
 	private Class[] excludedClasses = new Class[0];
     private Object[] extraChoices = new Class[0];
     
-	public Object createObject(Simulation sim) {
+	public Object createObject(Simulation sim, Object[] extraParameters) {
         int item = classCombo.getSelectionIndex();
         Object selection = getSelection();
         if (selection == null) {
@@ -59,19 +59,7 @@ public class SimpleClassSelector extends Composite {
         }
 
         Class objectClass = (Class)classMap.get(classCombo.getItem(item));
-        boolean noConstructor = false;
-        try {
-            return objectClass.newInstance();
-        } catch (InstantiationException e) {
-            noConstructor = true;
-            // no default constructor.  Try passing a Space
-        } catch (IllegalAccessException e) {
-            System.err.println( "Illegal access while creating class: " + e.getMessage() );
-            e.printStackTrace();
-        }
-        if (!noConstructor || sim == null) {
-            return null;
-        }
+
         Constructor[] constructors = objectClass.getConstructors();
         if (constructors.length == 0) {
             return null;
@@ -81,18 +69,33 @@ public class SimpleClassSelector extends Composite {
             Class[] parameterClasses = constructors[i].getParameterTypes();
             Object[] parameters = new Object[parameterClasses.length];
             for (int j=0; j<parameters.length; j++) {
-                if (parameterClasses[j] == Simulation.class) {
-                    parameters[j] = sim;
-                }
-                else if (parameterClasses[j] == PotentialMaster.class) {
-                    parameters[j] = sim.potentialMaster;
-                }
-                else if (parameterClasses[j] == Space.class) {
-                    parameters[j] = sim.space;
+                if (sim != null) {
+                    if (parameterClasses[j] == Simulation.class) {
+                        parameters[j] = sim;
+                    }
+                    else if (parameterClasses[j] == PotentialMaster.class) {
+                        parameters[j] = sim.potentialMaster;
+                    }
+                    else if (parameterClasses[j] == Space.class) {
+                        parameters[j] = sim.space;
+                    }
+                    else {
+                        found = false;
+                        break;
+                    }
                 }
                 else {
                     found = false;
-                    break;
+                    for (int k=0; k<extraParameters.length; k++) {
+                        if (parameterClasses[j].isInstance(extraParameters[k])) {
+                            parameters[j] = extraParameters[k];
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        break;
+                    }
                 }
             }
             if (!found) {
