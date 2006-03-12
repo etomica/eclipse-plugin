@@ -8,7 +8,7 @@ public class ArrayWrapper extends PropertySourceWrapper {
 
     public ArrayWrapper(Object[] obj, Simulation sim) {
         super(obj,sim);
-        setDisplayName(object.getClass().getComponentType().getSimpleName()+" array");
+        setDisplayName(object.getClass().getComponentType().getName()+" array");
     }
 
     public PropertySourceWrapper[] getChildren() {
