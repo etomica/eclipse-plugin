@@ -51,6 +51,9 @@ public class NewSpeciesPotentialPage extends WizardPage {
      */
     public Potential createPotential() {
         Potential newPotential = potentialSpeciesSelector.createPotential();
+        if (newPotential == null) {
+            return null;
+        }
         newPotential.setName(getPotentialName());
         return newPotential;
     }
