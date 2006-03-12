@@ -36,6 +36,7 @@ import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.MCMove;
 import etomica.integrator.mcmove.MCMoveManager;
+import etomica.nbr.NeighborCriterion;
 import etomica.phase.Phase;
 import etomica.plugin.Registry;
 import etomica.plugin.editors.EtomicaEditor;
@@ -324,14 +325,13 @@ public class PropertySourceWrapper implements IPropertySource {
         }
 
         Object value = null;
-        // Boundary and Enumerated can be set in PropertySheet, but need the current value
+        // Some classes can be chosen in PropertySheet, but the current
+        // value should be the selected item in the list of choices, so retrieve
+        // it now
         boolean getValue = false;
-        if (EnumeratedType.class.isAssignableFrom(type)) {
-            getValue = true;
-        }
-        else if (simulation != null && (type == AtomPositionDefinition.class ||
+        if (simulation != null && (type == AtomPositionDefinition.class ||
                 type == Boundary.class || type == AtomFactory.class ||
-                type == DataSink.class)) {
+                type == DataSink.class || type == NeighborCriterion.class)) {
             getValue = true;
         }
         if (getValue) {
@@ -399,7 +399,7 @@ public class PropertySourceWrapper implements IPropertySource {
         }
         else if (simulation != null && (type == AtomPositionDefinition.class ||
                 type == Boundary.class || type == AtomFactory.class ||
-                type == DataSink.class)) {
+                type == DataSink.class || type == NeighborCriterion.class)) {
             Collection collection = Registry.queryWhoExtends(type);
             Iterator classIterator = collection.iterator();
             int length = collection.size();
