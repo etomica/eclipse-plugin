@@ -7,17 +7,22 @@ package etomica.plugin.actions;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 
-import etomica.plugin.views.DataSourceView;
+import etomica.plugin.views.DataTableView;
 
 /**
  * Action that toggles the refresher thread to be enabled or not.
  */
 public class ToggleUpdateAction extends Action {
 
-	public ToggleUpdateAction(DataSourceView.Refresher updateThread) {
+	public ToggleUpdateAction(DataTableView.Refresher updateThread) {
 		super("Run simulation",IAction.AS_CHECK_BOX);
         thread = updateThread;
-        setChecked(thread.isEnabled());
+        if (thread != null) {
+            setChecked(thread.isEnabled());
+        }
+        else {
+            setChecked(false);
+        }
 		setText("Auto update");
 	}
 
@@ -25,19 +30,23 @@ public class ToggleUpdateAction extends Action {
 	 * Toggle the thread's status
 	 */
 	public void run() {
-        //thread.setEnabled(isChecked());
-        if (thread.isEnabled()) {
-            thread.setEnabled(false);
+        if (thread == null) {
+            if (isChecked()) {
+                setChecked(false);
+            }
+            return;
         }
-        else {
-            thread.setEnabled(true);
-        }
+        thread.setEnabled(isChecked());
 	}
 	
 	//may not need this
 	public void dispose() {
 		thread = null;
 	}
+    
+    public void setRefresher(DataTableView.Refresher updateThread) {
+        thread = updateThread;
+    }
 	
-	private DataSourceView.Refresher thread;
+	private DataTableView.Refresher thread;
 }

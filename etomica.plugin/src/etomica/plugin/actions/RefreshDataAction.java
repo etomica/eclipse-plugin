@@ -7,7 +7,7 @@ package etomica.plugin.actions;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
 
-import etomica.plugin.views.DataSourceView;
+import etomica.plugin.views.ViewRefreshable;
 
 /**
  * Action that refreshes the DataSourceView (pulling new data in with its pump)
@@ -17,7 +17,7 @@ public class RefreshDataAction extends Action {
 	/**
 	 * Constructs action and associates "resume" icon.
 	 */
-	public RefreshDataAction(DataSourceView view) {
+	public RefreshDataAction(ViewRefreshable view) {
 		super("Run simulation");
         dataSourceView = view;
         ImageDescriptor eImage = ImageDescriptor.createFromFile(RefreshDataAction.class, "../icons/repeat.gif");
@@ -38,5 +38,5 @@ public class RefreshDataAction extends Action {
 	    dataSourceView = null;
 	}
 	
-	private DataSourceView dataSourceView;
+	private ViewRefreshable dataSourceView;
 }
