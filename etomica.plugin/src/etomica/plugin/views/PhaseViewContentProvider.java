@@ -46,7 +46,7 @@ public class PhaseViewContentProvider implements ITreeContentProvider {
     private PropertySourceWrapper[] wrapAtomList(AtomArrayList list) {
         PropertySourceWrapper[] wrappers = new PropertySourceWrapper[list.size()];
         for (int i=0; i<list.size(); i++) {
-            wrappers[i++] = PropertySourceWrapper.makeWrapper(list.get(i));
+            wrappers[i] = PropertySourceWrapper.makeWrapper(list.get(i));
         }
         return wrappers;
     }
