@@ -5,11 +5,6 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.swt.widgets.Composite;
 
-import etomica.data.DataSource;
-import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
-import etomica.space.Space;
-
 /**
  * Special EnumeratedTypeCellEditor that gives the user the option to keep
  * the current object or to select the class of a new object to create. 
@@ -36,20 +31,32 @@ public class ComboClassCellEditor extends ComboCellEditor {
             Class selectedClass = (Class)selection;
             Constructor[] constructors = selectedClass.getConstructors();
             if (constructors.length == 0) {
+                // class has no constructors!
                 return null;
             }
+            Object[] constructorParameters = null;
             for (int j=0; j<constructors.length; j++) {
                 Class[] parameterClasses = constructors[j].getParameterTypes();
-                boolean found = true;
-                for (int i=0; i<parameters.length; i++) {
-                    if (!parameterClasses[i].isInstance(parameters[i])) {
-                        found = false;
+                constructorParameters = new Object[parameterClasses.length];
+                boolean[] foundParameter = new boolean[parameterClasses.length];
+                boolean foundConstructor = true;
+                for (int i=0; i<parameterClasses.length; i++) {
+                    for (int k=0; k<parameters.length; k++) {
+                        if (parameterClasses[i].isInstance(parameters[k])) {
+                            constructorParameters[i] = parameters[k];
+                            foundParameter[i] = true;
+                            break;
+                        }
+                    }
+                    if (!foundParameter[i]) {
+                        //we don't have the parameters appropriate for this constructor
+                        foundConstructor = false;
                         break;
                     }
                 }
-                if (found) {
+                if (foundConstructor) {
                     try {
-                        return constructors[j].newInstance(parameters);
+                        return constructors[j].newInstance(constructorParameters);
                     } catch (InstantiationException e) {
                         System.err.println( "Could not instantiate class: " + e.getMessage() );
                         e.printStackTrace();
@@ -63,18 +70,6 @@ public class ComboClassCellEditor extends ComboCellEditor {
                     }
                     return null;
                 }
-            }
-            // no constructor found with the given parameters.  Try the default constructor
-            try {
-                return selectedClass.newInstance();
-            }
-            catch (InstantiationException e) {
-                System.out.println("Could not instantiate object of class "+selectedClass);
-                e.printStackTrace();
-            }
-            catch (IllegalAccessException e) {
-                System.out.println("Could not instantiate object of class "+selectedClass);
-                e.printStackTrace();
             }
             return null;
         }
