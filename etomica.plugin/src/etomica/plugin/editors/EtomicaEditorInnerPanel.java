@@ -20,7 +20,6 @@ import etomica.etomica3D.OrientedObject;
 import etomica.plugin.EtomicaPlugin;
 import etomica.plugin.editors.listeners.EditorSelectionChangedListener;
 import etomica.plugin.editors.listeners.OpenActionListener;
-import etomica.plugin.editors.listeners.OpenSelectionListener;
 import etomica.plugin.editors.listeners.RefreshItemSelectionListener;
 import etomica.plugin.editors.listeners.RemoveItemSelectionListener;
 import etomica.plugin.views.ActionsViewContentProvider;
@@ -53,7 +52,8 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
         
 		viewer = new TreeViewer( objectTree  );
 		viewer.setContentProvider(new SimulationViewContentProvider());
-        viewer.setLabelProvider(new LabelProvider());
+        EtomicaProblemsLabelDecorator pld = new EtomicaProblemsLabelDecorator();
+        viewer.setLabelProvider(new DecoratingLabelProvider(new EtomicaLabelProvider(),pld));
 
         Menu viewMenu = new Menu(viewer.getTree());
 

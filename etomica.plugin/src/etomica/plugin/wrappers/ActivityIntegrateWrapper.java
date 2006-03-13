@@ -4,6 +4,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.action.activity.ActivityIntegrate;
+import etomica.integrator.IntegratorPhase;
 import etomica.plugin.editors.EtomicaEditor;
 import etomica.simulation.Simulation;
 
@@ -75,6 +76,10 @@ public class ActivityIntegrateWrapper extends PropertySourceWrapper {
     
     public boolean addObjectClass(Simulation sim, Class newObjectClass, Shell shell) {
         return integratorWrapper.addObjectClass(sim,newObjectClass,shell);
+    }
+    
+    public EtomicaStatus getStatus() {
+        return integratorWrapper.getStatus();
     }
     
     private IntegratorWrapper integratorWrapper;

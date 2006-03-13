@@ -64,6 +64,15 @@ public class DataSourceWrapper extends PropertySourceWrapper {
         return false;
     }
     
+    public EtomicaStatus getStatus() {
+        if (object instanceof Meter) {
+            if (((Meter)object).getPhase() == null) {
+                return EtomicaStatus.ERROR;
+            }
+        }
+        return EtomicaStatus.OK;
+    }
+    
     protected static final String DISPLAY_TABLE = "Table";
     protected static final String DISPLAY_PLOT = "Plot";
 }

@@ -56,4 +56,11 @@ public class MCMoveManagerWrapper extends PropertySourceWrapper {
         }
         return false;
     }
+    
+    public EtomicaStatus getStatus() {
+        if (((MCMoveManager)object).getMCMoves().length == 0) {
+            return EtomicaStatus.ERROR;
+        }
+        return EtomicaStatus.OK;
+    }
 }

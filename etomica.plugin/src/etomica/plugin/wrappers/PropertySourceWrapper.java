@@ -501,10 +501,24 @@ public class PropertySourceWrapper implements IPropertySource {
         return false;
     }
     
+    public EtomicaStatus getStatus() {
+        return EtomicaStatus.OK;
+    }
+    
     protected Object object;
 	protected IPropertyDescriptor[] descriptors;
     protected String displayName;
     protected PropertySourceWrapper[] children;
     protected Simulation simulation;
     protected EtomicaEditor etomicaEditor;
+    
+    public static class EtomicaStatus extends EnumeratedType {
+        public EtomicaStatus(String label) {
+            super(label);
+        }
+
+        public static final EtomicaStatus OK = new EtomicaStatus("OK");
+        public static final EtomicaStatus WARNING = new EtomicaStatus("Warning");
+        public static final EtomicaStatus ERROR = new EtomicaStatus("Error");
+}
 }

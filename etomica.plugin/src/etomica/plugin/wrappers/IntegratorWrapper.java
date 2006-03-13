@@ -88,4 +88,13 @@ public class IntegratorWrapper extends PropertySourceWrapper {
         }
         return false;
     }
+    
+    public EtomicaStatus getStatus() {
+        if (object instanceof IntegratorPhase) {
+            if (((IntegratorPhase)object).getPhase() == null) {
+                return EtomicaStatus.ERROR;
+            }
+        }
+        return EtomicaStatus.OK;
+    }
 }
