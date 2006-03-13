@@ -5,8 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Iterator;
-import java.util.LinkedList;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -32,6 +30,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.part.EditorPart;
+import org.eclipse.ui.progress.WorkbenchJob;
 
 import etomica.simulation.Simulation;
 import etomica.util.EtomicaObjectInputStream;
@@ -158,6 +157,8 @@ public class EtomicaEditor extends EditorPart {
     }
     
     public boolean isDirty() {
+        // if we're busy, we almost certainly dirty, but return false because
+        // the simulation can't be saved.
         return dirty_flag && !isBusy;
     }
     
@@ -168,12 +169,13 @@ public class EtomicaEditor extends EditorPart {
     public void markDirty() {
         if (!dirty_flag) {
             dirty_flag = true;
-            try {
-                firePropertyChange(PROP_DIRTY);
-            }
-            catch (Exception e) {
-                System.out.println("oops");
-            }
+            WorkbenchJob updateJob = new WorkbenchJob("dirtyMarker") {
+                public IStatus runInUIThread(IProgressMonitor monitor) {
+                    firePropertyChange(PROP_DIRTY);
+                    return Status.OK_STATUS;
+                }
+            };
+            updateJob.schedule();
         }
     }
     
@@ -184,12 +186,15 @@ public class EtomicaEditor extends EditorPart {
     public void markBusy(boolean busyNow) {
         if (isBusy != busyNow) {
             isBusy = busyNow;
-            try {
-                firePropertyChange(PROP_DIRTY);
-            }
-            catch (Exception e) {
-                System.out.println("oops");
-            }
+            // we haven't actually changed dirtiness, but we've changed the
+            // return value of isDirty()
+            WorkbenchJob updateJob = new WorkbenchJob("dirtyMarker") {
+                public IStatus runInUIThread(IProgressMonitor monitor) {
+                    firePropertyChange(PROP_DIRTY);
+                    return Status.OK_STATUS;
+                }
+            };
+            updateJob.schedule();
         }
     }
 

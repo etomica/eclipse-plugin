@@ -53,7 +53,7 @@ public class DataPlotView extends ViewPart implements ViewRefreshable {
         }
         displayPlot.getDataSet().reset();
         pump = new DataPump(newDataSource, displayPlot.getDataSet());
-        refresher = new Refresher(Thread.currentThread(), pump, displayPlot.getPlot());
+        refresher = new Refresher(pump, displayPlot.getPlot());
         refresher.start();
         toggleUpdateAction.setRefresher(refresher);
     }
@@ -101,8 +101,8 @@ public class DataPlotView extends ViewPart implements ViewRefreshable {
      * while enabled.
      */
     public static class Refresher extends DataTableView.Refresher {
-        protected Refresher(Thread viewerThread, DataPump pump, Component component) {
-            super(viewerThread, null);
+        protected Refresher(DataPump pump, Component component) {
+            super(null);
             setUpdateJob(new UpdateJob("refresher", pump, component));
         }
 

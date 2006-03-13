@@ -34,7 +34,7 @@ public class DataTableView extends ViewPart implements ViewRefreshable {
 	 */
 	public void createPartControl(Composite parent) {
 		viewer = new TableViewer(parent);
-        refresher = new Refresher(Thread.currentThread(),viewer);
+        refresher = new Refresher(viewer);
 		createActions();
 		createToolBarButtons();
 
@@ -85,8 +85,7 @@ public class DataTableView extends ViewPart implements ViewRefreshable {
      * while enabled.
      */
     public static class Refresher extends Thread {
-        protected Refresher(Thread viewerThread, Viewer viewer) {
-            threadUI = viewerThread;
+        protected Refresher(Viewer viewer) {
             enabled = true;
             setUpdateJob(new UpdateJob("refresh",viewer));
             setDelay(10000);
@@ -94,10 +93,6 @@ public class DataTableView extends ViewPart implements ViewRefreshable {
 
         public void run() {
             while (true) {
-                if (!threadUI.isAlive()) {
-                    // the thread is dead so bail
-                    break;
-                }
                 if (enabled) {
                     updateJob.schedule();
                 }
@@ -132,7 +127,6 @@ public class DataTableView extends ViewPart implements ViewRefreshable {
         }
 
         private boolean isDisposed = false;
-        private final Thread threadUI;
         private boolean enabled;
         private long delay;
         private WorkbenchJob updateJob;
