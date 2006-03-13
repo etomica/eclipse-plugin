@@ -17,6 +17,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
 
 import etomica.phase.Phase;
+import etomica.plugin.wrappers.PhaseWrapper;
 import etomica.plugin.wrappers.PropertySourceWrapper;
 
 /**
@@ -76,8 +77,13 @@ public class PhaseView extends ViewPart {
         Object obj = ((PropertySourceWrapper)firstElement).getObject();
         if (obj instanceof Phase && obj != phase) {
             phase = (Phase)obj;
-            viewer.setInput(sel.getFirstElement());
+            viewer.setInput(firstElement);
         }
+    }
+    
+    public void setPhase(Phase newPhase) {
+        phase = newPhase;
+        viewer.setInput(new PhaseWrapper(phase,null));
     }
 
     public void setFocus() {

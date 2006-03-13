@@ -493,11 +493,13 @@ public class PropertySourceWrapper implements IPropertySource {
         return new Action[0];
     }
     
-    public boolean canBeOpened() {
-        return false;
+    public String[] getOpenViews() {
+        return new String[0];
     }
     
-    public void open(IWorkbenchPage page, Shell shell) {}
+    public boolean open(String openView, IWorkbenchPage page, Shell shell) {
+        return false;
+    }
     
     protected Object object;
 	protected IPropertyDescriptor[] descriptors;

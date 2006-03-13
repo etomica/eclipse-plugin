@@ -20,9 +20,9 @@ import etomica.data.DataSource;
  * sets up the DataPump and DataSinkTable used to pull the data from the
  * DataSource.
  */
-public class DataSourceViewContentProvider implements IStructuredContentProvider {
+public class DataTableViewContentProvider implements IStructuredContentProvider {
 
-    public DataSourceViewContentProvider(DataSource dataSource) {
+    public DataTableViewContentProvider(DataSource dataSource) {
         dataSinkTable = new DataSinkTable();
         pump = new DataPump(dataSource,dataSinkTable);
     }

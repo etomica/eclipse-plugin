@@ -70,16 +70,22 @@ public class DataForkWrapper extends PropertySourceWrapper {
         return false;
     }
     
-    public boolean canBeOpened() {
-        return dataSourceWrapper != null && dataSourceWrapper.canBeOpened();
+    public String[] getOpenViews() {
+        if (dataSourceWrapper != null) {
+            return dataSourceWrapper.getOpenViews();
+        }
+        return super.getOpenViews();
     }
     
-    public void open(IWorkbenchPage page, Shell shell) {
-        if (dataSourceWrapper == null) {
-            return;
+    public boolean open(String openView, IWorkbenchPage page, Shell shell) {
+      if (dataSourceWrapper != null) {
+            if (dataSourceWrapper.open(openView, page, shell)) {
+                return true;
+            }
+            // if the DataSourceWrapper didn't like the requested openView, pass it on up
         }
-        dataSourceWrapper.open(page,shell);
+        return super.open(openView, page, shell);
     }
-
+    
     private final DataSourceWrapper dataSourceWrapper;
 }

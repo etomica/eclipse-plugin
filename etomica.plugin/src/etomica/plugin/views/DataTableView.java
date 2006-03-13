@@ -9,6 +9,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.WorkbenchJob;
@@ -22,9 +23,9 @@ import etomica.plugin.actions.ToggleUpdateAction;
  * should not be associated directly with a Meter whose getData method might
  * change its state.  The underlying data structure used is a Table. 
  */
-public class DataSourceView extends ViewPart {
+public class DataTableView extends ViewPart implements ViewRefreshable {
 
-    public DataSourceView() {
+    public DataTableView() {
 		super();
 	}
 
@@ -33,7 +34,7 @@ public class DataSourceView extends ViewPart {
 	 */
 	public void createPartControl(Composite parent) {
 		viewer = new TableViewer(parent);
-        refresher = new Refresher(Thread.currentThread());
+        refresher = new Refresher(Thread.currentThread(),viewer);
 		createActions();
 		createToolBarButtons();
 
@@ -83,11 +84,12 @@ public class DataSourceView extends ViewPart {
      * Thread that refreshers the viewer (on the UI thread) every 10 seconds 
      * while enabled.
      */
-    public class Refresher extends Thread {
-        protected Refresher(Thread viewerThread) {
+    public static class Refresher extends Thread {
+        protected Refresher(Thread viewerThread, Viewer viewer) {
             threadUI = viewerThread;
             enabled = true;
-            updateJob.setSystem(true);
+            setUpdateJob(new UpdateJob("refresh",viewer));
+            setDelay(10000);
         }
 
         public void run() {
@@ -99,7 +101,7 @@ public class DataSourceView extends ViewPart {
                 if (enabled) {
                     updateJob.schedule();
                 }
-                try{Thread.sleep(10000);}
+                try{Thread.sleep(delay);}
                 catch(InterruptedException e){}
                 if (isDisposed) {
                     // the viewer is gone so bail
@@ -119,16 +121,34 @@ public class DataSourceView extends ViewPart {
         public void dispose() {
             isDisposed = true;
         }
+        
+        public void setDelay(long newDelay) {
+            delay = newDelay;
+        }
+        
+        public void setUpdateJob(WorkbenchJob newJob) {
+            updateJob = newJob;
+            updateJob.setSystem(true);
+        }
 
         private boolean isDisposed = false;
         private final Thread threadUI;
         private boolean enabled;
-        private final WorkbenchJob updateJob = new WorkbenchJob("refresh") { 
-            public IStatus runInUIThread(IProgressMonitor monitor) {
-                viewer.refresh();
-                return Status.OK_STATUS;
-            }
-        };
- 
+        private long delay;
+        private WorkbenchJob updateJob;
+    }
+    
+    protected static class UpdateJob extends WorkbenchJob {
+        public UpdateJob(String name, Viewer viewer) {
+            super(name);
+            this.viewer = viewer;
+        }
+        
+        public IStatus runInUIThread(IProgressMonitor monitor) {
+            viewer.refresh();
+            return Status.OK_STATUS;
+        }
+
+        private final Viewer viewer;
     }
 }

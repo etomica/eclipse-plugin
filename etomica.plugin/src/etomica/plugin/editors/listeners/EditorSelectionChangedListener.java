@@ -40,11 +40,6 @@ public class EditorSelectionChangedListener implements ISelectionChangedListener
         TreeItem selectedItem = simViewer.getTree().getSelection()[0];
         Object selectedObj = selectedItem.getData();
         
-        // enable or disable the open item
-        if (selectedObj instanceof PropertySourceWrapper) {
-            openItem.setEnabled(((PropertySourceWrapper)selectedObj).canBeOpened());
-        }
-
         //retrieve the selected item's parent
         TreeItem parentItem = selectedItem.getParentItem();
         Object parentObj = null;
@@ -100,10 +95,7 @@ public class EditorSelectionChangedListener implements ISelectionChangedListener
             else {
                 addItem.setEnabled(true);
                 Menu addSubMenu = addItem.getMenu();
-                while (addSubMenu.getItemCount() > 0) {
-                    MenuItem item = addSubMenu.getItem(0);
-                    item.dispose();
-                }
+                clearSubMenu(addSubMenu);
                 for (int i=0; i<adders.length; i++) {
                     MenuItem addSubItem = new MenuItem(addSubMenu,SWT.NONE);
                     addSubItem.setText(adders[i].getName());
@@ -121,10 +113,7 @@ public class EditorSelectionChangedListener implements ISelectionChangedListener
             else {
                 actionItem.setEnabled(true);
                 Menu actionSubMenu = actionItem.getMenu();
-                while (actionSubMenu.getItemCount() > 0) {
-                    MenuItem item = actionSubMenu.getItem(0);
-                    item.dispose();
-                }
+                clearSubMenu(actionSubMenu);
                 for (int i=0; i<actions.length; i++) {
                     MenuItem actionSubItem = new MenuItem(actionSubMenu,SWT.NONE);
                     actionSubItem.setText(actions[i].getLabel());
@@ -133,9 +122,33 @@ public class EditorSelectionChangedListener implements ISelectionChangedListener
                     actionSubItem.addSelectionListener(new ActionSelectionListener(etomicaEditor));
                 }
             }
+
+            String[] openViews = ((PropertySourceWrapper)selectedObj).getOpenViews();
+            if (openViews.length == 0) {
+                openItem.setEnabled(false);
+            }
+            else {
+                openItem.setEnabled(true);
+                Menu openSubMenu = openItem.getMenu();
+                clearSubMenu(openSubMenu);
+                for (int i=0; i<openViews.length; i++) {
+                    MenuItem openSubItem = new MenuItem(openSubMenu,SWT.NONE);
+                    openSubItem.setText(openViews[i]);
+                    openSubItem.setData("viewer",simViewer);
+                    openSubItem.setData("openView",openViews[i]);
+                    openSubItem.addSelectionListener(new OpenSelectionListener(etomicaEditor.getSite().getPage()));
+                }
+            }
         }
     }
-    
+
+    protected void clearSubMenu(Menu subMenu) {
+        while (subMenu.getItemCount() > 0) {
+            MenuItem item = subMenu.getItem(0);
+            item.dispose();
+        }
+    }
+        
     private final MenuItem openItem, removeItem, addItem, actionItem;
     private final EtomicaEditor etomicaEditor;
 }

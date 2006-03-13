@@ -156,12 +156,26 @@
             id="etomica.plugin.views.ConfigurationView"
             name="Configuration"/>
       <view
+            allowMultiple="false"
+            category="etomica.plugin"
+            class="etomica.plugin.views.ConfigurationViewDP"
+            icon="icons/sample.gif"
+            id="etomica.plugin.views.ConfigurationViewDP"
+            name="DisplayPhase"/>
+      <view
             allowMultiple="true"
             category="etomica.plugin"
-            class="etomica.plugin.views.DataSourceView"
+            class="etomica.plugin.views.DataTableView"
             icon="icons/sample.gif"
-            id="etomica.plugin.views.DataSourceView"
-            name="Data"/>
+            id="etomica.plugin.views.DataTableView"
+            name="Data Table"/>
+      <view
+            allowMultiple="true"
+            category="etomica.plugin"
+            class="etomica.plugin.views.DataPlotView"
+            icon="icons/sample.gif"
+            id="etomica.plugin.views.DataPlotView"
+            name="Data Plot"/>
    </extension>
    <extension
          point="org.eclipse.ui.editors">

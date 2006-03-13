@@ -76,13 +76,12 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
         // stash the viewer in the MenuItem so the listeners can get it
         addItem.setData(viewer);
 
-        MenuItem openItem = new MenuItem(viewMenu,SWT.NONE);
-        openItem.setText("Open");
+        MenuItem openItem = new MenuItem(viewMenu,SWT.CASCADE);
+        openItem.setText("Open As");
         // stash the viewer in the MenuItem so the listeners can get it
         openItem.setData("viewer",viewer);
-        openItem.setEnabled(false);
-        OpenSelectionListener openListener = new OpenSelectionListener(editor.getSite().getPage());
-        openItem.addSelectionListener(openListener);
+        Menu openSubMenu = new Menu(openItem);
+        openItem.setMenu(openSubMenu);
         
         MenuItem actionItem = new MenuItem(viewMenu,SWT.CASCADE);
         actionItem.setText("Actions");
@@ -94,8 +93,6 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
         viewer.addSelectionChangedListener(new EditorSelectionChangedListener(openItem,removeItem,addItem,actionItem,editor));
         viewer.getTree().setMenu(viewMenu);
         
-        viewer.addDoubleClickListener(openListener);
-	
         actionsViewer = new TreeViewer(actionsTree);
         actionsViewer.setContentProvider(new ActionsViewContentProvider());
         actionsViewer.setLabelProvider(new DecoratingLabelProvider(new LabelProvider(),null));

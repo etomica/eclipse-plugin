@@ -4,27 +4,30 @@
  */
 package etomica.plugin.views;
 
+import java.awt.Frame;
+
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
 
 import etomica.atom.Atom;
+import etomica.graphics.DisplayPhase;
 import etomica.graphics2.SceneManager;
 import etomica.phase.Phase;
-import etomica.plugin.realtimegraphics.OSGWidget;
+import etomica.plugin.editors.EtomicaEditor;
 import etomica.plugin.wrappers.PropertySourceWrapper;
 
 /**
  * View for listing the species hierarchy via a tree.
  */
-public class ConfigurationView extends ViewPart {
+public class ConfigurationViewDP extends ViewPart {
 
-	public ConfigurationView() {
+	public ConfigurationViewDP() {
 		super();
         scene = new SceneManager();
 	}
@@ -33,18 +36,14 @@ public class ConfigurationView extends ViewPart {
 	 * @see org.eclipse.ui.IWorkbenchPart#createPartControl(org.eclipse.swt.widgets.Composite)
 	 */
 	public void createPartControl(Composite parent) {
-	    Composite control = new Composite(parent,SWT.NONE);
-        GridData gridData3 = new org.eclipse.swt.layout.GridData();
-        gridData3.grabExcessVerticalSpace = true;
-        gridData3.grabExcessHorizontalSpace = true;
-        gridData3.horizontalAlignment = org.eclipse.swt.layout.GridData.FILL;
-        gridData3.verticalAlignment = org.eclipse.swt.layout.GridData.FILL;
-        control.setLayoutData(gridData3);
+	    Composite control = new Composite(parent,SWT.EMBEDDED);
 
-        updater = new SceneUpdater(control,scene);
-        updater.setFPS( 20 );
+        frame = SWT_AWT.new_Frame(control);
+
+        displayPhase = new DisplayPhase(phase);
         if (phase != null) {
-            updater.run();
+            frame.add(displayPhase.graphic());
+//            refresher = new Refresher(Thread.currentThread(), displayPhase.graphic());
         }
         
 		hookPageSelection();
@@ -66,9 +65,9 @@ public class ConfigurationView extends ViewPart {
 	 * Changes root of tree with change of simulation selected in another view.
 	 */
 	protected void pageSelectionChanged(IWorkbenchPart part, ISelection selection) {
-		if(part == this) return;
-//		System.out.println("SpeciesView selection "+selection.toString());
-		if(!(selection instanceof IStructuredSelection)) return;
+		if (part == this) return;
+        if (!(part instanceof EtomicaEditor)) return;
+		if (!(selection instanceof IStructuredSelection)) return;
 		IStructuredSelection sel = (IStructuredSelection)selection;
         Object firstElement = sel.getFirstElement();
         if(firstElement == null) return;
@@ -80,13 +79,20 @@ public class ConfigurationView extends ViewPart {
             setPhase((Phase)obj);
         }
 	}
-
+    
     public void setPhase(Phase p) {
-        boolean nullPhase = (phase == null);
+        if (refresher != null) {
+            refresher.interrupt();
+            refresher = null;
+        }
+        if (phase != null) {
+            frame.remove(displayPhase.graphic());
+        }
         phase = p;
-        scene.setPhase(phase);
-        if (nullPhase) {
-            updater.run();
+        displayPhase.setPhase(phase);
+        if (phase != null) {
+            frame.add(displayPhase.graphic());
+//            refresher = new Refresher(Thread.currentThread(), displayPhase.graphic());
         }
     }
     
@@ -95,8 +101,6 @@ public class ConfigurationView extends ViewPart {
 	 */
 	public void setFocus() {
 	}
-
-	
 	
 	public void dispose() {
 		if(pageSelectionListener != null) {
@@ -105,53 +109,16 @@ public class ConfigurationView extends ViewPart {
 		super.dispose();
 	}
 	
-    public static class SceneUpdater implements Runnable {
-        private int DELAY = 100;
-        private boolean first_time = true;
-        
-        public SceneUpdater(Composite parent, SceneManager scene) {
-            parentWidget = parent;
-            osgWidget = new OSGWidget(parent);
-            sceneManager = scene;
-            scene.setRenderer( osgWidget.getRenderer() );
-        }
-        
-        public void setFPS( double fps )
-        {
-            DELAY = (int)( 1000.0/fps );
-        }
-        public void run() {
-            if ( doStop || (osgWidget!=null && parentWidget.isDisposed()) ) 
-                return;
-            if ( osgWidget!=null &&  parentWidget.isVisible() ) {
-                sceneManager.updateAtomPositions();
-                if ( first_time )
-                {
-                    osgWidget.getRenderer().zoomAll();
-                    first_time = false;
-                }
-                osgWidget.render();
-            }
-            parentWidget.getDisplay().timerExec(DELAY, this);
-        }
-        
-        public void stop() {
-            doStop = true;
-        }
-        
-        private final Composite parentWidget;
-        private final OSGWidget osgWidget;
-        private final SceneManager sceneManager;
-        private boolean doStop;
-    }
-
     public void setSelectedAtoms( Atom[] atoms )
     {
         scene.setSelectedAtoms( atoms );
     }
 
+    protected Frame frame;
+    protected DisplayPhase displayPhase;
     protected final SceneManager scene;
-    protected SceneUpdater updater;
+    protected DataTableView.Refresher refresher;
+    private EtomicaEditor etomicaEditor;
 	private ISelectionListener pageSelectionListener;
 	private Phase phase;
 }

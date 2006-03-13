@@ -12,10 +12,10 @@ import etomica.data.types.DataTable;
  * DataSourceView's Table.  The row objects are expected to be Integers.
  * The data returned for 0th column are the row headers.
  */
-public class DataSourceViewLabelProvider extends LabelProvider implements
+public class DataTableViewLabelProvider extends LabelProvider implements
         ITableLabelProvider {
 
-    public DataSourceViewLabelProvider(DataSourceViewContentProvider dataSourceVLP) {
+    public DataTableViewLabelProvider(DataTableViewContentProvider dataSourceVLP) {
         super();
         vlp = dataSourceVLP;
     }
@@ -50,6 +50,6 @@ public class DataSourceViewLabelProvider extends LabelProvider implements
         return new Double(x[i]).toString();
     }
     
-    private final DataSourceViewContentProvider vlp;
+    private final DataTableViewContentProvider vlp;
 
 }
