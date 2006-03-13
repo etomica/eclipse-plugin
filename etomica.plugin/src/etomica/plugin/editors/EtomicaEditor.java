@@ -3,9 +3,10 @@ package etomica.plugin.editors;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -16,9 +17,9 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
@@ -33,7 +34,6 @@ import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.part.EditorPart;
 
 import etomica.simulation.Simulation;
-import etomica.simulation.prototypes.HSMD3D;
 import etomica.util.EtomicaObjectInputStream;
 
 
@@ -42,11 +42,12 @@ public class EtomicaEditor extends EditorPart {
     public EtomicaEditor() {
         super();
     }
+    
     public void dispose() {
         //scene.dispose();
         
         if ( this.pageSelectionListener!=null )
-            getSite().getPage().removePostSelectionListener( pageSelectionListener );
+            getSite().getPage().removePostSelectionListener(pageSelectionListener);
         super.dispose();
     }
     
@@ -100,8 +101,8 @@ public class EtomicaEditor extends EditorPart {
         if (original != null)
             dialog.setOriginalFile(original);
 
-        if (dialog.open() == Dialog.CANCEL) 
-            return;
+		if (dialog.open() == Window.CANCEL) 
+			return;
 
         IPath filePath = dialog.getResult();
         if (filePath == null) 
@@ -167,7 +168,12 @@ public class EtomicaEditor extends EditorPart {
     public void markDirty() {
         if (!dirty_flag) {
             dirty_flag = true;
-            firePropertyChange(PROP_DIRTY);
+            try {
+                firePropertyChange(PROP_DIRTY);
+            }
+            catch (Exception e) {
+                System.out.println("oops");
+            }
         }
     }
     
@@ -178,7 +184,12 @@ public class EtomicaEditor extends EditorPart {
     public void markBusy(boolean busyNow) {
         if (isBusy != busyNow) {
             isBusy = busyNow;
-            firePropertyChange(PROP_DIRTY);
+            try {
+                firePropertyChange(PROP_DIRTY);
+            }
+            catch (Exception e) {
+                System.out.println("oops");
+            }
         }
     }
 
@@ -191,9 +202,6 @@ public class EtomicaEditor extends EditorPart {
         this.setSite( site );
         this.setInput( input );
         
-        // Create a new simulation
-        //simulation = new Simulation();
-
         IFile original = (input instanceof IFileEditorInput) ? ((IFileEditorInput) input).getFile() : null;
         if (original == null)
             return;
@@ -211,22 +219,21 @@ public class EtomicaEditor extends EditorPart {
         }
         
         // Update inner panel 
-        if ( inner_panel != null )
+        if ( innerPanel != null )
         {
-            inner_panel.setSimulation( simulation );
-            getSite().setSelectionProvider(inner_panel.getViewer());
+            innerPanel.setSimulation( simulation );
+            getSite().setSelectionProvider(innerPanel.getViewer());
         }
     }
 
     public void createPartControl(Composite parent) {
         if (simulation != null) {
-            inner_panel = new EtomicaEditorInnerPanel(parent, this, SWT.NONE);
-            inner_panel.setSimulation( simulation );
-            getSite().setSelectionProvider(inner_panel.getViewer());
+            innerPanel = new EtomicaEditorInnerPanel(parent, this, SWT.NONE);
+            innerPanel.setSimulation( simulation );
+            getSite().setSelectionProvider(innerPanel.getViewer());
         }
     }
-    
-    
+	
     public Simulation getSimulation() {
         return simulation;
     }
@@ -234,7 +241,7 @@ public class EtomicaEditor extends EditorPart {
     public void setFocus() {
     }
 
-    private EtomicaEditorInnerPanel inner_panel;
+    private EtomicaEditorInnerPanel innerPanel;
     private IPath path = null;
     private Simulation simulation = null;
     private ISelectionListener pageSelectionListener;
