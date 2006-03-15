@@ -14,6 +14,7 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import etomica.action.activity.ActivityGroup;
 import etomica.compatibility.FeatureSet;
 import etomica.data.DataInfo;
+import etomica.phase.Phase;
 import etomica.plugin.wrappers.ArrayWrapper;
 import etomica.plugin.wrappers.AtomTypeWrapper;
 import etomica.plugin.wrappers.PropertySourceWrapper;
@@ -84,6 +85,11 @@ public class SimulationViewContentProvider implements ITreeContentProvider {
                             descriptors[i].getDisplayName().equals("species"))) {
                 continue;
             }
+            if (!(wrappedElement instanceof ArrayWrapper) &&
+                    obj instanceof Phase) {
+                // we only want to show Phases at the top level
+                continue;
+            }
             childWrappers = (PropertySourceWrapper[])Arrays.resizeArray(childWrappers,++count);
             if (value instanceof PropertySourceWrapper) {
                 childWrappers[count-1] = (PropertySourceWrapper)value;
@@ -124,5 +130,5 @@ public class SimulationViewContentProvider implements ITreeContentProvider {
     private Simulation simulation;
     private static final Class[] excludedClasses = new Class[]{Number.class,Boolean.class,
             Color.class,Vector.class,DataInfo.class,EnumeratedType.class,
-            String.class,FeatureSet.class,LinkedList.class,Space.class};
+            String.class,FeatureSet.class,LinkedList.class,Space.class,Class.class};
 }
