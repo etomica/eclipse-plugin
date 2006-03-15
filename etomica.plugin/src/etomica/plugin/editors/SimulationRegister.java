@@ -9,33 +9,38 @@ import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.simulation.Simulation;
 
-public class DataStreamRegister {
+public class SimulationRegister {
 
-    public DataStreamRegister(Simulation sim) {
+    public SimulationRegister(Simulation sim) {
         simulation = sim;
     }
 
-    public void registerDataStreams(Object obj) {
+    public void registerElements() {
+        registerElements(simulation);
+    }
+
+    public void registerElements(Object obj) {
         if (obj instanceof Simulation) {
-            registerDataStreams(((Simulation)obj).getController());
+            registerElements(((Simulation)obj).getController());
         }
         if (obj instanceof ActivityGroup) {
             Action[] actions = ((ActivityGroup)obj).getAllActions();
             for (int i=0; i<actions.length; i++) {
-                registerDataStreams(actions[i]);
+                registerElements(actions[i]);
             }
         }
         if (obj instanceof ActivityIntegrate) {
-            registerDataStreams(((ActivityIntegrate)obj).getIntegrator());
+            registerElements(((ActivityIntegrate)obj).getIntegrator());
         }
         if (obj instanceof Integrator) {
+            simulation.register((Integrator)obj);
             IntegratorIntervalListener[] listeners = ((Integrator)obj).getIntervalListeners();
             for (int i=0; i<listeners.length; i++) {
-                registerDataStreams(listeners[i]);
+                registerElements(listeners[i]);
             }
         }
         if (obj instanceof IntervalActionAdapter) {
-            registerDataStreams(((IntervalActionAdapter)obj).getAction());
+            registerElements(((IntervalActionAdapter)obj).getAction());
         }
         if (obj instanceof DataPump) {
             if (((DataPump)obj).getDataSource() != null) {

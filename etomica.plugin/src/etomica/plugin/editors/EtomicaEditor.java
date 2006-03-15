@@ -151,7 +151,9 @@ public class EtomicaEditor extends EditorPart {
         }
         if (simulation != null) {
             simulation.clearDataStreams();
-            new DataStreamRegister(simulation).registerDataStreams(simulation);
+            simulation.clearIntegrators();
+            SimulationRegister register = new SimulationRegister(simulation);
+            register.registerElements();
         }
         return null;
     }
