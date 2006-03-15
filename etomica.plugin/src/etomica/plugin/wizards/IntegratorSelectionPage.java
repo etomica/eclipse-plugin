@@ -42,6 +42,9 @@ public class IntegratorSelectionPage extends WizardPage implements IPageChangedL
      * Returns the integrator selected by the user 
      */
     public Integrator getIntegrator() {
+        if (hookupSelector == null) {
+            return null;
+        }
         return hookupSelector.getIntegrator();
     }
     /**
