@@ -29,7 +29,11 @@ public class ActionGroupWrapper extends PropertySourceWrapper {
         if (!(obj instanceof Action)) {
             return false;
         }
-        return ((ActionGroup)object).removeAction((Action)obj);
+        boolean success = ((ActionGroup)object).removeAction((Action)obj);
+        if (success && obj instanceof ActivityIntegrate) {
+            simulation.unregister(((ActivityIntegrate)obj).getIntegrator());
+        }
+        return success;
     }
     
     public Class[] getAdders() {
