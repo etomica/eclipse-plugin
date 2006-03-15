@@ -24,7 +24,10 @@ public class ComboPropertyDescriptor extends PropertyDescriptor {
 	}
 	
 	public CellEditor createPropertyEditor(Composite parent) {
-		return new ComboCellEditor(parent, choices);
+        if (choices.length > 0) {
+            return new ComboCellEditor(parent, choices);
+        }
+        return super.createPropertyEditor(parent);
 	}
 	
 	protected Object[] choices;
