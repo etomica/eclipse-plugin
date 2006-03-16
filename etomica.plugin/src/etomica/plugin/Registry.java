@@ -12,9 +12,6 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 
-import etomica.space.Space;
-import etomica.species.Species;
-
 
 /**
  * @author Henrique
@@ -32,8 +29,8 @@ public class Registry {
 		// Register a listener to track changesin the workspace
 		registerResourceChangeListener();
 		// Discovery methods
-		class_discovery.addClass( Space.class );
-		class_discovery.addClass( Species.class );
+		class_discovery.addClass( etomica.space.Space.class );
+		class_discovery.addClass( etomica.species.Species.class );
         class_discovery.addClass( etomica.atom.iterator.AtomsetIterator.class );
         class_discovery.addClass( etomica.atom.AtomPositionDefinition.class );
         class_discovery.addClass( etomica.atom.AtomFactory.class );
@@ -41,6 +38,7 @@ public class Registry {
 		class_discovery.addClass( etomica.potential.Potential2.class );
         class_discovery.addClass( etomica.nbr.NeighborCriterion.class );
 		class_discovery.addClass( etomica.integrator.Integrator.class );
+        class_discovery.addClass( etomica.integrator.IntegratorIntervalListener.class );
         class_discovery.addClass( etomica.integrator.MCMove.class );
 		class_discovery.addClass( etomica.phase.Phase.class );
         class_discovery.addClass( etomica.space.Boundary.class );
