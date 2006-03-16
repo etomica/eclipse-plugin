@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -36,12 +37,12 @@ public class SimpleClassSelector extends Composite {
 	public Combo classCombo;
     public Combo categoryCombo;
 	public Text objectName;
-    private Label classDescription;
+    protected Label classDescription;
     private Label categoryLabel;
 	private HashMap classMap = new HashMap();
     private LinkedHashMap categoryMap = new LinkedHashMap();
     private Object[][] categories = new Object[0][2];
-    private Class baseClass;
+    private Class[] baseClass;
     
 	private Class[] excludedClasses = new Class[0];
     private Object[] extraChoices = new Class[0];
@@ -141,8 +142,12 @@ public class SimpleClassSelector extends Composite {
         return categories.length > 0;
     }
     
+    public void addBaseClass(Class newBaseClass) {
+        baseClass = (Class[])Arrays.addObject(baseClass,newBaseClass);
+    }
+    
     public void setBaseClass(Class newBaseClass) {
-        baseClass = newBaseClass;
+        baseClass = new Class[]{newBaseClass};
         rebuildClassList();
     }
     
@@ -153,6 +158,8 @@ public class SimpleClassSelector extends Composite {
 	public SimpleClassSelector(Composite parent, int style, String name) {
 		super(parent, style);
 		
+        baseClass = new Class[0];
+        
 		initialize(name);
 		
 		setExcludedClasses(new Class[0]);
@@ -237,20 +244,10 @@ public class SimpleClassSelector extends Composite {
             categoryMap.put("Existing Objects",Object.class);
             categoryCombo.add("Existing Objects");
         }
-        // if one of the Action types is a subclass of an excluded
-        // class, don't show it as an option
+
         for (int i=0; i<categories.length; i++) {
-            boolean excluded = false;
-            for (int j=0; j<excludedClasses.length; j++) {
-                if (excludedClasses[j].isAssignableFrom((Class)categories[i][1])) {
-                    excluded = true;
-                    break;
-                }
-            }
-            if (!excluded) {
-                categoryMap.put(categories[i][0],categories[i][1]);
-                categoryCombo.add((String)categories[i][0]);
-            }
+            categoryMap.put(categories[i][0],categories[i][1]);
+            categoryCombo.add((String)categories[i][0]);
         }
         
         if (extraChoices.length > 0) {
@@ -271,8 +268,12 @@ public class SimpleClassSelector extends Composite {
         }
         
         Class objectCategory = getCategory();
+        if (objectCategory == null && categories.length > 0) {
+            // categories exist, but none have been selected
+            return;
+        }
         if (objectCategory == Object.class) {
-            // objectCategory = null is the signal that the user has
+            // this is the signal that the user has
             // selected the Existing Objects
             for (int i=0; i<extraChoices.length; i++) {
                 Class extraClass = extraChoices[i].getClass();
@@ -283,9 +284,12 @@ public class SimpleClassSelector extends Composite {
             }
             return;
         }
-        
-        Collection classesFromRegistry = Registry.queryWhoExtends(baseClass);
 
+        Collection classesFromRegistry = new LinkedList();
+        for (int i=0; i<baseClass.length; i++) {
+            classesFromRegistry.addAll(Registry.queryWhoExtends(baseClass[i]));
+        }
+    
         Iterator iterator = classesFromRegistry.iterator(); 
         while(iterator.hasNext())
         {
@@ -300,26 +304,27 @@ public class SimpleClassSelector extends Composite {
             if (excluded) {
                 continue;
             }
-            if (objectCategory == baseClass) {
-                // if we're looking for generic Objects, exclude the others
-                Iterator typeIterator = categoryMap.keySet().iterator();
-                boolean skipMe = false;
-                while (typeIterator.hasNext()) {
-                    Object obj = typeIterator.next();
-                    Class otherCategory = (Class)categoryMap.get(obj);
-                    if (otherCategory == baseClass || otherCategory == null) {
-                        continue;
-                    }
-                    if (otherCategory.isAssignableFrom(objectClass)) {
-                        skipMe = true;
-                        break;
-                    }
-                }
-                if (skipMe) {
+
+            // if we're looking for Objects of a superclass of one of the 
+            // other categories, then exclude objects of the other category
+            boolean skipMe = false;
+            for (int i=0; i<categories.length; i++) {
+                Class otherCategory = (Class)categories[i][1];
+                // if the "other" category is a sublcass of the current category
+                if (otherCategory == objectCategory || !objectCategory.isAssignableFrom(otherCategory)) {
                     continue;
                 }
+                // and the current class is a subclass of the "other" category
+                if (otherCategory.isAssignableFrom(objectClass)) {
+                    skipMe = true;
+                    break;
+                }
             }
-            else if (objectCategory != null && !objectCategory.isAssignableFrom(objectClass)) {
+            if (skipMe) {
+                continue;
+            }
+            // if we have no categories don't need to check
+            if (objectCategory != null && !objectCategory.isAssignableFrom(objectClass)) {
                 // user wants a specific type of Class.
                 continue;
             }
@@ -328,7 +333,6 @@ public class SimpleClassSelector extends Composite {
             classCombo.add(str);
             classMap.put(str, objectClass );
         }
-
     }
 
     /**
