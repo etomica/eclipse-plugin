@@ -9,6 +9,7 @@ import etomica.action.IntegratorAction;
 import etomica.action.PhaseAction;
 import etomica.action.SimulationAction;
 import etomica.data.DataPump;
+import etomica.data.DataSource;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntervalActionAdapter;
@@ -45,7 +46,9 @@ public class NewIntervalListenerWizard extends Wizard implements SimpleClassWiza
     }
     
     public void fixupSelector(SimpleClassSelector selector) {
-        selector.setBaseClass(Action.class);
+        selector.addBaseClass(IntegratorIntervalListener.class);
+        selector.addCategory("Interval Listener",IntegratorIntervalListener.class);
+        selector.addBaseClass(Action.class);
         selector.addCategory("Action",Action.class);
         selector.addCategory("Phase Action",PhaseAction.class);
         selector.addCategory("Integrator Action",IntegratorAction.class);
@@ -100,6 +103,13 @@ public class NewIntervalListenerWizard extends Wizard implements SimpleClassWiza
         }
         else {
             listener = (IntegratorIntervalListener)obj;
+            if (obj instanceof DataSource) {
+                // we don't need the pump here, but it will probably be 
+                // needed somewhere, and it's required in order for us 
+                // to consider this a data stream
+                DataPump pump = new DataPump((DataSource)obj,null);
+                simulation.register((DataSource)obj,pump);
+            }
         }
         
         if (integrator != null) {
