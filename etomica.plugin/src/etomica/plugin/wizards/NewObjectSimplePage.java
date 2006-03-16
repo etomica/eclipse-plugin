@@ -18,17 +18,13 @@ import etomica.simulation.Simulation;
  * The "New" wizard page allows the user to select a class for a new object
  * from a SimpleClassSelector.  The Wizard is expected to configure the 
  * selector via fixupSelector.
+ * @author Andrew Schultz
  */
 public class NewObjectSimplePage extends WizardPage {
     private final Simulation simulation;
     private Object[] extraParameters = new Object[0];
     public SimpleClassSelector classSelector;
 	
-    // These are to follow eclipse UI guidelines - not to present an error message while the user 
-    //   did not input anything yet
-    private boolean objectNameModified = false;
-    private boolean classModified = false;
-    private boolean categoryModified = false;
     private final String name;
     private final SimpleClassWizard wizard;
 
@@ -100,21 +96,18 @@ public class NewObjectSimplePage extends WizardPage {
         
 	    classSelector.objectName.addModifyListener(new ModifyListener() {
 	        public void modifyText(ModifyEvent e) {
-	            objectNameModified = true;
 	            dialogChanged();
 	        }
 		});
 
         classSelector.categoryCombo.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
-                categoryModified = true;
                 dialogChanged();
             }
         });
 
         classSelector.classCombo.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
-                classModified = true;
                 dialogChanged();
             }
         });
@@ -128,12 +121,8 @@ public class NewObjectSimplePage extends WizardPage {
 	 * Ensures that both text fields are set.
 	 */
 
-	private void dialogChanged() {
-        if (categoryModified) {
-            categoryModified = false;
-            classSelector.rebuildClassList();
-        }
-        if (!checkObjectName()) {
+	protected void dialogChanged() {
+        if (classSelector.getCategory() != Object.class && !checkObjectName()) {
             return;
         }
         if (classSelector.hasCategories() && !checkCategory()) {
@@ -181,8 +170,20 @@ public class NewObjectSimplePage extends WizardPage {
 		return classSelector.objectName.getText();
 	}
 
-    
+
+    /**
+     * All Wizards using a this class as a WizardPage must implement this
+     * interface, which allows the Wizard to configure the selector to its
+     * liking (categories, extraChoices, excludedClasses, etc)
+     * @author Andrew Schultz
+     */
     public interface SimpleClassWizard {
+    
+        /**
+         * This method asks the wizard to fix up the SimpleClassSelector to its
+         * liking.  The SimpleClassSelector invokes this method from its 
+         * createControl method and passes itself as the argument.
+         */
         public void fixupSelector(SimpleClassSelector selector);
     }
 }

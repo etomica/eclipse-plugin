@@ -45,7 +45,53 @@ public class SimpleClassSelector extends Composite {
     private Class[] baseClass;
     
 	private Class[] excludedClasses = new Class[0];
-    private Object[] extraChoices = new Class[0];
+    private Object[][] extraChoices = new Object[0][2];
+    
+    /**
+     * @param parent
+     * @param style
+     */
+    public SimpleClassSelector(Composite parent, int style, String name) {
+        super(parent, style);
+        
+        baseClass = new Class[0];
+        
+        initialize(name);
+        
+        setExcludedClasses(new Class[0]);
+        
+        categoryCombo.addModifyListener(new ModifyListener() {
+            public void modifyText(ModifyEvent e) {
+                objectName.setEnabled(getCategory() != Object.class);
+                rebuildClassList();
+            }
+        });
+        
+        classCombo.addModifyListener(new ModifyListener() {
+            public void modifyText(ModifyEvent e) {
+                int item = classCombo.getSelectionIndex();
+                if (item == -1) {
+                    return;
+                }
+                Object obj = getSelection();
+                Class selectedClass;
+                if (obj instanceof Class) {
+                    selectedClass = (Class)obj;
+                }
+                else {
+                    selectedClass = obj.getClass();
+                }
+                String str = selectedClass.getName();
+                EtomicaInfo info = EtomicaInfo.getInfo(selectedClass);
+                String longDesc = info.getDescription();
+                if (!str.equals(longDesc)) {
+                    str += ": \n"+longDesc;
+                }
+                classDescription.setText(str);
+                SimpleClassSelector.this.layout();
+            }
+        });
+    }
     
 	public Object createObject(Simulation sim, Object[] extraParameters) {
         int item = classCombo.getSelectionIndex();
@@ -151,52 +197,9 @@ public class SimpleClassSelector extends Composite {
         rebuildClassList();
     }
     
-	/**
-	 * @param parent
-	 * @param style
-	 */
-	public SimpleClassSelector(Composite parent, int style, String name) {
-		super(parent, style);
-		
-        baseClass = new Class[0];
-        
-		initialize(name);
-		
-		setExcludedClasses(new Class[0]);
-        
-        classCombo.addModifyListener(new ModifyListener() {
-            public void modifyText(ModifyEvent e) {
-                int item = classCombo.getSelectionIndex();
-                if (item == -1) {
-                    return;
-                }
-                Object obj = getSelection();
-                Class selectedClass;
-                if (obj instanceof Class) {
-                    selectedClass = (Class)obj;
-                }
-                else {
-                    selectedClass = obj.getClass();
-                }
-                String str = selectedClass.getName();
-                EtomicaInfo info = EtomicaInfo.getInfo(selectedClass);
-                String longDesc = info.getDescription();
-                if (!str.equals(longDesc)) {
-                    str += ": \n"+longDesc;
-                }
-                classDescription.setText(str);
-                SimpleClassSelector.this.layout();
-            }
-        });
-	}
-    
-    public void setExtraObjects(Object[] extraObjects) {
-        if (extraObjects == null) {
-            extraChoices = new Object[0];
-        }
-        else {
-            extraChoices = extraObjects;
-        }
+    public void addExtraObject(String displayName, Object extraObject) {
+        extraChoices = (Object[][])Arrays.addObject(extraChoices, new Object[]{displayName,extraObject});
+        // force reconstruction of combo boxes
         setExcludedClasses(excludedClasses);
     }
     
@@ -276,11 +279,14 @@ public class SimpleClassSelector extends Composite {
             // this is the signal that the user has
             // selected the Existing Objects
             for (int i=0; i<extraChoices.length; i++) {
-                Class extraClass = extraChoices[i].getClass();
-                EtomicaInfo info = EtomicaInfo.getInfo(extraClass);
-                String str = extraChoices[i].toString()+": "+info.getShortDescription();
+                String str = (String)extraChoices[i][0];
+                if (str == null) {
+                    Class extraClass = extraChoices[i][1].getClass();
+                    EtomicaInfo info = EtomicaInfo.getInfo(extraClass);
+                    str = extraChoices[i][1].toString()+": "+info.getShortDescription();
+                }
                 classCombo.add(str);
-                classMap.put(str, extraChoices[i]);
+                classMap.put(str, extraChoices[i][1]);
             }
             return;
         }

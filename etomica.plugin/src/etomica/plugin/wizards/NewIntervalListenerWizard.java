@@ -10,6 +10,7 @@ import etomica.action.PhaseAction;
 import etomica.action.SimulationAction;
 import etomica.data.DataPump;
 import etomica.data.DataSource;
+import etomica.data.meter.Meter;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntervalActionAdapter;
@@ -17,7 +18,6 @@ import etomica.nbr.list.PotentialMasterList;
 import etomica.plugin.wizards.NewObjectSimplePage.SimpleClassWizard;
 import etomica.simulation.DataStreamHeader;
 import etomica.simulation.Simulation;
-import etomica.util.Arrays;
 
 /**
  * This wizard allows the user to create a new IntegratorIntervalListener.  
@@ -55,32 +55,41 @@ public class NewIntervalListenerWizard extends Wizard implements SimpleClassWiza
         selector.addCategory("Simulation Action",SimulationAction.class);
         selector.setExcludedClasses(new Class[]{AtomAction.class,Activity.class});
         
-        IntegratorIntervalListener[] extras = new IntegratorIntervalListener[0];
         if (simulation.potentialMaster instanceof PotentialMasterList) {
-            extras = new IntegratorIntervalListener[]{((PotentialMasterList)simulation.potentialMaster).getNeighborManager()};
+            selector.addExtraObject("Neighbor Manager",
+                    ((PotentialMasterList)simulation.potentialMaster).getNeighborManager());
         }
         DataStreamHeader[] dataStreams = simulation.getDataStreams();
         for (int i=0; i<dataStreams.length; i++) {
-            boolean alreadyAdded = false;
             if (!(dataStreams[i].getClient() instanceof DataPump)) {
                 continue;
             }
+            boolean streamAlreadyAdded = false;
+            boolean listenerAlreadyAdded = false;
             IntegratorIntervalListener[] listeners = integrator.getIntervalListeners();
             for (int j=0; j<listeners.length; j++) {
                 if (listeners[j] instanceof IntervalActionAdapter) {
                     if (((IntervalActionAdapter)listeners[j]).getAction() == dataStreams[i].getClient()) {
-                        alreadyAdded = true;
-                        break;
+                        streamAlreadyAdded = true;
                     }
+                }
+                else if (listeners[j] == dataStreams[i].getDataSource()) {
+                    listenerAlreadyAdded = true;
                 }
             }
             
-            if (!alreadyAdded) {
-                IntervalActionAdapter adapter = new IntervalActionAdapter((DataPump)dataStreams[i].getClient());
-                extras = (IntegratorIntervalListener[])Arrays.addObject(extras,adapter);
+            if (!streamAlreadyAdded) {
+                DataSource dataSource = dataStreams[i].getDataSource();
+                String string = dataSource.getDataInfo().getLabel();
+                if (dataSource instanceof Meter) {
+                    string = ((Meter)dataSource).getName();
+                }
+                selector.addExtraObject(string+" stream",new IntervalActionAdapter((DataPump)dataStreams[i].getClient()));
+            }
+            if (!listenerAlreadyAdded && dataStreams[i].getDataSource() instanceof IntegratorIntervalListener) {
+                selector.addExtraObject(null,dataStreams[i].getDataSource());
             }
         }
-        selector.setExtraObjects(extras);
     }
 
     /**
