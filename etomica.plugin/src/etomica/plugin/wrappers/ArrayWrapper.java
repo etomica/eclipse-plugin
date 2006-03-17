@@ -21,7 +21,7 @@ public class ArrayWrapper extends PropertySourceWrapper {
 
     protected void generateDescriptors() {
         Object[] objArray = (Object[])object;
-       //Introspection to get array of all properties
+        //Introspection to get array of all properties
         descriptors= new PropertyDescriptor[objArray.length];
         for (int i=0; i<objArray.length; i++) {
             descriptors[i] = super.makeDescriptor(new Integer(i),((Object[])object)[i],object.getClass().getComponentType(),Integer.toString(i));

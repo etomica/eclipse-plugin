@@ -144,25 +144,6 @@ public class EtomicaEditorInnerPanel_visualonly extends Composite {
         actionsTree.setLayoutData(gridData2);
     }
 
-    public static void main(String[] args) {
-		/* Before this is run, be sure to set up the following in the launch configuration 
-		 * (Arguments->VM Arguments) for the correct SWT library path. 
-		 * The following is a windows example:
-		 * -Djava.library.path="installation_directory\plugins\org.eclipse.swt.win32_3.0.0\os\win32\x86"
-		 */
-		org.eclipse.swt.widgets.Display display = org.eclipse.swt.widgets.Display.getDefault();		
-		org.eclipse.swt.widgets.Shell shell = new org.eclipse.swt.widgets.Shell(display);
-		shell.setLayout(new org.eclipse.swt.layout.FillLayout());
-		shell.setSize(new org.eclipse.swt.graphics.Point(300,200));
-		EtomicaEditorInnerPanel_visualonly thisClass = new EtomicaEditorInnerPanel_visualonly(shell, org.eclipse.swt.SWT.NONE);
-		shell.open();
-		
-		while (!shell.isDisposed()) {
-			if (!display.readAndDispatch()) display.sleep ();
-		}
-		display.dispose();		
-	}
-
 	private void initialize() {
 		FillLayout fillLayout4 = new FillLayout();
 		createTabFolder();
@@ -170,4 +151,4 @@ public class EtomicaEditorInnerPanel_visualonly extends Composite {
 		fillLayout4.type = org.eclipse.swt.SWT.HORIZONTAL;
 		setSize(new org.eclipse.swt.graphics.Point(762,433));
 	}
-}  //  @jve:decl-index=0:visual-constraint="10,10"
+}

@@ -51,14 +51,14 @@ public class DefaultWrapper extends PropertySourceWrapper {
         return null;
     }
 
-    public void setPropertyValue(Object arg0, Object arg1) {
-        if (arg0 instanceof java.beans.PropertyDescriptor) {
-            setPropertyValue(arg0,arg1);
+    public void setPropertyValue(Object key, Object value) {
+        if (key instanceof java.beans.PropertyDescriptor) {
+            setPropertyValue(key,value);
             return;
         }
-        Field field = (Field)arg0;
+        Field field = (Field)key;
         try {
-            field.set(object,arg1);
+            field.set(object,value);
             if (etomicaEditor != null) {
                 etomicaEditor.markDirty();
             }
