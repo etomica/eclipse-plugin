@@ -90,11 +90,15 @@ public class IntegratorWrapper extends PropertySourceWrapper {
     }
     
     public EtomicaStatus getStatus() {
+        EtomicaStatus superStatus = super.getStatus();
+        if (superStatus.type == EtomicaStatus.ERROR) {
+            return superStatus;
+        }
         if (object instanceof IntegratorPhase) {
             if (((IntegratorPhase)object).getPhase() == null) {
-                return EtomicaStatus.ERROR;
+                return new EtomicaStatus("Integrator must have a Phase", EtomicaStatus.ERROR);
             }
         }
-        return EtomicaStatus.OK;
+        return superStatus;
     }
 }

@@ -15,10 +15,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.ui.internal.EditorActionBars;
 
 import etomica.etomica3D.OrientedObject;
 import etomica.plugin.EtomicaPlugin;
 import etomica.plugin.editors.listeners.EditorSelectionChangedListener;
+import etomica.plugin.editors.listeners.EtomicaStatusBarUpdater;
 import etomica.plugin.editors.listeners.OpenActionListener;
 import etomica.plugin.editors.listeners.RefreshItemSelectionListener;
 import etomica.plugin.editors.listeners.RemoveItemSelectionListener;
@@ -49,6 +51,7 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
 		super(parent, style);
 		
         etomicaEditor = editor;
+//        ((EditorActionBars)editor.getEditorSite().getActionBars()).getStatusLineManager().setErrorMessage("blah blah");
         
 		viewer = new TreeViewer( objectTree  );
 		viewer.setContentProvider(new SimulationViewContentProvider());
@@ -92,6 +95,9 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
         
         viewer.addSelectionChangedListener(new EditorSelectionChangedListener(openItem,removeItem,addItem,actionItem,editor));
         viewer.getTree().setMenu(viewMenu);
+
+        viewer.addSelectionChangedListener(new EtomicaStatusBarUpdater(
+                ((EditorActionBars)editor.getEditorSite().getActionBars()).getStatusLineManager()));
         
         actionsViewer = new TreeViewer(actionsTree);
         actionsViewer.setContentProvider(new ActionsViewContentProvider());
@@ -106,6 +112,7 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
         actionsViewer.getTree().setMenu(viewMenu);
         OpenActionListener openActionListener = new OpenActionListener();
         actionsViewer.addDoubleClickListener(openActionListener);
+        
 	}
 
 	public void setSimulation( Simulation simulation ) {
@@ -135,11 +142,11 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
 			
 			String FILESEP	= System.getProperty("file.separator");
 			urlstr = urlstr.replace( '/', FILESEP.charAt(0) );
-			System.out.println( "Etomica plugin is located at " + urlstr );
+//			System.out.println( "Etomica plugin is located at " + urlstr );
 			
 			// Add to search path
 			OrientedObject.appendToSearchPath( urlstr );
-			OrientedObject.appendToSearchPath( urlstr + FILESEP + "3dmodels" );
+//			OrientedObject.appendToSearchPath( urlstr + FILESEP + "3dmodels" );
 			
 
 			// Add runtime workspace too

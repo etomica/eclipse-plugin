@@ -65,12 +65,16 @@ public class DataSourceWrapper extends PropertySourceWrapper {
     }
     
     public EtomicaStatus getStatus() {
+        EtomicaStatus superStatus = super.getStatus();
+        if (superStatus.type == EtomicaStatus.ERROR) {
+            return superStatus;
+        }
         if (object instanceof Meter) {
             if (((Meter)object).getPhase() == null) {
-                return EtomicaStatus.ERROR;
+                return new EtomicaStatus("The DataSource requires a Phase",EtomicaStatus.ERROR);
             }
         }
-        return EtomicaStatus.OK;
+        return superStatus;
     }
     
     protected static final String DISPLAY_TABLE = "Table";

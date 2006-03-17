@@ -28,6 +28,7 @@ import etomica.atom.AtomFactoryHetero;
 import etomica.atom.AtomPositionDefinition;
 import etomica.atom.AtomSource;
 import etomica.atom.AtomType;
+import etomica.data.DataAccumulator;
 import etomica.data.DataPipeForked;
 import etomica.data.DataProcessor;
 import etomica.data.DataSink;
@@ -141,6 +142,9 @@ public class PropertySourceWrapper implements IPropertySource {
         else if (obj instanceof DataStreamHeader) {
             wrapper = new DataStreamWrapper((DataStreamHeader)obj,sim);
         }
+        else if (obj instanceof DataAccumulator) {
+            wrapper = new DataAccumulatorWrapper((DataAccumulator)obj,sim);
+        }
         else if (obj instanceof DataPipeForked) {
             wrapper = new DataForkWrapper((DataPipeForked)obj,sim);
         }
@@ -196,7 +200,8 @@ public class PropertySourceWrapper implements IPropertySource {
 
     /**
      * Returns the one of this source's properties as specified by the key.
-     * We use the java.beans.PropertyDescriptor as the key for the properties.
+     * We use the java.beans.PropertyDescriptor as the default key for the 
+     * properties.  Subclasses may override and use different types of keys.
      */
     public Object getPropertyValue(Object key) {
         java.beans.PropertyDescriptor pd = (java.beans.PropertyDescriptor)key;
@@ -219,7 +224,7 @@ public class PropertySourceWrapper implements IPropertySource {
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.views.properties.IPropertySource#isPropertySet(java.lang.Object)
 	 */
-	public boolean isPropertySet(Object arg0) {
+	public boolean isPropertySet(Object key) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -227,7 +232,7 @@ public class PropertySourceWrapper implements IPropertySource {
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.views.properties.IPropertySource#resetPropertyValue(java.lang.Object)
 	 */
-	public void resetPropertyValue(Object arg0) {
+	public void resetPropertyValue(Object key) {
 		// TODO Auto-generated method stub
 
 	}
@@ -235,15 +240,15 @@ public class PropertySourceWrapper implements IPropertySource {
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.views.properties.IPropertySource#setPropertyValue(java.lang.Object, java.lang.Object)
 	 */
-	public void setPropertyValue(Object arg0, Object arg1) {
-		java.beans.PropertyDescriptor pd = (java.beans.PropertyDescriptor)arg0;
+	public void setPropertyValue(Object key, Object value) {
+		java.beans.PropertyDescriptor pd = (java.beans.PropertyDescriptor)key;
 		Method setter = pd.getWriteMethod(); //method used to read value of property in this object
 		if(setter == null) return;
-        if (arg1 instanceof PropertySourceWrapper) {
-            arg1 = ((PropertySourceWrapper)arg1).getObject();
+        if (value instanceof PropertySourceWrapper) {
+            value = ((PropertySourceWrapper)value).getObject();
         }
 		try {
-			setter.invoke(object, new Object[] {arg1});
+			setter.invoke(object, new Object[] {value});
             if (etomicaEditor != null) {
                 etomicaEditor.markDirty();
             }
@@ -397,6 +402,9 @@ public class PropertySourceWrapper implements IPropertySource {
         else if (type == Phase.class && simulation != null) {
             pd = new ComboPropertyDescriptor(property, name, simulation.getPhases());
         }
+        else if (type == Integrator.class && simulation != null) {
+            pd = new ComboPropertyDescriptor(property, name, simulation.getIntegratorList().toArray());
+        }
         else if (simulation != null && (type == AtomPositionDefinition.class ||
                 type == Boundary.class || type == AtomFactory.class ||
                 type == DataSink.class || type == NeighborCriterion.class)) {
@@ -502,7 +510,7 @@ public class PropertySourceWrapper implements IPropertySource {
     }
     
     public EtomicaStatus getStatus() {
-        return EtomicaStatus.OK;
+        return EtomicaStatus.PEACHY;
     }
     
     protected Object object;
@@ -512,13 +520,4 @@ public class PropertySourceWrapper implements IPropertySource {
     protected Simulation simulation;
     protected EtomicaEditor etomicaEditor;
     
-    public static class EtomicaStatus extends EnumeratedType {
-        public EtomicaStatus(String label) {
-            super(label);
-        }
-
-        public static final EtomicaStatus OK = new EtomicaStatus("OK");
-        public static final EtomicaStatus WARNING = new EtomicaStatus("Warning");
-        public static final EtomicaStatus ERROR = new EtomicaStatus("Error");
-}
 }

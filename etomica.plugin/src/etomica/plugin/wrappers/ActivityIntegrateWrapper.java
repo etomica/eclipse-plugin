@@ -78,7 +78,19 @@ public class ActivityIntegrateWrapper extends PropertySourceWrapper {
         return integratorWrapper.addObjectClass(sim,newObjectClass,shell);
     }
     
+    public boolean canRemoveChild(Object obj) {
+        return integratorWrapper.canRemoveChild(obj);
+    }
+    
+    public boolean removeChild(Object obj) {
+        return integratorWrapper.removeChild(obj);
+    }
+    
     public EtomicaStatus getStatus() {
+        EtomicaStatus superStatus = super.getStatus();
+        if (superStatus.type != EtomicaStatus.OK) {
+            return superStatus;
+        }
         return integratorWrapper.getStatus();
     }
     
