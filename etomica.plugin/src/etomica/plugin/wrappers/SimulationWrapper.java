@@ -7,6 +7,7 @@ import etomica.action.Action;
 import etomica.action.activity.ActivityGroup;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.atom.Atom;
+import etomica.data.DataSource;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntervalActionAdapter;
@@ -46,10 +47,11 @@ public class SimulationWrapper extends PropertySourceWrapper {
         }
         if (obj instanceof DataStreamHeader) {
             Object client = ((DataStreamHeader)obj).getClient();
-            if (!removeDataStream(object,client)) {
+            DataSource dataSource = ((DataStreamHeader)obj).getDataSource();
+            if (!removeDataStream(object, client, dataSource)) {
                 System.out.println("couldn't find "+client+" in "+object);
             }
-            ((Simulation)object).unregister(((DataStreamHeader)obj).getDataSource(),client);
+            ((Simulation)object).unregister(dataSource,client);
             return true;
         }
         return false;
@@ -107,25 +109,29 @@ public class SimulationWrapper extends PropertySourceWrapper {
         return false;
     }
     
-    public boolean removeDataStream(Object obj, Object client) {
+    protected boolean removeDataStream(Object obj, Object client, DataSource dataSource) {
         if (obj instanceof Simulation) {
-            return removeDataStream(((Simulation)obj).getController(),client);
+            return removeDataStream(((Simulation)obj).getController(), client, dataSource);
         }
         if (obj instanceof ActivityGroup) {
             Action[] actions = ((ActivityGroup)obj).getAllActions();
             for (int i=0; i<actions.length; i++) {
-                if (removeDataStream(actions[i],client)) {
+                if (removeDataStream(actions[i], client, dataSource)) {
                     return true;
                 }
             }
         }
         else if (obj instanceof ActivityIntegrate) {
-            return removeDataStream(((ActivityIntegrate)obj).getIntegrator(),client);
+            return removeDataStream(((ActivityIntegrate)obj).getIntegrator(), client, dataSource);
         }
         else if (obj instanceof Integrator) {
             IntegratorIntervalListener[] listeners = ((Integrator)obj).getIntervalListeners();
             for (int i=0; i<listeners.length; i++) {
-                if (listeners[i] instanceof IntervalActionAdapter) {
+                if (listeners[i] == dataSource) {
+                    ((Integrator)obj).removeListener(listeners[i]);
+                    return true;
+                }
+                else if (listeners[i] instanceof IntervalActionAdapter) {
                     Action action = ((IntervalActionAdapter)listeners[i]).getAction();
                     if (action == client) {
                         ((Integrator)obj).removeListener(listeners[i]);
