@@ -223,6 +223,11 @@ public class SimpleClassSelector extends Composite {
         return false;
     }
     
+    public void addExcludedClass(Class newExcludedClass) {
+        excludedClasses = (Class[])Arrays.addObject(excludedClasses,newExcludedClass);
+        setExcludedClasses(excludedClasses);
+    }
+    
     public void setExcludedClasses(Class[] classes) {
         if (classes == null) {
             excludedClasses = new Class[0];

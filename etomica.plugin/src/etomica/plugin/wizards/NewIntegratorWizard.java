@@ -8,6 +8,8 @@ import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorManagerMC;
+import etomica.nbr.list.PotentialMasterList;
+import etomica.nbr.site.PotentialMasterSite;
 import etomica.plugin.wizards.NewObjectSimplePage.SimpleClassWizard;
 import etomica.simulation.Simulation;
 
@@ -36,9 +38,19 @@ public class NewIntegratorWizard extends Wizard implements SimpleClassWizard {
     public void fixupSelector(SimpleClassSelector selector) {
         selector.setBaseClass(Integrator.class);
         selector.addCategory("Integrator",Integrator.class);
-        selector.addCategory("IntegratorMD",IntegratorMD.class);
-        selector.addCategory("IntegratorMC",IntegratorMC.class);
         selector.addCategory("Integrator Manager",IntegratorManagerMC.class);
+        if (!(simulation.potentialMaster instanceof PotentialMasterSite)) {
+            selector.addCategory("IntegratorMD",IntegratorMD.class);
+        }
+        else {
+            selector.addExcludedClass(IntegratorMD.class);
+        }
+        if (!(simulation.potentialMaster instanceof PotentialMasterList)) {
+            selector.addCategory("IntegratorMC",IntegratorMC.class);
+        }
+        else {
+            selector.addExcludedClass(IntegratorMC.class);
+        }
     }
 
     /**
