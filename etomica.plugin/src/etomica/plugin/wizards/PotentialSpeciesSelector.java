@@ -9,8 +9,6 @@ import java.util.Iterator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -111,6 +109,14 @@ public class PotentialSpeciesSelector extends Composite {
     }
     
     /**
+     * Returns true if the user selected to use a hard potential
+     */
+    public boolean getPotentialIsHard() {
+        String str = potentialHardSoftCombo.getText();
+        return str.equals("Hard");
+    }
+    
+    /**
      * Returns true if the user selected to use a soft potential
      */
     public boolean getPotenialIsSoft() {
@@ -172,6 +178,7 @@ public class PotentialSpeciesSelector extends Composite {
         
         potentialHardSoftCombo.add("Hard");
         potentialHardSoftCombo.add("Soft");
+        potentialHardSoftCombo.add("Other");
         potentialHardSoftCombo.select(0); // hard
         
         truncatedCheckbox.setEnabled(false);
@@ -232,9 +239,13 @@ public class PotentialSpeciesSelector extends Composite {
         if (getPotenialIsSoft()) {
             hardSoftClass = PotentialSoft.class;
         }
-        else {
+        else if (getPotentialIsHard()) {
             hardSoftClass = PotentialHard.class;
         }
+        else {
+            hardSoftClass = Potential.class;
+        }
+
         Iterator iterator = potentials_from_registry.iterator(); 
         while(iterator.hasNext())
         {
@@ -246,6 +257,12 @@ public class PotentialSpeciesSelector extends Composite {
             }
             // pick potentials that implement hard/soft interface
             if (hardSoftClass.isAssignableFrom(potentialClass)) {
+                if (hardSoftClass == Potential.class &&
+                    (PotentialHard.class.isAssignableFrom(potentialClass) ||
+                     PotentialSoft.class.isAssignableFrom(potentialClass))) {
+                    // if looking for "other" skip hard and soft
+                    continue;
+                }
                 EtomicaInfo info = EtomicaInfo.getInfo(potentialClass);
                 String str = ClassDiscovery.chopClassName(potentialClass.getName())+": "+info.getShortDescription();
                 potentialCombo.add(str);
