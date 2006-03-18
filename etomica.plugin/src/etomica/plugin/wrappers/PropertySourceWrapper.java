@@ -46,6 +46,7 @@ import etomica.plugin.views.ComboClassPropertyDescriptor;
 import etomica.plugin.views.ComboPropertyDescriptor;
 import etomica.plugin.views.DecimalPropertyDescriptor;
 import etomica.plugin.views.IntegerPropertyDescriptor;
+import etomica.potential.Potential;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.DataStreamHeader;
@@ -109,6 +110,9 @@ public class PropertySourceWrapper implements IPropertySource {
         }
         else if (obj instanceof PotentialGroup) {
             wrapper = new PotentialGroupWrapper((PotentialGroup)obj,sim);
+        }
+        else if (obj instanceof Potential) {
+            wrapper = new PotentialWrapper((Potential)obj,sim);
         }
         else if (obj instanceof Phase) {
             wrapper = new PhaseWrapper((Phase)obj,sim);

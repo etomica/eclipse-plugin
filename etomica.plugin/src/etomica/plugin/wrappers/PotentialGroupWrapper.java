@@ -10,7 +10,7 @@ import etomica.potential.Potential;
 import etomica.potential.PotentialGroup;
 import etomica.simulation.Simulation;
 
-public class PotentialGroupWrapper extends PropertySourceWrapper {
+public class PotentialGroupWrapper extends PotentialWrapper {
 
     public PotentialGroupWrapper(PotentialGroup object, Simulation sim) {
         super(object,sim);
