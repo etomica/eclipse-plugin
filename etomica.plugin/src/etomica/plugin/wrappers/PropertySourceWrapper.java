@@ -54,6 +54,9 @@ import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.Vector;
 import etomica.species.Species;
+import etomica.units.Dimension;
+import etomica.units.Unit;
+import etomica.units.systems.UnitSystem;
 import etomica.util.Default;
 import etomica.util.EnumeratedType;
 
@@ -222,6 +225,22 @@ public class PropertySourceWrapper implements IPropertySource {
         if (value instanceof Vector) {
             return new VectorWrapper((Vector)value);
         }
+        if (value instanceof Double) {
+            Method dimensionGetter = null;
+            try {
+                dimensionGetter = object.getClass().getMethod(getter.getName()+"Dimension",new Class[0]);
+                Dimension dimension = (Dimension)dimensionGetter.invoke(object, args);
+                UnitSystem unitSystem = simulation.getDefaults().unitSystem;
+                Unit unit = dimension.getUnit(unitSystem);
+                value = new Double(unit.fromSim(((Double)value).doubleValue()));
+            }
+            catch (NoSuchMethodException ex) {
+            }
+            catch (IllegalAccessException ex) {
+            }
+            catch (InvocationTargetException ex) {
+            }
+        }
         return value;
     }
 
@@ -252,6 +271,23 @@ public class PropertySourceWrapper implements IPropertySource {
             value = ((PropertySourceWrapper)value).getObject();
         }
 		try {
+            if (value instanceof Double) {
+                Method dimensionGetter = null;
+                try {
+                    Method getter = pd.getReadMethod(); //method used to read value of property in this object
+                    dimensionGetter = object.getClass().getMethod(getter.getName()+"Dimension",new Class[0]);
+                    Dimension dimension = (Dimension)dimensionGetter.invoke(object, new Object[0]);
+                    UnitSystem unitSystem = simulation.getDefaults().unitSystem;
+                    Unit unit = dimension.getUnit(unitSystem);
+                    value = new Double(unit.toSim(((Double)value).doubleValue()));
+                }
+                catch (NoSuchMethodException ex) {
+                }
+                catch (IllegalAccessException ex) {
+                }
+                catch (InvocationTargetException ex) {
+                }
+            }
 			setter.invoke(object, new Object[] {value});
             if (etomicaEditor != null) {
                 etomicaEditor.markDirty();
@@ -340,7 +376,8 @@ public class PropertySourceWrapper implements IPropertySource {
         boolean getValue = false;
         if (simulation != null && (type == AtomPositionDefinition.class ||
                 type == Boundary.class || type == AtomFactory.class ||
-                type == DataSink.class || type == NeighborCriterion.class)) {
+                type == DataSink.class || type == NeighborCriterion.class ||
+                type == UnitSystem.class)) {
             getValue = true;
         }
         if (getValue) {
@@ -411,7 +448,8 @@ public class PropertySourceWrapper implements IPropertySource {
         }
         else if (simulation != null && (type == AtomPositionDefinition.class ||
                 type == Boundary.class || type == AtomFactory.class ||
-                type == DataSink.class || type == NeighborCriterion.class)) {
+                type == DataSink.class || type == NeighborCriterion.class ||
+                type == UnitSystem.class)) {
             Collection collection = Registry.queryWhoExtends(type);
             Iterator classIterator = collection.iterator();
             int length = collection.size();

@@ -51,6 +51,7 @@ public class Registry {
 		class_discovery.addClass( etomica.simulation.Simulation.class );
 		class_discovery.addClass( etomica.potential.PotentialMaster.class );
 		class_discovery.addClass( etomica.graphics.Device.class );
+        class_discovery.addClass( etomica.units.systems.UnitSystem.class );
 	}
 
 	private ClassDiscovery class_discovery = new ClassDiscovery();
