@@ -55,15 +55,22 @@ public class ActivityIntegrateWrapper extends PropertySourceWrapper {
         return null;
     }
 
-    public void setPropertyValue(Object key, Object arg1) {
+    public void setPropertyValue(Object key, Object value) {
         java.beans.PropertyDescriptor pd = (java.beans.PropertyDescriptor)key;
         for (int i=0; i<descriptors.length; i++) {
             if (pd == descriptors[i].getId()) {
+                //the first n descriptors are ours, the rest are the integrator's
                 if (i < nActivityDescriptors) {
-                    super.setPropertyValue(key,arg1);
+                    super.setPropertyValue(key,value);
                     return;
                 }
-                integratorWrapper.setPropertyValue(key,arg1);
+                integratorWrapper.setPropertyValue(key,value);
+                
+                // re-refresh the viewer since the integratorWrapper's attempt
+                // to do so would have failed.
+                if (etomicaEditor != null) {
+                    etomicaEditor.getInnerPanel().getViewer().refresh(this);
+                }
                 return;
             }
         }
