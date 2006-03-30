@@ -240,6 +240,10 @@ public class EtomicaEditor extends EditorPart {
             getSite().setSelectionProvider(innerPanel.getViewer());
         }
     }
+    
+    public EtomicaEditorInnerPanel getInnerPanel() {
+        return innerPanel;
+    }
 	
     public Simulation getSimulation() {
         return simulation;
