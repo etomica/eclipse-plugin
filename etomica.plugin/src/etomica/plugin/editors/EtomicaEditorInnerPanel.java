@@ -38,7 +38,7 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
 	/**
 	 * @return the ListViewer used to display data for this view.
 	 */
-	public TreeViewer getViewer() {
+	public EtomicaTreeViewer getViewer() {
 		return viewer;
 	}
 	
@@ -53,7 +53,7 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
         etomicaEditor = editor;
 //        ((EditorActionBars)editor.getEditorSite().getActionBars()).getStatusLineManager().setErrorMessage("blah blah");
         
-		viewer = new TreeViewer( objectTree  );
+		viewer = new EtomicaTreeViewer(objectTree);
 		viewer.setContentProvider(new SimulationViewContentProvider());
         EtomicaProblemsLabelDecorator pld = new EtomicaProblemsLabelDecorator();
         viewer.setLabelProvider(new DecoratingLabelProvider(new EtomicaLabelProvider(),pld));
@@ -162,16 +162,7 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
 		}
 	}
     
-    protected void refreshTree(TreeItem item) {
-        if (item == null) {
-            viewer.refresh();
-        }
-        else {
-            viewer.refresh(item.getData());
-        }
-    }
-
     private final EtomicaEditor etomicaEditor;
-    private TreeViewer viewer;
+    private EtomicaTreeViewer viewer;
     private TreeViewer actionsViewer;
 }
