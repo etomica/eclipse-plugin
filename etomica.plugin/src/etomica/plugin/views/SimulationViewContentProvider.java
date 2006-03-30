@@ -12,8 +12,11 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.action.activity.ActivityGroup;
+import etomica.atom.AtomAddressManager;
 import etomica.compatibility.FeatureSet;
 import etomica.data.DataInfo;
+import etomica.junit.AtomIndexManagerTest;
+import etomica.math.geometry.Polytope;
 import etomica.phase.Phase;
 import etomica.plugin.wrappers.ArrayWrapper;
 import etomica.plugin.wrappers.AtomTypeWrapper;
@@ -39,20 +42,21 @@ public class SimulationViewContentProvider implements ITreeContentProvider {
      * ActivityGroups are parents of actions/activities
      */
     public Object[] getChildren(Object wrappedElement) {
-        if (wrappedElement instanceof ArrayWrapper) {
+        PropertySourceWrapper wrapper = (PropertySourceWrapper)wrappedElement;
+        if (wrapper instanceof ArrayWrapper) {
             return ((ArrayWrapper)wrappedElement).getChildren();
         }
-        if (((PropertySourceWrapper)wrappedElement).getObject() instanceof ActivityGroup) {
+        if (wrapper.getObject() instanceof ActivityGroup) {
             // ActivityGroup has (get){Completed,Pending,Current}Action, which we don't care about
             // the wrapper will give us AllActions, which is what we want
-            return ((PropertySourceWrapper)wrappedElement).getChildren();
+            return wrapper.getChildren();
         }
-        IPropertyDescriptor[] descriptors = ((PropertySourceWrapper)wrappedElement).getPropertyDescriptors();
+        IPropertyDescriptor[] descriptors = wrapper.getPropertyDescriptors();
         int count = 0;
         PropertySourceWrapper[] childWrappers = new PropertySourceWrapper[0];
         for (int i=0; i<descriptors.length; i++) {
             Object pd = descriptors[i].getId();
-            Object value = ((PropertySourceWrapper)wrappedElement).getPropertyValue(pd);
+            Object value = wrapper.getPropertyValue(pd);
             if (value == null) {
                 continue;
             }
@@ -80,12 +84,12 @@ public class SimulationViewContentProvider implements ITreeContentProvider {
             if (excluded) {
                 continue;
             }
-            if ((wrappedElement instanceof AtomTypeWrapper)
+            if (wrapper instanceof AtomTypeWrapper
                     && (descriptors[i].getDisplayName().equals("parentType") ||
                             descriptors[i].getDisplayName().equals("species"))) {
                 continue;
             }
-            if (!(wrappedElement instanceof ArrayWrapper) &&
+            if (!(wrapper instanceof ArrayWrapper) &&
                     obj instanceof Phase) {
                 // we only want to show Phases at the top level
                 continue;
@@ -95,7 +99,7 @@ public class SimulationViewContentProvider implements ITreeContentProvider {
                 childWrappers[count-1] = (PropertySourceWrapper)value;
             }
             else {
-                childWrappers[count-1] = PropertySourceWrapper.makeWrapper(obj,simulation);
+                childWrappers[count-1] = PropertySourceWrapper.makeWrapper(obj,simulation,wrapper.getEditor());
             }
         }
         return childWrappers;
@@ -129,6 +133,6 @@ public class SimulationViewContentProvider implements ITreeContentProvider {
     
     private Simulation simulation;
     private static final Class[] excludedClasses = new Class[]{Number.class,Boolean.class,
-            Color.class,Vector.class,DataInfo.class,EnumeratedType.class,
-            String.class,FeatureSet.class,LinkedList.class,Space.class,Class.class};
+            Color.class,Vector.class,DataInfo.class,EnumeratedType.class,AtomAddressManager.class,
+            String.class,FeatureSet.class,LinkedList.class,Space.class,Polytope.class,Class.class};
 }

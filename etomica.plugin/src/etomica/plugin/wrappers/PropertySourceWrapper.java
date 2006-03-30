@@ -189,6 +189,10 @@ public class PropertySourceWrapper implements IPropertySource {
         etomicaEditor = editor;
     }
     
+    public EtomicaEditor getEditor() {
+        return etomicaEditor;
+    }
+    
 	/**
 	 * @return the wrapped object
 	 */
@@ -209,6 +213,8 @@ public class PropertySourceWrapper implements IPropertySource {
      * Returns the one of this source's properties as specified by the key.
      * We use the java.beans.PropertyDescriptor as the default key for the 
      * properties.  Subclasses may override and use different types of keys.
+     * If the property is a double and the object's class defines the dimension
+     * the value is converted to the current unit system.
      */
     public Object getPropertyValue(Object key) {
         java.beans.PropertyDescriptor pd = (java.beans.PropertyDescriptor)key;
@@ -226,20 +232,7 @@ public class PropertySourceWrapper implements IPropertySource {
             return new VectorWrapper((Vector)value);
         }
         if (value instanceof Double) {
-            Method dimensionGetter = null;
-            try {
-                dimensionGetter = object.getClass().getMethod(getter.getName()+"Dimension",new Class[0]);
-                Dimension dimension = (Dimension)dimensionGetter.invoke(object, args);
-                UnitSystem unitSystem = simulation.getDefaults().unitSystem;
-                Unit unit = dimension.getUnit(unitSystem);
-                value = new Double(unit.fromSim(((Double)value).doubleValue()));
-            }
-            catch (NoSuchMethodException ex) {
-            }
-            catch (IllegalAccessException ex) {
-            }
-            catch (InvocationTargetException ex) {
-            }
+            value = getDisplayValue((Double)value, pd.getReadMethod().getName());
         }
         return value;
     }
@@ -270,34 +263,69 @@ public class PropertySourceWrapper implements IPropertySource {
         if (value instanceof PropertySourceWrapper) {
             value = ((PropertySourceWrapper)value).getObject();
         }
-		try {
-            if (value instanceof Double) {
-                Method dimensionGetter = null;
-                try {
-                    Method getter = pd.getReadMethod(); //method used to read value of property in this object
-                    dimensionGetter = object.getClass().getMethod(getter.getName()+"Dimension",new Class[0]);
-                    Dimension dimension = (Dimension)dimensionGetter.invoke(object, new Object[0]);
-                    UnitSystem unitSystem = simulation.getDefaults().unitSystem;
-                    Unit unit = dimension.getUnit(unitSystem);
-                    value = new Double(unit.toSim(((Double)value).doubleValue()));
-                }
-                catch (NoSuchMethodException ex) {
-                }
-                catch (IllegalAccessException ex) {
-                }
-                catch (InvocationTargetException ex) {
-                }
-            }
+        if (value instanceof Double) {
+            value = getSimValue((Double)value, pd.getReadMethod().getName());
+        }
+        try {
 			setter.invoke(object, new Object[] {value});
-            if (etomicaEditor != null) {
+			if (etomicaEditor != null) {
                 etomicaEditor.markDirty();
+                etomicaEditor.getInnerPanel().getViewer().refresh(this);
             }
 		}
-		catch(IllegalAccessException ex) {error("Cannot set value", ex);}
-		catch(InvocationTargetException ex) {error("Cannot set value", ex);}
+		catch(IllegalAccessException ex) {}  //unlikely
+		catch(InvocationTargetException ex) {}  //maybe
 	}
 	
-	/**
+    /**
+     * Probes the wrapped object for the appropriate unit (from the simulation
+     * unit system) for the given property.  If no suitable unit can be found
+     * (probably because the object's class does not implement getFooDimension)
+     * null is returned.
+     * @param getterName the name of the getter associated with the property of 
+     * interest (for "temperature", getterName would be "getTemperature")
+     */
+	protected Unit getPropertyUnit(String getterName) {
+        try {
+            Method dimensionGetter = object.getClass().getMethod(getterName+"Dimension",new Class[0]);
+            Dimension dimension = (Dimension)dimensionGetter.invoke(object, new Object[0]);
+            UnitSystem unitSystem = simulation.getDefaults().unitSystem;
+            return dimension.getUnit(unitSystem);
+        }
+        catch (NoSuchMethodException ex) {} //likely
+        catch (InvocationTargetException ex) {} //unlikely
+        catch (IllegalAccessException ex) {} //unlikely
+        return null;
+    }
+    
+    /**
+     * If possible, converts the given value to simulation units
+     * @param getterName the name of the getter associated with the property of 
+     * interest (for "temperature", getterName would be "getTemperature")
+     */
+    protected Double getSimValue(Double value, String getterName) {
+        Unit unit = getPropertyUnit(getterName);
+        if (unit != null) {
+            value = new Double(unit.toSim(value.doubleValue()));
+        }
+        return value;
+    }
+
+    /**
+     * If possible, converts the given value from simulation units to 
+     * the appropriate units for display.
+     * @param getterName the name of the getter associated with the property of 
+     * interest (for "temperature", getterName would be "getTemperature")
+     */
+    protected Double getDisplayValue(Double value, String getterName) {
+        Unit unit = getPropertyUnit(getterName);
+        if (unit != null) {
+            value = new Double(unit.fromSim(value.doubleValue()));
+        }
+        return value;
+    }
+    
+    /**
 	 * toString for the wrapper is just the toString for the wrapped object.
 	 * This ensures the object's label is displayed when in views other than
 	 * the PropertySheet.

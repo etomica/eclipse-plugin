@@ -42,6 +42,9 @@ public class DefaultWrapper extends PropertySourceWrapper {
             if (value != null && value.getClass().isArray()) {
                 return PropertySourceWrapper.makeWrapper(value, simulation, etomicaEditor);
             }
+            if (value instanceof Double) {
+                value = getDisplayValue((Double)value, "get"+field.getName().substring(0,1).toUpperCase()+field.getName().substring(1));
+            }
             return value;
         }
         catch (IllegalAccessException e) {
@@ -53,10 +56,13 @@ public class DefaultWrapper extends PropertySourceWrapper {
 
     public void setPropertyValue(Object key, Object value) {
         if (key instanceof java.beans.PropertyDescriptor) {
-            setPropertyValue(key,value);
+            super.setPropertyValue(key,value);
             return;
         }
         Field field = (Field)key;
+        if (value instanceof Double) {
+            value = getSimValue((Double)value, "get"+field.getName().substring(0,1).toUpperCase()+field.getName().substring(1));
+        }
         try {
             field.set(object,value);
             if (etomicaEditor != null) {
