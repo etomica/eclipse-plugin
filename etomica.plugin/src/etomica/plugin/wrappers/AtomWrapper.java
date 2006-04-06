@@ -59,7 +59,7 @@ public class AtomWrapper extends PropertySourceWrapper {
             child = ((PropertySourceWrapper)child).getObject();
         }
         if (child instanceof Atom && ((Atom)child).node.parentSpeciesAgent() == object) {
-            ((Atom)child).node.setParent((Atom)null);
+            ((Atom)child).node.setParent(null);
             return true;
         }
         return false;

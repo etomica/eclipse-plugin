@@ -6,7 +6,6 @@ import org.eclipse.swt.widgets.Shell;
 import etomica.action.Action;
 import etomica.action.activity.ActivityGroup;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.Atom;
 import etomica.data.DataSource;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalListener;
@@ -39,7 +38,7 @@ public class SimulationWrapper extends PropertySourceWrapper {
             obj = ((PropertySourceWrapper)obj).getObject();
         }
         if (obj instanceof Phase) {
-            ((Phase)obj).getSpeciesMaster().node.setParent((Atom)null);
+            ((Phase)obj).getSpeciesMaster().node.setParent(null);
             return true;
         }
         if (obj instanceof Species) {
