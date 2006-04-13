@@ -3,16 +3,13 @@ package etomica.plugin.wizards;
 import org.eclipse.jface.wizard.Wizard;
 
 import etomica.atom.AtomType;
-import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.nbr.CriterionMolecular;
 import etomica.nbr.CriterionSimple;
-import etomica.nbr.CriterionSpecies;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.Potential;
 import etomica.potential.Potential2;
 import etomica.potential.PotentialGroup;
 import etomica.simulation.Simulation;
-import etomica.species.Species;
 
 /**
  * This is a sample new wizard. Its role is to create a new file 
@@ -59,19 +56,15 @@ public class NewInterPotential extends Wizard {
 	  	
         if (simulation.potentialMaster instanceof PotentialMasterList) {
             if (potential instanceof Potential2) {
-                AtomType type0 = types[0];
-                AtomType type1 = types[1];
                 CriterionSimple nbrCriterion = new CriterionSimple(simulation,potential.getRange(),
                         ((PotentialMasterList)simulation.potentialMaster).getRange());
                 CriterionMolecular criterion = new CriterionMolecular(nbrCriterion);
                 criterion.setIntraMolecular(false);
                 ((Potential2)potential).setCriterion(criterion);
-                ((PotentialMasterList)simulation.potentialMaster).getNeighborManager().addCriterion(nbrCriterion,
-                        new AtomType[]{type0,type1});
             }
         }
         
-        potentialGroup.addPotential(potential,types,simulation.potentialMaster);
+        potentialGroup.addPotential(potential,types);
         success = true;
         
         return true;

@@ -2,7 +2,6 @@ package etomica.plugin.wizards;
 
 import org.eclipse.jface.wizard.Wizard;
 
-import etomica.atom.AtomType;
 import etomica.nbr.CriterionSimple;
 import etomica.nbr.CriterionSpecies;
 import etomica.nbr.list.PotentialMasterList;
@@ -61,8 +60,6 @@ public class NewSpeciesPotential extends Wizard {
                         ((PotentialMasterList)potentialMaster).getRange());
                 CriterionSpecies criterion = new CriterionSpecies(nbrCriterion, species0, species1);
                 ((Potential2)potential).setCriterion(criterion);
-                ((PotentialMasterList)potentialMaster).getNeighborManager().addCriterion(nbrCriterion,
-                        new AtomType[]{species0.getFactory().getType(),species1.getFactory().getType()});
             }
         }
         potentialMaster.addPotential(potential,speciesArray);
