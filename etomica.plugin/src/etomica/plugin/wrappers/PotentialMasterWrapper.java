@@ -60,34 +60,4 @@ public class PotentialMasterWrapper extends PropertySourceWrapper {
         }
         return false;
     }
-
-    public Action[] getActions() {
-        if (object instanceof PotentialMasterNbr) {
-            UpdateTypeList updateTypeList = new UpdateTypeList((PotentialMasterNbr)object,simulation);
-            return new Action[]{updateTypeList};
-        }
-        return new Action[0];
-    }
-    
-    private static class UpdateTypeList implements Action {
-        public UpdateTypeList(PotentialMasterNbr potentialMasterNbr, Simulation simulation) {
-            potentialMaster = potentialMasterNbr;
-            sim = simulation;
-        }
-
-        public String getLabel() {
-            return "Update Type List";
-        }
-        
-        public void actionPerformed() {
-            Phase[] phases = sim.getPhases();
-            for (int i=0; i<phases.length; i++) {
-                potentialMaster.updateTypeList(phases[i]);
-            }
-        }
-        
-        private final PotentialMasterNbr potentialMaster;
-        private final Simulation sim;
-    }
-
 }
