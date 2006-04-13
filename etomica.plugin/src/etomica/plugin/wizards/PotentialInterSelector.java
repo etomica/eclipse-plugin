@@ -58,7 +58,7 @@ public class PotentialInterSelector extends Composite {
 		if ( potentialClass!=null )
 		{
             if (potentialClass == etomica.potential.PotentialGroup.class) {
-                return new PotentialGroup(2,simulation.space);
+                return simulation.potentialMaster.makePotentialGroup(2);
             }
 			try {
                 Constructor constructor = potentialClass.getDeclaredConstructor(new Class[]{Simulation.class});

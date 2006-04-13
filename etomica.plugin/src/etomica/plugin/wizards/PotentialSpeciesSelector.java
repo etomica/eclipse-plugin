@@ -24,7 +24,6 @@ import etomica.plugin.Registry;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential;
 import etomica.potential.Potential2SoftSpherical;
-import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialHard;
 import etomica.potential.PotentialSoft;
 import etomica.simulation.Simulation;
@@ -56,7 +55,7 @@ public class PotentialSpeciesSelector extends Composite {
 		if ( potentialClass!=null )
 		{
             if (potentialClass == etomica.potential.PotentialGroup.class) {
-                return new PotentialGroup(getPotenialNumBody(),simulation.space);
+                return simulation.potentialMaster.makePotentialGroup(getPotenialNumBody());
             }
             Potential potential = null;
             Constructor[] constructors = potentialClass.getDeclaredConstructors();
