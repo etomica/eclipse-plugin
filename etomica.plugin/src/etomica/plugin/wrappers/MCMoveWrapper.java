@@ -2,7 +2,7 @@ package etomica.plugin.wrappers;
 
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
-import etomica.integrator.MCMove;
+import etomica.integrator.mcmove.MCMove;
 import etomica.simulation.Simulation;
 
 public class MCMoveWrapper extends PropertySourceWrapper {

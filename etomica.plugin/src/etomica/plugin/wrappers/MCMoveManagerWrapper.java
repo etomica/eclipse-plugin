@@ -3,7 +3,7 @@ package etomica.plugin.wrappers;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
 
-import etomica.integrator.MCMove;
+import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.plugin.wizards.NewMCMoveWizard;
 import etomica.simulation.Simulation;

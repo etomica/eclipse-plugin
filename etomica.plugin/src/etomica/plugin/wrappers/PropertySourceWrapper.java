@@ -35,7 +35,7 @@ import etomica.data.DataSink;
 import etomica.data.DataSource;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.MCMove;
+import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.nbr.NeighborCriterion;
 import etomica.phase.Phase;

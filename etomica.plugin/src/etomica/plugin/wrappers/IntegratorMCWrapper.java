@@ -1,7 +1,7 @@
 package etomica.plugin.wrappers;
 
 import etomica.integrator.IntegratorMC;
-import etomica.integrator.MCMove;
+import etomica.integrator.mcmove.MCMove;
 import etomica.simulation.Simulation;
 
 public class IntegratorMCWrapper extends IntegratorWrapper {

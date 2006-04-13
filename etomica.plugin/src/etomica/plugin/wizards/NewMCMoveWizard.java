@@ -2,7 +2,7 @@ package etomica.plugin.wizards;
 
 import org.eclipse.jface.wizard.Wizard;
 
-import etomica.integrator.MCMove;
+import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.plugin.wizards.NewObjectSimplePage.SimpleClassWizard;
 import etomica.simulation.Simulation;
