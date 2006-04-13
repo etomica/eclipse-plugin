@@ -57,6 +57,7 @@ import etomica.species.Species;
 import etomica.units.Dimension;
 import etomica.units.Unit;
 import etomica.units.systems.UnitSystem;
+import etomica.util.Arrays;
 import etomica.util.Default;
 import etomica.util.EnumeratedType;
 
@@ -266,6 +267,7 @@ public class PropertySourceWrapper implements IPropertySource {
         if (value instanceof Double) {
             value = getSimValue((Double)value, pd.getReadMethod().getName());
         }
+        
         try {
 			setter.invoke(object, new Object[] {value});
 			if (etomicaEditor != null) {
@@ -402,10 +404,10 @@ public class PropertySourceWrapper implements IPropertySource {
         // value should be the selected item in the list of choices, so retrieve
         // it now
         boolean getValue = false;
-        if (simulation != null && (type == AtomPositionDefinition.class ||
-                type == Boundary.class || type == AtomFactory.class ||
-                type == DataSink.class || type == NeighborCriterion.class ||
-                type == UnitSystem.class)) {
+        if (simulation != null && (AtomPositionDefinition.class.isAssignableFrom(type) ||
+                Boundary.class.isAssignableFrom(type) || AtomFactory.class.isAssignableFrom(type) ||
+                DataSink.class.isAssignableFrom(type) || NeighborCriterion.class.isAssignableFrom(type) ||
+                UnitSystem.class.isAssignableFrom(type))) {
             getValue = true;
         }
         if (getValue) {
@@ -465,34 +467,50 @@ public class PropertySourceWrapper implements IPropertySource {
                 pd = new ComboPropertyDescriptor(property,name,choices);
             }
 		}
-		else if(String.class.isAssignableFrom(type)) {
+		else if(String.class == type) {
 			pd = new TextPropertyDescriptor(property, name);
 		}
-        else if (type == Phase.class && simulation != null) {
-            pd = new ComboPropertyDescriptor(property, name, simulation.getPhases());
+        else if (Phase.class.isAssignableFrom(type) && simulation != null) {
+            Phase[] simPhases = simulation.getPhases();
+            Phase[] phases = new Phase[0];
+            for (int i=0; i<simPhases.length; i++) {
+                if (type.isInstance(simPhases[i])) {
+                    phases = (Phase[])Arrays.addObject(phases, simPhases[i]);
+                }
+            }
+            pd = new ComboPropertyDescriptor(property, name, phases);
         }
         else if (type == Integrator.class && simulation != null) {
-            pd = new ComboPropertyDescriptor(property, name, simulation.getIntegratorList().toArray());
+            Iterator integratorIterator = simulation.getIntegratorList().iterator();
+            Object[] integrators = new Object[0];
+            while (integratorIterator.hasNext()) {
+                Integrator integrator = (Integrator)integratorIterator.next();
+                if (type.isInstance(integrator)) {
+                    integrators = Arrays.addObject(integrators, integrator);
+                }
+            }
+            pd = new ComboPropertyDescriptor(property, name, integrators);
         }
-        else if (simulation != null && (type == AtomPositionDefinition.class ||
-                type == Boundary.class || type == AtomFactory.class ||
-                type == DataSink.class || type == NeighborCriterion.class ||
-                type == UnitSystem.class)) {
+        else if (simulation != null && (AtomPositionDefinition.class.isAssignableFrom(type) ||
+                Boundary.class.isAssignableFrom(type) || AtomFactory.class.isAssignableFrom(type) ||
+                DataSink.class.isAssignableFrom(type) || NeighborCriterion.class.isAssignableFrom(type) ||
+                UnitSystem.class.isAssignableFrom(type))) {
             Collection collection = Registry.queryWhoExtends(type);
             Iterator classIterator = collection.iterator();
-            int length = collection.size();
+            Object[] choices;
             if (value != null) {
-                length++;
+                choices = new Object[]{value};
             }
-            Object[] classes = new Object[length];
-            int i = 0;
-            if (value != null) {
-                classes[i++] = value;
+            else {
+                choices = new Object[0];
             }
             while (classIterator.hasNext()) {
-                classes[i++] = classIterator.next();
+                Class thisClass = (Class)classIterator.next();
+                if (type.isAssignableFrom(thisClass)) {
+                    choices = Arrays.addObject(choices,thisClass);
+                }
             }
-            pd = new ComboClassPropertyDescriptor(property, name, classes, new Object[]{simulation});
+            pd = new ComboClassPropertyDescriptor(property, name, choices, new Object[]{simulation});
         }
 		if (pd == null) {
 			pd = new org.eclipse.ui.views.properties.PropertyDescriptor(property, name);
