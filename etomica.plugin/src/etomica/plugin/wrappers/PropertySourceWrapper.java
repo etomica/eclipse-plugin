@@ -480,7 +480,7 @@ public class PropertySourceWrapper implements IPropertySource {
             }
             pd = new ComboPropertyDescriptor(property, name, phases);
         }
-        else if (type == Integrator.class && simulation != null) {
+        else if (Integrator.class.isAssignableFrom(type) && simulation != null) {
             Iterator integratorIterator = simulation.getIntegratorList().iterator();
             Object[] integrators = new Object[0];
             while (integratorIterator.hasNext()) {
