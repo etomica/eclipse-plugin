@@ -52,7 +52,7 @@ public class DataPlotView extends ViewPart implements ViewRefreshable {
             refresher = null;
         }
         displayPlot.getDataSet().reset();
-        pump = new DataPump(newDataSource, displayPlot.getDataSet());
+        pump = new DataPump(newDataSource, displayPlot.getDataSet().makeDataSink());
         refresher = new Refresher(pump, displayPlot.getPlot());
         refresher.start();
         toggleUpdateAction.setRefresher(refresher);

@@ -24,7 +24,7 @@ public class DataTableViewContentProvider implements IStructuredContentProvider 
 
     public DataTableViewContentProvider(DataSource dataSource) {
         dataSinkTable = new DataSinkTable();
-        pump = new DataPump(dataSource,dataSinkTable);
+        pump = new DataPump(dataSource,dataSinkTable.makeDataSink());
     }
     
     public DataSinkTable getDataSinkTable() {
@@ -36,7 +36,7 @@ public class DataTableViewContentProvider implements IStructuredContentProvider 
             return new Object[0];
         }
         pump.actionPerformed();
-        int dataColumnCount = dataSinkTable.getColumnCount();
+        int dataColumnCount = dataSinkTable.getDataCount();
         Table table = viewer.getTable();
         int tableColumnCount = viewer.getTable().getColumnCount();
         if (tableColumnCount != dataColumnCount+1) {
@@ -48,7 +48,7 @@ public class DataTableViewContentProvider implements IStructuredContentProvider 
                 TableColumn tableColumn = new TableColumn(table, SWT.NULL);
                 tableColumn.setWidth(20);
                 if (tableColumnCount > 0) {
-                    tableColumn.setText(dataSinkTable.getColumn(tableColumnCount-1).getHeading());
+                    tableColumn.setText(dataSinkTable.getDataInfo(tableColumnCount-1).getLabel());
                 }
                 tableColumnCount++;
             }

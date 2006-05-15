@@ -5,7 +5,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 
 import etomica.data.DataSinkTable;
-import etomica.data.types.DataTable;
+import etomica.data.types.DataDoubleArray;
 
 /**
  * Provides table elements for each row objects and column number for a 
@@ -38,10 +38,10 @@ public class DataTableViewLabelProvider extends LabelProvider implements
         if (columnIndex == 0) {
             return dataSinkTable.getRowHeader(((Integer)element).intValue());
         }
-        if (columnIndex > dataSinkTable.getColumnCount()) {
+        if (columnIndex > dataSinkTable.getDataCount()) {
             return null;
         }
-        DataTable.Column column = dataSinkTable.getColumn(columnIndex-1);
+        DataDoubleArray column = (DataDoubleArray)dataSinkTable.getData(columnIndex-1);
         int i = ((Integer)element).intValue();
         double[] x = column.getData();
         if (i > x.length-1) {
