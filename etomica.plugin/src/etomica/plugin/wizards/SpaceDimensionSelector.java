@@ -65,7 +65,7 @@ public class SpaceDimensionSelector extends Composite {
 			}
 			return null;//new Simulation();
 		}
-		// It's a stock one
+		// It's not a stock one
 		Class spaceClass = (Class)spacemap.get(space_list.getText());
 		Space space = null;
 		try {
@@ -111,7 +111,7 @@ public class SpaceDimensionSelector extends Composite {
             e.printStackTrace();
             return null;
         }
-		return new Simulation( space, true, pot );
+		return new Simulation(space, true, pot);
 	}
 	
 	
