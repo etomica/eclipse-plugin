@@ -1,10 +1,16 @@
 package etomica.plugin.preferences;
 
-import org.eclipse.jface.preference.*;
-import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.eclipse.ui.IWorkbench;
-import etomica.plugin.EtomicaPlugin;
+import org.eclipse.jface.preference.BooleanFieldEditor;
+import org.eclipse.jface.preference.DirectoryFieldEditor;
+import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.FileFieldEditor;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.RadioGroupFieldEditor;
+import org.eclipse.jface.preference.StringFieldEditor;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPreferencePage;
+
+import etomica.plugin.EtomicaPlugin;
 
 /**
  * This class represents a preference page that
@@ -19,8 +25,6 @@ import org.eclipse.jface.preference.IPreferenceStore;
  * the main plug-in class. That way, preferences can
  * be accessed directly via the preference store.
  */
-
-
 public class EtomicaPreferencePage
 	extends FieldEditorPreferencePage
 	implements IWorkbenchPreferencePage {
@@ -35,9 +39,12 @@ public class EtomicaPreferencePage
 		setDescription("A demonstration of a preference page implementation");
 		initializeDefaults();
 	}
-/**
- * Sets the default values of the preferences.
- */
+    
+	/**
+	 * Sets the default values of the preferences.
+     * 
+     * This is handled for real prefs in PreferencesInitializer
+	 */
 	private void initializeDefaults() {
 		IPreferenceStore store = getPreferenceStore();
 		store.setDefault(P_BOOLEAN, true);
@@ -45,13 +52,12 @@ public class EtomicaPreferencePage
 		store.setDefault(P_STRING, "Default value");
 	}
 	
-/**
- * Creates the field editors. Field editors are abstractions of
- * the common GUI blocks needed to manipulate various types
- * of preferences. Each field editor knows how to save and
- * restore itself.
- */
-
+	/**
+	 * Creates the field editors. Field editors are abstractions of
+	 * the common GUI blocks needed to manipulate various types
+	 * of preferences. Each field editor knows how to save and
+	 * restore itself.
+	 */
 	public void createFieldEditors() {
 		addField(new DirectoryFieldEditor(P_PATH, 
 				"&Directory preference:", getFieldEditorParent()));
@@ -70,6 +76,9 @@ public class EtomicaPreferencePage
 		}, getFieldEditorParent()));
 		addField(
 			new StringFieldEditor(P_STRING, "A &text preference:", getFieldEditorParent()));
+        
+        //and now for real
+        addField(new FileFieldEditor(PreferencesInitializer.P_RASMOL_PATH, "Path to rasmol", getFieldEditorParent()));
 	}
 	
 	public void init(IWorkbench workbench) {

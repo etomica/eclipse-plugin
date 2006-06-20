@@ -260,5 +260,9 @@
             class="etomica.plugin.persistence.EtomicaDocumentProvider"
             id="etomica.plugin.persistence.EtomicaDocumentProvider"/>
    </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="etomica.plugin.preferences.PreferencesInitializer"/>
+   </extension>
 
 </plugin>

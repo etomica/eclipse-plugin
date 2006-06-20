@@ -1,18 +1,22 @@
 package etomica.plugin.wrappers;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.internal.ExceptionHandler;
 
 import etomica.action.Action;
+import etomica.action.PDBWriter;
 import etomica.action.PhaseActionAdapter;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.config.ConfigurationSequential;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.phase.Phase;
-import etomica.plugin.editors.EtomicaEditor;
+import etomica.plugin.EtomicaPlugin;
 import etomica.plugin.views.ConfigurationView;
 import etomica.plugin.views.ConfigurationViewDP;
 import etomica.plugin.views.PhaseView;
@@ -39,7 +43,7 @@ public class PhaseWrapper extends PropertySourceWrapper {
     }
     
     public String[] getOpenViews() {
-        return new String[]{CONFIGURATION_OSG, CONFIGURATION_DP, PHASE};
+        return new String[]{CONFIGURATION_OSG, CONFIGURATION_DP, CONFIGURATION_RASMOL, PHASE};
     }
 
     public boolean open(String viewName, IWorkbenchPage page, Shell shell) {
@@ -53,6 +57,40 @@ public class PhaseWrapper extends PropertySourceWrapper {
                 ConfigurationViewDP view = (ConfigurationViewDP)page.showView("etomica.plugin.views.ConfigurationViewDP",null,IWorkbenchPage.VIEW_VISIBLE);
                 view.setPhase((Phase)object);
                 return true;
+            }
+            else if (viewName == CONFIGURATION_RASMOL) {
+                try {
+                    
+                    final String rasmolPath = EtomicaPlugin.getDefault().getPreferenceStore().getString("rasmolPath");
+                    PDBWriter pdbWriter = new PDBWriter((Phase)object);
+                    final File pdbFile = File.createTempFile("etomica",".pdb");
+                    pdbWriter.setFile(pdbFile);
+                    pdbWriter.actionPerformed();
+                    final File scrFile = File.createTempFile("etomica",".scr");
+                    pdbWriter.setFile(scrFile);
+                    pdbWriter.writeRasmolScript();
+                    Thread thread = new Thread(new Runnable() {
+                    
+                        public void run() {
+                            try {
+                                Process proc = Runtime.getRuntime().exec(new String[]{"xterm", "-e",rasmolPath, pdbFile.getAbsolutePath(),"-script",scrFile.getAbsolutePath()});
+                                proc.waitFor();
+                            }
+                            catch (IOException e) {
+                                ExceptionHandler.getInstance().handleException(e);
+                            }
+                            catch (InterruptedException e) {
+                            }
+                            pdbFile.delete();
+                            scrFile.delete();
+                        }
+                    
+                    });
+                    thread.start();
+                }
+                catch (IOException e) {
+                    ExceptionHandler.getInstance().handleException(e);
+                }
             }
             else if (viewName == PHASE) {
                 PhaseView view = (PhaseView)page.showView("etomica.plugin.views.PhaseView",null,IWorkbenchPage.VIEW_VISIBLE);
@@ -68,6 +106,7 @@ public class PhaseWrapper extends PropertySourceWrapper {
     
     protected static final String CONFIGURATION_OSG = "ConfigurationOSG";
     protected static final String CONFIGURATION_DP = "ConfigurationDisplayPhase";
+    protected static final String CONFIGURATION_RASMOL = "ConfigurationRasmol";
     protected static final String PHASE ="Phase";
 
     private static class MakeMolecules extends PhaseActionAdapter {
