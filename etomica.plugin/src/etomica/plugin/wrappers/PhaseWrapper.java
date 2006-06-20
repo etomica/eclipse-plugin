@@ -73,7 +73,13 @@ public class PhaseWrapper extends PropertySourceWrapper {
                     
                         public void run() {
                             try {
-                                Process proc = Runtime.getRuntime().exec(new String[]{"xterm", "-e",rasmolPath, pdbFile.getAbsolutePath(),"-script",scrFile.getAbsolutePath()});
+                                Process proc;
+                                if (System.getProperty("os.name").toUpperCase().indexOf("WINDOWS") != -1) {
+                                    proc = Runtime.getRuntime().exec(new String[]{rasmolPath, pdbFile.getAbsolutePath(),"-script",scrFile.getAbsolutePath()});
+                                }
+                                else {
+                                    proc = Runtime.getRuntime().exec(new String[]{"xterm", "-e",rasmolPath, pdbFile.getAbsolutePath(),"-script",scrFile.getAbsolutePath()});
+                                }
                                 proc.waitFor();
                             }
                             catch (IOException e) {
