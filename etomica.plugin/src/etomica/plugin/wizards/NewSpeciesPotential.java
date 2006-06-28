@@ -52,16 +52,6 @@ public class NewSpeciesPotential extends Wizard {
             return false;
 	  	
         Species[] speciesArray = speciesPotentialPage.getSpecies();
-        if (potentialMaster instanceof PotentialMasterList) {
-            if (potential instanceof Potential2) {
-                Species species0 = speciesArray[0];
-                Species species1 = speciesArray[1];
-                CriterionSimple nbrCriterion = new CriterionSimple(simulation,potential.getRange(),
-                        ((PotentialMasterList)potentialMaster).getRange());
-                CriterionSpecies criterion = new CriterionSpecies(nbrCriterion, species0, species1);
-                ((Potential2)potential).setCriterion(criterion);
-            }
-        }
         potentialMaster.addPotential(potential,speciesArray);
         success = true;
         
