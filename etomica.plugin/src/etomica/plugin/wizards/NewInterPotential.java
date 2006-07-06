@@ -54,16 +54,6 @@ public class NewInterPotential extends Wizard {
         
         AtomType[] types = interPotentialPage.getAtomTypes();
 	  	
-        if (simulation.potentialMaster instanceof PotentialMasterList) {
-            if (potential instanceof Potential2) {
-                CriterionSimple nbrCriterion = new CriterionSimple(simulation,potential.getRange(),
-                        ((PotentialMasterList)simulation.potentialMaster).getRange());
-                CriterionMolecular criterion = new CriterionMolecular(nbrCriterion);
-                criterion.setIntraMolecular(false);
-                ((Potential2)potential).setCriterion(criterion);
-            }
-        }
-        
         potentialGroup.addPotential(potential,types);
         success = true;
         
