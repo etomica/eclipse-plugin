@@ -14,6 +14,15 @@
       <library name="etomica_core.jar">
          <export name="*"/>
       </library>
+      <library name="png.jar">
+         <export name="*"/>
+      </library>
+      <library name="gl4java.jar">
+         <export name="*"/>
+      </library>
+      <library name="ptolemy.jar">
+         <export name="*"/>
+      </library>
    </runtime>
 
    <requires>

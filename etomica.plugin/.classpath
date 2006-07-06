@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry exported="true" kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" sourcepath="/etomica/src" kind="lib" path="etomica_core.jar"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry path="src" kind="src"/>
+	<classpathentry path="org.eclipse.pde.core.requiredPlugins" kind="con" exported="true"/>
+	<classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"/>
+	<classpathentry path="etomica_core.jar" kind="lib"/>
+	<classpathentry path="gl4java.jar" kind="lib"/>
+	<classpathentry path="gl4java-glutfonts.jar" kind="lib"/>
+	<classpathentry path="png.jar" kind="lib"/>
+	<classpathentry path="ptolemy.jar" kind="lib"/>
+	<classpathentry path="bin" kind="output"/>
 </classpath>

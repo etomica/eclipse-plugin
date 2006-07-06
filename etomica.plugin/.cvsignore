@@ -1,1 +1,5 @@
 etomica_core.jar
+gl4java.jar
+gl4java-glutfonts.jar
+png.jar
+ptolemy.jar
