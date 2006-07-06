@@ -3,7 +3,7 @@ package etomica.plugin.wizards;
 import org.eclipse.jface.wizard.Wizard;
 
 import etomica.data.DataPipe;
-import etomica.data.DataProcessorForked;
+import etomica.data.DataPipeForked;
 import etomica.data.DataSink;
 import etomica.plugin.wizards.NewObjectSimplePage.SimpleClassWizard;
 import etomica.simulation.Simulation;
@@ -48,8 +48,8 @@ public class NewDataSinkWizard extends Wizard implements SimpleClassWizard {
             return false;
 	  	
         if (parent != null) {
-            if (parent instanceof DataProcessorForked) {
-                ((DataProcessorForked)parent).addDataSink(dataSink);
+            if (parent instanceof DataPipeForked) {
+                ((DataPipeForked)parent).addDataSink(dataSink);
             }
             else {
                 parent.setDataSink(dataSink);
