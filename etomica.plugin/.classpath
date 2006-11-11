@@ -4,9 +4,8 @@
 	<classpathentry path="org.eclipse.pde.core.requiredPlugins" kind="con" exported="true"/>
 	<classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"/>
 	<classpathentry path="etomica_core.jar" kind="lib"/>
-	<classpathentry path="gl4java.jar" kind="lib"/>
-	<classpathentry path="gl4java-glutfonts.jar" kind="lib"/>
-	<classpathentry path="png.jar" kind="lib"/>
 	<classpathentry path="ptolemy.jar" kind="lib"/>
+	<classpathentry path="g3d.jar" kind="lib"/>
+	<classpathentry path="vecmath1.2-1.14.jar" kind="lib"/>
 	<classpathentry path="bin" kind="output"/>
 </classpath>
