@@ -17,7 +17,6 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.internal.EditorActionBars;
 
-import etomica.etomica3D.OrientedObject;
 import etomica.plugin.EtomicaPlugin;
 import etomica.plugin.editors.listeners.EditorSelectionChangedListener;
 import etomica.plugin.editors.listeners.EtomicaStatusBarUpdater;
@@ -128,32 +127,32 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
 		try
 		{
 			// Get the plugin object
-			EtomicaPlugin plugin = EtomicaPlugin.getDefault();
+//			EtomicaPlugin plugin = EtomicaPlugin.getDefault();
 			
 			// Resolve the root URL to a local representation
-			URL url = Platform.resolve( plugin.find( new Path("") ) );
+//			URL url = Platform.resolve( plugin.find( new Path("") ) );
 			
 			// Extract the path (take out the file:// prefix)
-			String urlstr = url.getPath();
+//			String urlstr = url.getPath();
 			
 			// Fix this silly bug that places a slash at the beginning of the file name (windows only?)
-			if ( urlstr.startsWith( "/") )
-				urlstr = urlstr.substring( 1 );
+//			if ( urlstr.startsWith( "/") )
+//				urlstr = urlstr.substring( 1 );
 			
-			String FILESEP	= System.getProperty("file.separator");
-			urlstr = urlstr.replace( '/', FILESEP.charAt(0) );
+//			String FILESEP	= System.getProperty("file.separator");
+//			urlstr = urlstr.replace( '/', FILESEP.charAt(0) );
 //			System.out.println( "Etomica plugin is located at " + urlstr );
 			
 			// Add to search path
-			OrientedObject.appendToSearchPath( urlstr );
+//			OrientedObject.appendToSearchPath( urlstr );
 //			OrientedObject.appendToSearchPath( urlstr + FILESEP + "3dmodels" );
 			
 
 			// Add runtime workspace too
-			IWorkspace workspace = ResourcesPlugin.getWorkspace();
-			IPath rootpath = workspace.getRoot().getLocation();
-			String rootstr = rootpath.toOSString();
-			OrientedObject.appendToSearchPath( rootstr );
+//			IWorkspace workspace = ResourcesPlugin.getWorkspace();
+//			IPath rootpath = workspace.getRoot().getLocation();
+//			String rootstr = rootpath.toOSString();
+//			OrientedObject.appendToSearchPath( rootstr );
 		}
 		catch ( Exception e )
 		{
