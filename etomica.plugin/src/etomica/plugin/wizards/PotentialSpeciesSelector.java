@@ -201,6 +201,7 @@ public class PotentialSpeciesSelector extends Composite {
                 potentialDescription.setText(str);
                 PotentialSpeciesSelector.this.layout();
                 
+                // this needs to check the range, which is not a static property!
                 truncatedCheckbox.setEnabled(Potential2SoftSpherical.class.isAssignableFrom(potentialClass));
             }
         });
