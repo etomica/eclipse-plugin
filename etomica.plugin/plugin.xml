@@ -14,13 +14,13 @@
       <library name="etomica_core.jar">
          <export name="*"/>
       </library>
-      <library name="png.jar">
-         <export name="*"/>
-      </library>
-      <library name="gl4java.jar">
-         <export name="*"/>
-      </library>
       <library name="ptolemy.jar">
+         <export name="*"/>
+      </library>
+      <library name="g3d.jar">
+         <export name="*"/>
+      </library>
+      <library name="vecmath1.2-1.14.jar">
          <export name="*"/>
       </library>
    </runtime>
@@ -35,7 +35,6 @@
       <import plugin="org.eclipse.ui.editors"/>
       <import plugin="org.eclipse.ui.workbench.texteditor"/>
       <import plugin="org.eclipse.ui.views"/>
-      <import plugin="etomica.etomica3D" export="false"/>
       <import plugin="org.eclipse.jdt.core"/>
       <import plugin="org.eclipse.jdt.ui"/>
    </requires>
