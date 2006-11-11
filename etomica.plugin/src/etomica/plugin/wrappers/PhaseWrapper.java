@@ -29,8 +29,6 @@ public class PhaseWrapper extends PropertySourceWrapper {
     }
 
     public Action[] getActions() {
-        MakeMolecules makeMolecules = new MakeMolecules("Make Molecules");
-        makeMolecules.setPhase((Phase)object);
         InitializeMolecules initializeMolecules = new InitializeMolecules("Initialize");
         initializeMolecules.setPhase((Phase)object);
         if (((Phase)object).space().D() == 3) {
@@ -39,7 +37,7 @@ public class PhaseWrapper extends PropertySourceWrapper {
         else {
             initializeMolecules.setConfiguration(new ConfigurationSequential(((Phase)object).space()));
         }
-        return new Action[]{makeMolecules,initializeMolecules};
+        return new Action[]{initializeMolecules};
     }
     
     public String[] getOpenViews() {
@@ -114,16 +112,6 @@ public class PhaseWrapper extends PropertySourceWrapper {
     protected static final String CONFIGURATION_DP = "ConfigurationDisplayPhase";
     protected static final String CONFIGURATION_RASMOL = "ConfigurationRasmol";
     protected static final String PHASE ="Phase";
-
-    private static class MakeMolecules extends PhaseActionAdapter {
-        public MakeMolecules(String label) {
-            super(label);
-        }
-
-        public void actionPerformed() {
-            phase.makeMolecules();
-        }
-    }
 
     private static class InitializeMolecules extends PhaseActionAdapter {
         public InitializeMolecules(String label) {
