@@ -17,7 +17,6 @@ import org.eclipse.ui.part.ViewPart;
 
 import etomica.atom.Atom;
 import etomica.graphics.DisplayPhase;
-import etomica.graphics2.SceneManager;
 import etomica.phase.Phase;
 import etomica.plugin.editors.EtomicaEditor;
 import etomica.plugin.wrappers.PropertySourceWrapper;
@@ -29,7 +28,6 @@ public class ConfigurationViewDP extends ViewPart {
 
 	public ConfigurationViewDP() {
 		super();
-        scene = new SceneManager();
 	}
 
 	/* (non-Javadoc)
@@ -44,6 +42,12 @@ public class ConfigurationViewDP extends ViewPart {
         if (phase != null) {
             frame.add(displayPhase.graphic());
 //            refresher = new Refresher(Thread.currentThread(), displayPhase.graphic());
+        }
+        
+        updater = new SceneUpdater(control,displayPhase);
+        updater.setFPS( 10 );
+        if (phase != null) {
+            updater.run();
         }
         
 		hookPageSelection();
@@ -81,18 +85,16 @@ public class ConfigurationViewDP extends ViewPart {
 	}
     
     public void setPhase(Phase p) {
-        if (refresher != null) {
-            refresher.interrupt();
-            refresher = null;
-        }
         if (phase != null) {
             frame.remove(displayPhase.graphic());
         }
         phase = p;
         displayPhase.setPhase(phase);
+        if (updater != null && phase != null && !updater.isActive()) {
+            updater.run();
+        }
         if (phase != null) {
             frame.add(displayPhase.graphic());
-//            refresher = new Refresher(Thread.currentThread(), displayPhase.graphic());
         }
     }
     
@@ -106,18 +108,61 @@ public class ConfigurationViewDP extends ViewPart {
 		if(pageSelectionListener != null) {
 			getSite().getPage().removePostSelectionListener(pageSelectionListener);
 		}
+        if (updater != null) {
+            updater.dispose();
+            updater = null;
+        }
+        displayPhase = null;
+        phase = null;
 		super.dispose();
 	}
 	
+    public static class SceneUpdater implements Runnable {
+        private int DELAY = 100;
+        
+        public SceneUpdater(Composite parent, DisplayPhase displayPhase) {
+            parentWidget = parent;
+            this.displayPhase = displayPhase;
+        }
+        
+        public void setFPS( double fps )
+        {
+            DELAY = (int)( 1000.0/fps );
+        }
+        public void run() {
+            if (parentWidget == null || parentWidget.isDisposed()) {
+                return;
+            }
+            isActive = true;
+            if ( displayPhase!=null &&  parentWidget.isVisible() ) {
+                displayPhase.repaint();
+            }
+            parentWidget.getDisplay().timerExec(DELAY, this);
+        }
+        
+        public void dispose() {
+            parentWidget = null;
+            displayPhase = null;
+            isActive = false;
+        }
+        
+        public boolean isActive() {
+            return isActive;
+        }
+        
+        private Composite parentWidget;
+        private DisplayPhase displayPhase;
+        private boolean isActive;
+    }
+
     public void setSelectedAtoms( Atom[] atoms )
     {
-        scene.setSelectedAtoms( atoms );
+//        displayPhase.setSelectedAtoms( atoms );
     }
 
     protected Frame frame;
     protected DisplayPhase displayPhase;
-    protected final SceneManager scene;
-    protected DataTableView.Refresher refresher;
+    protected SceneUpdater updater;
     private EtomicaEditor etomicaEditor;
 	private ISelectionListener pageSelectionListener;
 	private Phase phase;
