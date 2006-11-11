@@ -41,7 +41,7 @@ public class PhaseWrapper extends PropertySourceWrapper {
     }
     
     public String[] getOpenViews() {
-        return new String[]{CONFIGURATION_OSG, CONFIGURATION_DP, CONFIGURATION_RASMOL, PHASE};
+        return new String[]{CONFIGURATION_DP, CONFIGURATION_RASMOL, PHASE};
     }
 
     public boolean open(String viewName, IWorkbenchPage page, Shell shell) {
