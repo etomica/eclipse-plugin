@@ -29,7 +29,7 @@ public class PhaseWrapper extends PropertySourceWrapper {
     }
 
     public Action[] getActions() {
-        InitializeMolecules initializeMolecules = new InitializeMolecules("Initialize");
+        InitializeMolecules initializeMolecules = new InitializeMolecules();
         initializeMolecules.setPhase((Phase)object);
         if (((Phase)object).space().D() == 3) {
             initializeMolecules.setConfiguration(new ConfigurationLattice(new LatticeCubicFcc()));
@@ -114,8 +114,8 @@ public class PhaseWrapper extends PropertySourceWrapper {
     protected static final String PHASE ="Phase";
 
     private static class InitializeMolecules extends PhaseActionAdapter {
-        public InitializeMolecules(String label) {
-            super(label);
+        public InitializeMolecules() {
+            super("Initialize");
         }
 
         public void actionPerformed() {
