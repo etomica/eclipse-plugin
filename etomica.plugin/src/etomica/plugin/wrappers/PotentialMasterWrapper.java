@@ -3,9 +3,9 @@ package etomica.plugin.wrappers;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
 
+import etomica.action.Action;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.nbr.site.PotentialMasterSite;
 import etomica.plugin.wizards.NewSpeciesPotential;
 import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
@@ -17,6 +17,14 @@ public class PotentialMasterWrapper extends PropertySourceWrapper {
         super(object,sim);
     }
 
+    public Action[] getActions() {
+        if (object instanceof PotentialMasterCell || object instanceof PotentialMasterList) {
+            PotentialMasterReset potentialMasterReset = new PotentialMasterReset((PotentialMaster)object);
+            return new Action[]{potentialMasterReset};
+        }
+        return new Action[0];
+    }
+    
     public boolean removeChild(Object obj) {
         if (obj instanceof PropertySourceWrapper) {
             obj = ((PropertySourceWrapper)obj).getObject();
@@ -62,15 +70,45 @@ public class PotentialMasterWrapper extends PropertySourceWrapper {
 
     public EtomicaStatus getStatus() {
         if (object instanceof PotentialMasterList) {
-            if (((PotentialMasterList)object).getRange() == 0) {
+            double range = ((PotentialMasterList)object).getRange();
+            if (range == 0) {
                 return new EtomicaStatus("Range must be positive", EtomicaStatus.ERROR);
             }
+            if (range < ((PotentialMasterList)object).getMaxPotentialRange()) {
+                return new EtomicaStatus("Range must be greater than longest-range potential", EtomicaStatus.ERROR);
+            }
         }
-        else if (object instanceof PotentialMasterSite) {
-            if (((PotentialMasterCell)object).getRange() == 0) {
+        else if (object instanceof PotentialMasterCell) {
+            double range = ((PotentialMasterCell)object).getRange();
+            if (range == 0) {
                 return new EtomicaStatus("Range must be positive", EtomicaStatus.ERROR);
+            }
+            if (range < ((PotentialMasterCell)object).getMaxPotentialRange()) {
+                return new EtomicaStatus("Range must be greater than longest-range potential", EtomicaStatus.ERROR);
             }
         }
         return EtomicaStatus.PEACHY;
+    }
+
+    private static class PotentialMasterReset implements Action {
+        public PotentialMasterReset(PotentialMaster potentialMaster) {
+            super();
+            this.potentialMaster = potentialMaster;
+        }
+
+        public void actionPerformed() {
+            if (potentialMaster instanceof PotentialMasterCell) {
+                ((PotentialMasterCell)potentialMaster).reset();
+            }
+            else if (potentialMaster instanceof PotentialMasterList) {
+                ((PotentialMasterList)potentialMaster).reset();
+            }
+        }
+        
+        public String getLabel() {
+            return "Reset";
+        }
+        
+        private final PotentialMaster potentialMaster;
     }
 }
