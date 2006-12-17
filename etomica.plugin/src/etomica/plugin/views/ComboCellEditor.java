@@ -39,7 +39,6 @@ public class ComboCellEditor extends CellEditor {
 	 * The zero-based index of the selected item.
 	 */
 	int selectionIndex;
-	Object selection;
 
 	/**
 	 * The custom combo box control.
@@ -163,7 +162,8 @@ public class ComboCellEditor extends CellEditor {
 	 * the current TypedConstant selection.
 	 */
 	protected Object doGetValue() {
-		return selection;
+        selectionIndex = comboBox.getSelectionIndex();
+		return choices[selectionIndex];
 	}
 	
 	/* (non-Javadoc)
@@ -237,7 +237,6 @@ public class ComboCellEditor extends CellEditor {
 	void applyEditorValueAndDeactivate() {
 		//	must set the selection before getting value
 		selectionIndex = comboBox.getSelectionIndex();
-		selection = choices[selectionIndex];
 		Object newValue = doGetValue();
 		markDirty();
 		boolean isValid = isCorrect(newValue);

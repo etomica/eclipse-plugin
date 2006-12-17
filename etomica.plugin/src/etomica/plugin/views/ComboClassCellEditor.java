@@ -27,6 +27,7 @@ public class ComboClassCellEditor extends ComboCellEditor {
     }
 
     protected Object doGetValue() {
+        Object selection = super.doGetValue();
         if (selection instanceof Class) {
             Class selectedClass = (Class)selection;
             Constructor[] constructors = selectedClass.getConstructors();
