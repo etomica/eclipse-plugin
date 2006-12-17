@@ -3,11 +3,7 @@ package etomica.plugin.wizards;
 import org.eclipse.jface.wizard.Wizard;
 
 import etomica.atom.AtomType;
-import etomica.nbr.CriterionMolecular;
-import etomica.nbr.CriterionSimple;
-import etomica.nbr.list.PotentialMasterList;
 import etomica.potential.Potential;
-import etomica.potential.Potential2;
 import etomica.potential.PotentialGroup;
 import etomica.simulation.Simulation;
 
