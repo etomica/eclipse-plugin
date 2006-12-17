@@ -24,11 +24,11 @@ public class PhaseViewContentProvider implements ITreeContentProvider {
 
     public Object[] getChildren(Object wrappedElement) {
         // wrapped element is an atom.  If it's a parent, return the children
-        AtomTreeNode node = ((Atom)((PropertySourceWrapper)wrappedElement).getObject()).node;
+        AtomTreeNode node = ((Atom)((PropertySourceWrapper)wrappedElement).getObject()).getNode();
         if (!(node instanceof AtomTreeNodeGroup)) {
             return new Object[0];
         }
-        return wrapAtomList(((AtomTreeNodeGroup)node).childList);
+        return wrapAtomList(((AtomTreeNodeGroup)node).getChildList());
     }
     
     /**
@@ -39,7 +39,7 @@ public class PhaseViewContentProvider implements ITreeContentProvider {
     //simulation instances to be the input element in this method
     public Object[] getElements(Object inputElement) {
         Phase phase = (Phase)((PropertySourceWrapper)inputElement).getObject();
-        AtomArrayList agentList = ((AtomTreeNodeGroup)phase.getSpeciesMaster().node).childList;
+        AtomArrayList agentList = ((AtomTreeNodeGroup)phase.getSpeciesMaster().getNode()).getChildList();
         return wrapAtomList(agentList);
     }
     

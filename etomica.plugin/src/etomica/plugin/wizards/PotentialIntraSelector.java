@@ -27,7 +27,6 @@ import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.plugin.ClassDiscovery;
 import etomica.plugin.Registry;
 import etomica.potential.Potential;
-import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialHard;
 import etomica.potential.PotentialSoft;
 import etomica.simulation.Simulation;
@@ -42,12 +41,11 @@ public class PotentialIntraSelector extends Composite {
     public Combo potentialHardSoftCombo;
 	public Text potentialName;
 	public Combo iteratorCombo;
-    private Label potentialDescription;
-    private Label iteratorDescription;
-	private HashMap potentialsMap = new HashMap();
-	private HashMap iteratorMap = new HashMap();
+    protected Label potentialDescription;
+    protected Label iteratorDescription;
+	protected HashMap potentialsMap = new HashMap();
+	protected HashMap iteratorMap = new HashMap();
     private LinkedList builderMethodsList = new LinkedList();
-    private HashMap builderMethodsMap = new HashMap();
     private Simulation simulation;
 	
 	public Potential createPotential()
@@ -56,7 +54,7 @@ public class PotentialIntraSelector extends Composite {
 		if ( potentialClass!=null )
 		{
             if (potentialClass == etomica.potential.PotentialGroup.class) {
-                return simulation.potentialMaster.makePotentialGroup(getPotenialNumBody());
+                return simulation.getPotentialMaster().makePotentialGroup(getPotenialNumBody());
             }
 			try {
                 Constructor constructor = potentialClass.getDeclaredConstructor(new Class[]{Simulation.class});

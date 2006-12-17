@@ -18,12 +18,12 @@ public class AtomWrapper extends PropertySourceWrapper {
     protected void generateDescriptors() {
         super.generateDescriptors();
         descriptors = (IPropertyDescriptor[])Arrays.addObject(descriptors,new org.eclipse.ui.views.properties.PropertyDescriptor("type","type"));
-        if (((Atom)object).node.childAtomCount() > 0) {
+        if (((Atom)object).getNode().childAtomCount() > 0) {
             descriptors = (IPropertyDescriptor[])Arrays.addObject(descriptors,new org.eclipse.ui.views.properties.PropertyDescriptor("children","children"));
         }
         if (object instanceof AtomLeaf) {
             descriptors = (IPropertyDescriptor[])Arrays.addObject(descriptors,new org.eclipse.ui.views.properties.PropertyDescriptor("position","position"));
-            if (((AtomLeaf)object).coord instanceof ICoordinateKinetic) {
+            if (((AtomLeaf)object).getCoord() instanceof ICoordinateKinetic) {
                 descriptors = (IPropertyDescriptor[])Arrays.addObject(descriptors,new org.eclipse.ui.views.properties.PropertyDescriptor("velocity","velocity"));
             }
         }
@@ -36,19 +36,19 @@ public class AtomWrapper extends PropertySourceWrapper {
         String keyString = (String)key;
         PropertySourceWrapper wrapper = null;
         if (keyString.equals("type")) {
-            return ((Atom)object).type;
+            return ((Atom)object).getType();
         }
         if (keyString.equals("children")) {
-            Atom[] childAtoms = ((AtomTreeNodeGroup)((Atom)object).node).childList.toArray();
+            Atom[] childAtoms = ((AtomTreeNodeGroup)((Atom)object).getNode()).getChildList().toArray();
             wrapper = PropertySourceWrapper.makeWrapper(childAtoms, simulation, etomicaEditor);
             wrapper.setDisplayName("Child Atoms");
         }
         if (keyString.equals("position")) {
-            wrapper = PropertySourceWrapper.makeWrapper(((AtomLeaf)object).coord.position(), 
+            wrapper = PropertySourceWrapper.makeWrapper(((AtomLeaf)object).getCoord().position(), 
                     simulation, etomicaEditor);
         }
         if (keyString.equals("velocity")) {
-            wrapper = PropertySourceWrapper.makeWrapper(((ICoordinateKinetic)((AtomLeaf)object).coord).velocity(),
+            wrapper = PropertySourceWrapper.makeWrapper(((ICoordinateKinetic)((AtomLeaf)object).getCoord()).velocity(),
                     simulation, etomicaEditor);
         }
         return wrapper;
@@ -58,8 +58,8 @@ public class AtomWrapper extends PropertySourceWrapper {
         if (child instanceof PropertySourceWrapper) {
             child = ((PropertySourceWrapper)child).getObject();
         }
-        if (child instanceof Atom && ((Atom)child).node.parentSpeciesAgent() == object) {
-            ((Atom)child).node.setParent(null);
+        if (child instanceof Atom && ((Atom)child).getNode().parentSpeciesAgent() == object) {
+            ((Atom)child).getNode().setParent(null);
             return true;
         }
         return false;
@@ -69,7 +69,8 @@ public class AtomWrapper extends PropertySourceWrapper {
         if (child instanceof PropertySourceWrapper) {
             child = ((PropertySourceWrapper)child).getObject();
         }
-        if (child instanceof Atom && ((Atom)child).node.parentSpeciesAgent() == object) {
+        // we can only remove molecules
+        if (child instanceof Atom && ((Atom)child).getNode().parentGroup() == object) {
             return true;
         }
         return false;

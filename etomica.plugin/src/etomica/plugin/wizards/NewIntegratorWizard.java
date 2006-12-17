@@ -39,13 +39,13 @@ public class NewIntegratorWizard extends Wizard implements SimpleClassWizard {
         selector.setBaseClass(Integrator.class);
         selector.addCategory("Integrator",Integrator.class);
         selector.addCategory("Integrator Manager",IntegratorManagerMC.class);
-        if (!(simulation.potentialMaster instanceof PotentialMasterSite)) {
+        if (!(simulation.getPotentialMaster() instanceof PotentialMasterSite)) {
             selector.addCategory("IntegratorMD",IntegratorMD.class);
         }
         else {
             selector.addExcludedClass(IntegratorMD.class);
         }
-        if (!(simulation.potentialMaster instanceof PotentialMasterList)) {
+        if (!(simulation.getPotentialMaster() instanceof PotentialMasterList)) {
             selector.addCategory("IntegratorMC",IntegratorMC.class);
         }
         else {

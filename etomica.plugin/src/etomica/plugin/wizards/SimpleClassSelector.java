@@ -121,10 +121,10 @@ public class SimpleClassSelector extends Composite {
                         parameters[j] = sim;
                     }
                     else if (parameterClasses[j] == PotentialMaster.class) {
-                        parameters[j] = sim.potentialMaster;
+                        parameters[j] = sim.getPotentialMaster();
                     }
                     else if (parameterClasses[j] == Space.class) {
-                        parameters[j] = sim.space;
+                        parameters[j] = sim.space();
                     }
                     else {
                         found = false;

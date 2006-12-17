@@ -67,7 +67,7 @@ public class PotentialGroupWrapper extends PotentialWrapper {
                 return wizard.getSuccess();
             }
             else if (((PotentialGroup)object).nBody() == 2) {
-                AtomType[] types = sim.potentialMaster.getAtomTypes((Potential)object);
+                AtomType[] types = sim.getPotentialMaster().getAtomTypes((Potential)object);
                 if (types == null) {
                     return false;
                 }

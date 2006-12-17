@@ -55,7 +55,7 @@ public class PotentialSpeciesSelector extends Composite {
 		if ( potentialClass!=null )
 		{
             if (potentialClass == etomica.potential.PotentialGroup.class) {
-                return simulation.potentialMaster.makePotentialGroup(getPotenialNumBody());
+                return simulation.getPotentialMaster().makePotentialGroup(getPotenialNumBody());
             }
             Potential potential = null;
             Constructor[] constructors = potentialClass.getDeclaredConstructors();
@@ -68,8 +68,8 @@ public class PotentialSpeciesSelector extends Composite {
                     if (parameterTypes[0].isInstance(simulation)) {
                         potential = (Potential)constructors[i].newInstance(new Object[]{simulation});
                     }
-                    else if (parameterTypes[0].isInstance(simulation.space)) {
-                        potential = (Potential)constructors[i].newInstance(new Object[]{simulation.space});
+                    else if (parameterTypes[0].isInstance(simulation.space())) {
+                        potential = (Potential)constructors[i].newInstance(new Object[]{simulation.space()});
                     }
                     else {
                         continue;
@@ -207,7 +207,7 @@ public class PotentialSpeciesSelector extends Composite {
         });
         
         //add the Species from the simulation
-        Species[] speciesArray = simulation.speciesRoot.getSpecies();
+        Species[] speciesArray = simulation.getSpeciesRoot().getSpecies();
         for (int i=0; i<speciesArray.length; i++) {
 			Species species = speciesArray[i];
 			speciesCombo.add(species.getName());

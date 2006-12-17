@@ -29,7 +29,7 @@ public class SimulationWrapper extends PropertySourceWrapper {
         Species[] species = sim.getSpecies();
         DataStreamHeader[] streams = sim.getDataStreams();
         return PropertySourceWrapper.wrapArrayElements(new Object[]{
-                sim.getController(),sim.potentialMaster,phases,species,streams,sim.getDefaults()},
+                sim.getController(),sim.getPotentialMaster(),phases,species,streams,sim.getDefaults()},
                 (Simulation)object,etomicaEditor);
     }
 
@@ -38,11 +38,11 @@ public class SimulationWrapper extends PropertySourceWrapper {
             obj = ((PropertySourceWrapper)obj).getObject();
         }
         if (obj instanceof Phase) {
-            ((Phase)obj).getSpeciesMaster().node.setParent(null);
+            ((Phase)obj).getSpeciesMaster().getNode().setParent(null);
             return true;
         }
         if (obj instanceof Species) {
-            return ((Simulation)object).speciesRoot.removeSpecies((Species)obj);
+            return ((Simulation)object).getSpeciesRoot().removeSpecies((Species)obj);
         }
         if (obj instanceof DataStreamHeader) {
             Object client = ((DataStreamHeader)obj).getClient();
@@ -65,7 +65,7 @@ public class SimulationWrapper extends PropertySourceWrapper {
             objs = ((Simulation)object).getPhases();
         }
         else if (obj instanceof Species) {
-            objs = ((Simulation)object).speciesRoot.getSpecies();
+            objs = ((Simulation)object).getSpeciesRoot().getSpecies();
         }
         else if (obj instanceof DataStreamHeader) {
             objs = ((Simulation)object).getDataStreams();

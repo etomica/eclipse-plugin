@@ -55,9 +55,9 @@ public class NewIntervalListenerWizard extends Wizard implements SimpleClassWiza
         selector.addCategory("Simulation Action",SimulationAction.class);
         selector.setExcludedClasses(new Class[]{AtomAction.class,Activity.class});
         
-        if (simulation.potentialMaster instanceof PotentialMasterList) {
+        if (simulation.getPotentialMaster() instanceof PotentialMasterList) {
             selector.addExtraObject("Neighbor Manager",
-                    ((PotentialMasterList)simulation.potentialMaster).getNeighborManager());
+                    ((PotentialMasterList)simulation.getPotentialMaster()).getNeighborManager());
         }
         DataStreamHeader[] dataStreams = simulation.getDataStreams();
         for (int i=0; i<dataStreams.length; i++) {

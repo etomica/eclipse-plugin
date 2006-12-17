@@ -23,13 +23,10 @@ import etomica.EtomicaInfo;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.iterator.ApiBuilder;
-import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomPairIterator;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.plugin.ClassDiscovery;
 import etomica.plugin.Registry;
 import etomica.potential.Potential;
-import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialHard;
 import etomica.potential.PotentialSoft;
 import etomica.simulation.Simulation;
@@ -44,11 +41,10 @@ public class PotentialInterSelector extends Composite {
 	public Text potentialName;
 	public Combo type1Combo;
     public Combo type2Combo;
-    private Label potentialDescription;
-	private HashMap potentialsMap = new HashMap();
+    protected Label potentialDescription;
+	protected HashMap potentialsMap = new HashMap();
     private HashMap typeMap = new HashMap();
     private LinkedList builderMethodsList = new LinkedList();
-    private HashMap builderMethodsMap = new HashMap();
     private final Simulation simulation;
     private final AtomType[] parentAtomTypes;
 	
@@ -58,7 +54,7 @@ public class PotentialInterSelector extends Composite {
 		if ( potentialClass!=null )
 		{
             if (potentialClass == etomica.potential.PotentialGroup.class) {
-                return simulation.potentialMaster.makePotentialGroup(2);
+                return simulation.getPotentialMaster().makePotentialGroup(2);
             }
 			try {
                 Constructor constructor = potentialClass.getDeclaredConstructor(new Class[]{Simulation.class});
@@ -286,7 +282,6 @@ public class PotentialInterSelector extends Composite {
 		GridData gridData8 = new org.eclipse.swt.layout.GridData();
 		GridData gridData6 = new org.eclipse.swt.layout.GridData();
 		GridData gridData5 = new org.eclipse.swt.layout.GridData();
-        GridData gridData2 = new org.eclipse.swt.layout.GridData();
         GridData gridData1 = new org.eclipse.swt.layout.GridData();
 		GridLayout gridLayout2 = new GridLayout();
         this.setLayout(gridLayout2);
