@@ -7,7 +7,6 @@ import etomica.atom.AtomFactoryHetero;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
-import etomica.atom.iterator.AtomIteratorListSimple;
 import etomica.simulation.Simulation;
 import etomica.space.CoordinateFactorySphere;
 
@@ -55,6 +54,4 @@ public class AtomFactoryHeteroWrapper extends PropertySourceWrapper {
         }
         return false;
     }
-
-    private static final AtomIteratorListSimple iterator = new AtomIteratorListSimple();
 }
