@@ -17,7 +17,6 @@ import etomica.config.ConfigurationSequential;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.phase.Phase;
 import etomica.plugin.EtomicaPlugin;
-import etomica.plugin.views.ConfigurationView;
 import etomica.plugin.views.ConfigurationViewDP;
 import etomica.plugin.views.PhaseView;
 import etomica.simulation.Simulation;
@@ -46,12 +45,7 @@ public class PhaseWrapper extends PropertySourceWrapper {
 
     public boolean open(String viewName, IWorkbenchPage page, Shell shell) {
         try {
-            if (viewName == CONFIGURATION_OSG) {
-                ConfigurationView view = (ConfigurationView)page.showView("etomica.plugin.views.ConfigurationView",null,IWorkbenchPage.VIEW_VISIBLE);
-                view.setPhase((Phase)object);
-                return true;
-            }
-            else if (viewName == CONFIGURATION_DP) {
+            if (viewName == CONFIGURATION_DP) {
                 ConfigurationViewDP view = (ConfigurationViewDP)page.showView("etomica.plugin.views.ConfigurationViewDP",null,IWorkbenchPage.VIEW_VISIBLE);
                 view.setPhase((Phase)object);
                 return true;
