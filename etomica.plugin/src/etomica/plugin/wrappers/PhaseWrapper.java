@@ -34,7 +34,7 @@ public class PhaseWrapper extends PropertySourceWrapper {
             initializeMolecules.setConfiguration(new ConfigurationLattice(new LatticeCubicFcc()));
         }
         else {
-            initializeMolecules.setConfiguration(new ConfigurationSequential(((Phase)object).space()));
+            initializeMolecules.setConfiguration(new ConfigurationSequential());
         }
         return new Action[]{initializeMolecules};
     }
