@@ -1,6 +1,6 @@
 Jama.jar
 etomica_core.jar
-gl4java.jar
-gl4java-glutfonts.jar
-png.jar
 ptolemy.jar
+g3d.jar
+vecmath1.2-1.14.jar
+g3dsys.jar

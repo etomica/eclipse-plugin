@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry path="src" kind="src"/>
-	<classpathentry path="org.eclipse.pde.core.requiredPlugins" kind="con" exported="true"/>
-	<classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"/>
-	<classpathentry path="etomica_core.jar" kind="lib"/>
-	<classpathentry path="ptolemy.jar" kind="lib"/>
-	<classpathentry path="g3d.jar" kind="lib"/>
-	<classpathentry path="vecmath1.2-1.14.jar" kind="lib"/>
-	<classpathentry path="bin" kind="output"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="etomica_core.jar"/>
+	<classpathentry kind="lib" path="ptolemy.jar"/>
+	<classpathentry kind="lib" path="g3d.jar" sourcepath="/usr/users/andrew/workspace/etomica.plugin/g3d.jar"/>
+	<classpathentry kind="lib" path="vecmath1.2-1.14.jar"/>
+	<classpathentry kind="lib" path="Jama.jar"/>
+	<classpathentry kind="lib" path="g3dsys.jar"/>
+	<classpathentry kind="output" path="bin"/>
 </classpath>

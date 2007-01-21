@@ -23,6 +23,9 @@
       <library name="vecmath1.2-1.14.jar">
          <export name="*"/>
       </library>
+      <library name="g3dsys.jar">
+         <export name="*"/>
+      </library>
    </runtime>
 
    <requires>
@@ -158,13 +161,6 @@
             icon="icons/sample.gif"
             id="etomica.plugin.views.PhaseView"
             name="Phase"/>
-      <view
-            allowMultiple="false"
-            category="etomica.plugin"
-            class="etomica.plugin.views.ConfigurationView"
-            icon="icons/sample.gif"
-            id="etomica.plugin.views.ConfigurationView"
-            name="Configuration"/>
       <view
             allowMultiple="false"
             category="etomica.plugin"
