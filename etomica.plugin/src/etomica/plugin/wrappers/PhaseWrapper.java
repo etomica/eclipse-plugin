@@ -13,8 +13,10 @@ import etomica.action.PDBWriter;
 import etomica.action.PhaseActionAdapter;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
-import etomica.config.ConfigurationSequential;
+import etomica.lattice.BravaisLattice;
 import etomica.lattice.LatticeCubicFcc;
+import etomica.lattice.LatticeCubicSimple;
+import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.phase.Phase;
 import etomica.plugin.EtomicaPlugin;
 import etomica.plugin.views.ConfigurationViewDP;
@@ -30,12 +32,17 @@ public class PhaseWrapper extends PropertySourceWrapper {
     public Action[] getActions() {
         InitializeMolecules initializeMolecules = new InitializeMolecules();
         initializeMolecules.setPhase((Phase)object);
+        BravaisLattice lattice = null;
         if (((Phase)object).space().D() == 3) {
-            initializeMolecules.setConfiguration(new ConfigurationLattice(new LatticeCubicFcc()));
+            lattice = new LatticeCubicFcc();
+        }
+        else if (((Phase)object).space().D() == 2) {
+            lattice = new LatticeOrthorhombicHexagonal();
         }
         else {
-            initializeMolecules.setConfiguration(new ConfigurationSequential());
+            lattice = new LatticeCubicSimple(1, 1.0);
         }
+        initializeMolecules.setConfiguration(new ConfigurationLattice(lattice));
         return new Action[]{initializeMolecules};
     }
     
