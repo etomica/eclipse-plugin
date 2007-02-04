@@ -34,7 +34,9 @@ import etomica.data.DataProcessor;
 import etomica.data.DataSink;
 import etomica.data.DataSource;
 import etomica.integrator.Integrator;
+import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorMC;
+import etomica.integrator.IntegratorNonintervalListener;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.nbr.NeighborCriterion;
@@ -589,16 +591,55 @@ public class PropertySourceWrapper implements IPropertySource {
         return new Action[0];
     }
     
+    /**
+     * Returns an array of views in which the given object can be opened in
+     * @return
+     */
     public String[] getOpenViews() {
         return new String[0];
     }
     
+    /**
+     * Opens the given object in the given type of view in the given page.
+     * Returns true if the object was opened successfully.
+     */
     public boolean open(String openView, IWorkbenchPage page, Shell shell) {
         return false;
     }
     
     public EtomicaStatus getStatus() {
+        if ((object instanceof IntegratorIntervalListener ||
+             object instanceof IntegratorNonintervalListener) &&
+            isListenerListening(object)) {
+            return new EtomicaStatus(toString()+" is an Integrator listener, but is not listening to any Integrator", EtomicaStatus.WARNING);
+        }
         return EtomicaStatus.PEACHY;
+    }
+
+    /**
+     * Returns true if the given listener is listening to any Integrator held
+     * by the Simulation.
+     */
+    protected boolean isListenerListening(Object listener) {
+        boolean foundListener = false;
+        Iterator integratorIterator = simulation.getIntegratorList().iterator();
+        while (!foundListener && integratorIterator.hasNext()) {
+            Integrator integrator = (Integrator)integratorIterator.next();
+            Object[] listeners = integrator.getIntervalListeners();
+            for (int i=0; i<listeners.length; i++) {
+                if (listeners[i] == listener) {
+                    return true;
+                }
+            }
+
+            listeners = integrator.getNonintervalListeners();
+            for (int i=0; i<listeners.length; i++) {
+                if (listeners[i] == listener) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     
     protected Object object;
