@@ -14,7 +14,7 @@ import java.util.StringTokenizer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
-import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.FileLocator;
 import org.osgi.framework.Bundle;
 
 import etomica.potential.PotentialMaster;
@@ -62,6 +62,7 @@ public class ClassDiscovery {
     public Map getMap() {
         return map;
     }
+
     /**
      * Builds the internal table of classnames. names should contain a list of
      * classes like "etomica.Simulation". It returns a map classname->list of
@@ -80,13 +81,13 @@ public class ClassDiscovery {
         while( enums.hasMoreElements() )
         {
 		    String entry = (String) enums.nextElement();
-		    if ( entry.endsWith( "/") ) 
+		    if (entry.endsWith( "/") && !entry.equals("/bin/")) 
 		        continue;
 
 		    //IPath path = plugin_root.append( entry );
 		    URL url = bundle.getEntry( entry );
 		    try {
-		        URL resolved_url = Platform.resolve( url );
+		        URL resolved_url = FileLocator.resolve( url );
 		        if ( resolved_url.getProtocol()=="file" )
 		        {
 		            String result = resolved_url.getPath();//.toString();
@@ -187,10 +188,10 @@ public class ClassDiscovery {
         if (name.endsWith(".class")) {
             name = name.substring(0, name.length() - 6);
         }
-        Class thisclass = null;
+        Class thisClass = null;
         try {
             //System.err.println( "Trying class " + name );
-            thisclass = Class.forName(name);
+            thisClass = Class.forName(name);
         }
         catch (java.lang.ClassFormatError e) {
             System.out.println("Could not access class " + name + ": "
@@ -213,33 +214,27 @@ public class ClassDiscovery {
                     + e.getLocalizedMessage());
             return;
         }
-        if ((thisclass.getModifiers() & java.lang.reflect.Modifier.ABSTRACT) != 0) {
+        if ((thisClass.getModifiers() & java.lang.reflect.Modifier.ABSTRACT) != 0) {
             return;
         }
 
         // Test it against all other classes
         Iterator ikey = map.keySet().iterator();
-        boolean found = false;
         while (ikey.hasNext()) {
-            Class baseclass = (Class) ikey.next();
+            Class baseClass = (Class) ikey.next();
 
-            if (baseclass.isAssignableFrom(thisclass)) {
+            if (baseClass.isAssignableFrom(thisClass)) {
                 /*
                  * else if ( !thisclass.isInterface() ) { System.out.println(
                  * "...disconsidering " + thisclass.getName() + " as an
                  * implementation of " + baseclass.getName() + " because it is
                  * an interface"); continue; }
                  */
-                ArrayList list = (ArrayList) map.get(baseclass);
-                list.add(thisclass);
+                ((ArrayList)map.get(baseClass)).add(thisClass);
                 //System.err.println( "OK Added class " + thisclass.getName() +
                 // " --> " + baseclass.getName() );
-                found = true;
             }
         }
-        //if (!found)
-        //System.err.println("No matches found for class "
-        //	+ thisclass.getName());
         
 	}
 
@@ -280,6 +275,5 @@ public class ClassDiscovery {
 																				  // ->
 																				  // ArrayList
 	private boolean			dirty	= false;
-	private static String	FILESEP	= System.getProperty("file.separator");
 	private static String	PATHSEP	= System.getProperty("path.separator");
 }
