@@ -6,15 +6,22 @@ import java.util.LinkedList;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.simulation.Simulation;
-import etomica.util.Default;
 
+/**
+ * To be functional, there must exist an actual class for Parameters -- it
+ * can't just be an Object
+ */
 public class ParamObjectWrapper extends PropertySourceWrapper {
 
-    public ParamObjectWrapper(Object object) {
+    /**
+     * Make constructors private to cripple PropertySourceWrapper's reflection
+     * @param object
+     */
+    private ParamObjectWrapper(Object object) {
         this(object,null);
     }
 
-    public ParamObjectWrapper(Object object, Simulation sim) {
+    private ParamObjectWrapper(Object object, Simulation sim) {
         super(object,sim);
         setDisplayName("Input parameter");
     }

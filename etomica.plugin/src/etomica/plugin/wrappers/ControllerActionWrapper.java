@@ -10,10 +10,13 @@ import org.eclipse.ui.PlatformUI;
 import etomica.action.Action;
 import etomica.simulation.Simulation;
 
-public class ControllerActionWrapper extends PropertySourceWrapper {
+/**
+ * This doesn't work as a PropertySourceWrapper.  Might just need to go away
+ */
+public class ControllerActionWrapper { //extends PropertySourceWrapper {
 
     public ControllerActionWrapper(Action object, Simulation sim) {
-        super(object,sim);
+//        super(object,sim);
     }
 
     public void setException(Exception e) {

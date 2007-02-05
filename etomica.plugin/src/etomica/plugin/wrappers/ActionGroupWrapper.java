@@ -11,7 +11,7 @@ import etomica.plugin.wizards.NewActionWizard;
 import etomica.plugin.wizards.NewIntegratorWizard;
 import etomica.simulation.Simulation;
 
-public class ActionGroupWrapper extends PropertySourceWrapper {
+public class ActionGroupWrapper extends InterfaceWrapper {
 
     public ActionGroupWrapper(ActionGroup object, Simulation sim) {
         super(object,sim);

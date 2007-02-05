@@ -4,7 +4,7 @@ import etomica.action.Action;
 import etomica.data.DataAccumulator;
 import etomica.simulation.Simulation;
 
-public class DataAccumulatorWrapper extends DataForkWrapper {
+public class DataAccumulatorWrapper extends PropertySourceWrapper {
 
     public DataAccumulatorWrapper(DataAccumulator object, Simulation sim) {
         super(object, sim);

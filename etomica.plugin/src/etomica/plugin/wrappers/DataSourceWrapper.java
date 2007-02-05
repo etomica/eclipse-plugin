@@ -14,28 +14,18 @@ import etomica.plugin.views.DataTableViewContentProvider;
 import etomica.plugin.views.DataTableViewLabelProvider;
 import etomica.simulation.Simulation;
 
-public class DataSourceWrapper extends PropertySourceWrapper {
+public class DataSourceWrapper extends InterfaceWrapper {
 
     public DataSourceWrapper(DataSource object, Simulation sim) {
         super(object,sim);
     }
 
-    public String toString() {
-        if (displayName == null) {
-            if (object instanceof Meter) {
-                return ((Meter)object).getName();
-            }
-            return ((DataSource)object).getDataInfo().getLabel()+" source";
-        }
-        return displayName;
-    }
-
     protected IPropertyDescriptor makeDescriptor(java.beans.PropertyDescriptor property) {
         if (property.getName().startsWith("data") && !property.getName().equals("dataInfo")) {
             // exclude getData, getDataDouble, getDataAsScalar, maybe others
-            return null;
+            throw new IllegalArgumentException();
         }
-        return super.makeDescriptor(property);
+        return null;
     }
     
     public String[] getOpenViews() {

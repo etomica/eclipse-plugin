@@ -14,17 +14,19 @@ public class EtomicaStatus {
     public final String message;
     public final Type type;
     
-    public static final Type OK = new Type("OK");
-    public static final Type WARNING = new Type("Warning");
-    public static final Type ERROR = new Type("Error");
+    public static final Type OK = new Type("OK", 0);
+    public static final Type WARNING = new Type("Warning", 1);
+    public static final Type ERROR = new Type("Error", 2);
 
     public static final EtomicaStatus PEACHY = new EtomicaStatus("",OK);
 
     public static class Type extends EnumeratedType {
-        public Type(String label) {
+        public final int severity;
+        
+        public Type(String label, int severity) {
             super(label);
+            this.severity = severity;
         }
-
     }
 
 }
