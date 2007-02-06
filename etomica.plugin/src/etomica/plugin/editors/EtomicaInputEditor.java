@@ -28,7 +28,8 @@ import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.views.properties.PropertySheetEntry;
 
 import etomica.plugin.editors.eclipse.EtomicaPropertyViewer;
-import etomica.plugin.wrappers.ParamObjectWrapper;
+import etomica.plugin.wrappers.ParamWrapper;
+import etomica.util.ParamBase;
 import etomica.util.ReadParams;
 import etomica.util.WriteParams;
 
@@ -201,7 +202,7 @@ public class EtomicaInputEditor extends EditorPart {
         
         // Update viewer 
         if (viewer != null) {
-            viewer.setInput(new ParamObjectWrapper[]{new ParamObjectWrapper(paramObject)});
+            viewer.setInput(new ParamWrapper[]{new ParamWrapper(paramObject)});
         }
     }
 
@@ -209,7 +210,7 @@ public class EtomicaInputEditor extends EditorPart {
         viewer = new EtomicaPropertyViewer(parent);
         viewer.setRootEntry(new PropertySheetEntry());
         if (paramObject != null) {
-            viewer.setInput(new ParamObjectWrapper[]{new ParamObjectWrapper(paramObject)});
+            viewer.setInput(new ParamWrapper[]{new ParamWrapper(paramObject)});
         }
     }
 	
@@ -221,7 +222,7 @@ public class EtomicaInputEditor extends EditorPart {
     }
 
     private IPath path = null;
-    private Object paramObject;
+    private ParamBase paramObject;
     private EtomicaPropertyViewer viewer;
     private boolean dirty_flag = false;
     private boolean isBusy = false;
