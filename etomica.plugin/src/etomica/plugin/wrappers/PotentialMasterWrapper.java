@@ -6,12 +6,15 @@ import org.eclipse.swt.widgets.Shell;
 import etomica.action.Action;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.plugin.editors.MenuItemWrapper;
 import etomica.plugin.wizards.NewSpeciesPotential;
+import etomica.plugin.wrappers.ActionListItemWrapper.ActionItemWrapper;
+import etomica.plugin.wrappers.AddItemWrapper.AddClassItemWrapper;
 import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 
-public class PotentialMasterWrapper extends PropertySourceWrapper {
+public class PotentialMasterWrapper extends PropertySourceWrapper implements RemoverWrapper, AdderWrapper {
 
     public PotentialMasterWrapper(PotentialMaster object, Simulation sim) {
         super(object,sim);
@@ -37,9 +40,6 @@ public class PotentialMasterWrapper extends PropertySourceWrapper {
     }
     
     public boolean canRemoveChild(Object obj) {
-        if (obj instanceof PropertySourceWrapper) {
-            obj = ((PropertySourceWrapper)obj).getObject();
-        }
         if (obj instanceof Potential) {
             Potential[] potentials = ((PotentialMaster)object).getPotentials();
             for (int i=0; i<potentials.length; i++) {
@@ -51,8 +51,24 @@ public class PotentialMasterWrapper extends PropertySourceWrapper {
         return false;
     }
     
-    public Class[] getAdders() {
-        return new Class[]{Potential.class};
+    public MenuItemWrapper[] getMenuItemWrappers(PropertySourceWrapper parentWrapper) {
+        AddItemWrapper addItemWrapper = new AddItemWrapper();
+
+        addItemWrapper.addSubmenuItem(new AddClassItemWrapper(Potential.class, this));
+
+        MenuItemWrapper[] itemWrappers = null;
+        if (object instanceof PotentialMasterCell || object instanceof PotentialMasterList) {
+            PotentialMasterReset potentialMasterReset = new PotentialMasterReset((PotentialMaster)object);
+            ActionListItemWrapper actionListItemWrapper = new ActionListItemWrapper();
+            actionListItemWrapper.addSubmenuItem(new ActionItemWrapper(potentialMasterReset));
+            itemWrappers = new MenuItemWrapper[]{addItemWrapper, actionListItemWrapper};
+        }
+        else {
+            itemWrappers = new MenuItemWrapper[]{addItemWrapper};
+        }
+
+        return PropertySourceWrapper.combineMenuItemWrappers(itemWrappers, 
+                super.getMenuItemWrappers(parentWrapper));
     }
 
     public boolean addObjectClass(Simulation sim, Class newObjectClass, Shell shell) {

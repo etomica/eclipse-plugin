@@ -16,23 +16,26 @@ import etomica.plugin.wrappers.ArrayWrapper;
  */
 public class RefreshItemSelectionListener implements SelectionListener {
     
+    public RefreshItemSelectionListener(TreeViewer viewer) {
+        this.viewer = viewer;
+    }
+    
     public void widgetSelected(SelectionEvent e){
-        TreeViewer simViewer = (TreeViewer)e.widget.getData();
 
         //retrieve the object from the tree viewer directly
-        TreeItem[] selection = simViewer.getTree().getSelection();
+        TreeItem[] selection = viewer.getTree().getSelection();
         
         if (selection.length == 0) {
             //nothing selected, refresh everything
-            simViewer.refresh();
+            viewer.refresh();
             return;
         }
         
-        TreeItem selectedItem = simViewer.getTree().getSelection()[0];
+        TreeItem selectedItem = viewer.getTree().getSelection()[0];
         TreeItem parentItem = selectedItem.getParentItem();
         if (parentItem == null) {
             //top-level item selected, refresh everything
-            simViewer.refresh();
+            viewer.refresh();
             return;
         }
         
@@ -43,17 +46,19 @@ public class RefreshItemSelectionListener implements SelectionListener {
             parentItem = parentItem.getParentItem();
             if (parentItem == null) {
                 //top-level array selected, refresh everything
-                simViewer.refresh();
+                viewer.refresh();
                 return;
             }
             parentObj = selectedItem.getData();
         }
         
         //refresh the parent
-        simViewer.refresh(parentObj);
+        viewer.refresh(parentObj);
     }
 
     public void widgetDefaultSelected(SelectionEvent e){
         widgetSelected(e);
     }
+    
+    protected final TreeViewer viewer;
 }

@@ -1,28 +1,15 @@
 package etomica.plugin.editors;
 
-import java.net.URL;
-
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.DecoratingLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.internal.EditorActionBars;
 
-import etomica.plugin.EtomicaPlugin;
 import etomica.plugin.editors.listeners.EditorSelectionChangedListener;
 import etomica.plugin.editors.listeners.EtomicaStatusBarUpdater;
 import etomica.plugin.editors.listeners.OpenActionListener;
-import etomica.plugin.editors.listeners.RefreshItemSelectionListener;
-import etomica.plugin.editors.listeners.RemoveItemSelectionListener;
 import etomica.plugin.views.ActionsViewContentProvider;
 import etomica.plugin.views.SimulationViewContentProvider;
 import etomica.plugin.wrappers.SimulationWrapper;
@@ -59,40 +46,7 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
 
         Menu viewMenu = new Menu(viewer.getTree());
 
-        MenuItem refreshItem = new MenuItem(viewMenu,SWT.NONE);
-        refreshItem.setText("Refresh");
-        // stash the viewer in the MenuItem so the listeners can get it
-        refreshItem.setData(viewer);
-        refreshItem.addSelectionListener(new RefreshItemSelectionListener());
-        
-        MenuItem removeItem = new MenuItem(viewMenu,SWT.NONE);
-        removeItem.setText("Remove");
-        // stash the viewer in the MenuItem so the listeners can get it
-        removeItem.setData(viewer);
-        removeItem.addSelectionListener(new RemoveItemSelectionListener(editor));
-
-        MenuItem addItem = new MenuItem(viewMenu,SWT.CASCADE);
-        addItem.setText("Add");
-        Menu addSubMenu = new Menu(addItem);
-        addItem.setMenu(addSubMenu);
-        // stash the viewer in the MenuItem so the listeners can get it
-        addItem.setData(viewer);
-
-        MenuItem openItem = new MenuItem(viewMenu,SWT.CASCADE);
-        openItem.setText("Open As");
-        // stash the viewer in the MenuItem so the listeners can get it
-        openItem.setData("viewer",viewer);
-        Menu openSubMenu = new Menu(openItem);
-        openItem.setMenu(openSubMenu);
-        
-        MenuItem actionItem = new MenuItem(viewMenu,SWT.CASCADE);
-        actionItem.setText("Actions");
-        Menu actionSubMenu = new Menu(actionItem);
-        actionItem.setMenu(actionSubMenu);
-        // stash the viewer in the MenuItem so the listeners can get it
-        actionItem.setData(viewer);
-        
-        viewer.addSelectionChangedListener(new EditorSelectionChangedListener(openItem,removeItem,addItem,actionItem,editor));
+        viewer.addSelectionChangedListener(new EditorSelectionChangedListener(viewMenu, editor));
         viewer.getTree().setMenu(viewMenu);
 
         viewer.addSelectionChangedListener(new EtomicaStatusBarUpdater(
@@ -103,11 +57,12 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
         actionsViewer.setLabelProvider(new DecoratingLabelProvider(new LabelProvider(),null));
 
         viewMenu = new Menu(actionsViewer.getTree());
-        refreshItem = new MenuItem(viewMenu,SWT.NONE);
-        refreshItem.setText("Refresh");
-        // stash the viewer in the MenuItem so the listeners can get it
-        refreshItem.setData(actionsViewer);
-        refreshItem.addSelectionListener(new RefreshItemSelectionListener());
+        new RefreshItemWrapper().addItemToMenu(viewMenu, actionsViewer, null);
+//        refreshItem = new MenuItem(viewMenu,SWT.NONE);
+//        refreshItem.setText("Refresh");
+//        // stash the viewer in the MenuItem so the listeners can get it
+//        refreshItem.setData(actionsViewer);
+//        refreshItem.addSelectionListener(new RefreshItemSelectionListener());
         actionsViewer.getTree().setMenu(viewMenu);
         OpenActionListener openActionListener = new OpenActionListener();
         actionsViewer.addDoubleClickListener(openActionListener);

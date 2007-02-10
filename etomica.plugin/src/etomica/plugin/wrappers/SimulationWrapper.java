@@ -11,13 +11,16 @@ import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.phase.Phase;
+import etomica.plugin.editors.EtomicaEditor;
+import etomica.plugin.editors.MenuItemWrapper;
 import etomica.plugin.wizards.NewDataStreamWizard;
 import etomica.plugin.wizards.NewSpeciesWizard;
+import etomica.plugin.wrappers.AddItemWrapper.AddClassItemWrapper;
 import etomica.simulation.DataStreamHeader;
 import etomica.simulation.Simulation;
 import etomica.species.Species;
 
-public class SimulationWrapper extends PropertySourceWrapper {
+public class SimulationWrapper extends PropertySourceWrapper implements RemoverWrapper, AdderWrapper {
 
     public SimulationWrapper(Simulation sim) {
         super(sim,sim);
@@ -57,9 +60,6 @@ public class SimulationWrapper extends PropertySourceWrapper {
     }
 
     public boolean canRemoveChild(Object obj) {
-        if (obj instanceof PropertySourceWrapper) {
-            obj = ((PropertySourceWrapper)obj).getObject();
-        }
         Object[] objs = new Object[0];
         if (obj instanceof Phase) {
             objs = ((Simulation)object).getPhases();
@@ -78,8 +78,15 @@ public class SimulationWrapper extends PropertySourceWrapper {
         return false;
     }
 
-    public Class[] getAdders() {
-        return new Class[]{Phase.class,Species.class,DataStreamHeader.class};
+    public MenuItemWrapper[] getMenuItemWrappers(PropertySourceWrapper parentWrapper) {
+        AddItemWrapper addItemWrapper = new AddItemWrapper();
+
+        addItemWrapper.addSubmenuItem(new AddClassItemWrapper(Phase.class, this));
+        addItemWrapper.addSubmenuItem(new AddClassItemWrapper(Species.class, this));
+        addItemWrapper.addSubmenuItem(new AddClassItemWrapper(DataStreamHeader.class, this));
+
+        return PropertySourceWrapper.combineMenuItemWrappers(
+                new MenuItemWrapper[]{addItemWrapper}, super.getMenuItemWrappers(parentWrapper));
     }
     
     public boolean addObjectClass(Simulation sim, Class newObjectClass, Shell shell) {

@@ -3,18 +3,20 @@ package etomica.plugin.editors.listeners;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IWorkbenchPage;
 
-import etomica.plugin.wrappers.PropertySourceWrapper;
+import etomica.plugin.wrappers.OpenerWrapper;
 
 /**
  * Listener that fires when an "action" MenuItem is selected.  It retrieves
  * the action from the menu item and invokes it.
  */
 public class OpenSelectionListener implements SelectionListener {
-    public OpenSelectionListener(IWorkbenchPage page) {
+    public OpenSelectionListener(IWorkbenchPage page, TreeViewer viewer, String openView, OpenerWrapper wrapper) {
         workbenchPage = page;
+        this.viewer = viewer;
+        this.openView = openView;
+        this.wrapper = wrapper;
     }
     
     public void widgetDefaultSelected(SelectionEvent e){
@@ -22,15 +24,11 @@ public class OpenSelectionListener implements SelectionListener {
     }
     
     public void widgetSelected(SelectionEvent e){
-        TreeViewer simViewer = (TreeViewer)e.widget.getData("viewer");
-        TreeItem selectedItem = simViewer.getTree().getSelection()[0];
-        Object selectedObj = selectedItem.getData();
-
-        if (selectedObj instanceof PropertySourceWrapper) {
-            String openView = (String)e.widget.getData("openView");
-            ((PropertySourceWrapper)selectedObj).open(openView,workbenchPage,simViewer.getControl().getShell());
-        }
+        wrapper.open(openView, workbenchPage, viewer.getControl().getShell());
     }
     
     private final IWorkbenchPage workbenchPage;
+    private final TreeViewer viewer;
+    private final String openView;
+    private final OpenerWrapper wrapper;
 }

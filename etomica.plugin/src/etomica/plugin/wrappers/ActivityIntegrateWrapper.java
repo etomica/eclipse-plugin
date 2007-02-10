@@ -4,11 +4,11 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.action.activity.ActivityIntegrate;
-import etomica.integrator.IntegratorPhase;
 import etomica.plugin.editors.EtomicaEditor;
+import etomica.plugin.editors.MenuItemWrapper;
 import etomica.simulation.Simulation;
 
-public class ActivityIntegrateWrapper extends PropertySourceWrapper {
+public class ActivityIntegrateWrapper extends PropertySourceWrapper implements RemoverWrapper, AdderWrapper {
 
     public ActivityIntegrateWrapper(ActivityIntegrate object, Simulation sim) {
         super(object,sim);
@@ -77,10 +77,14 @@ public class ActivityIntegrateWrapper extends PropertySourceWrapper {
         // couldn't find the property descriptor in our own list.  :(
     }
 
-    public Class[] getAdders() {
-        return integratorWrapper.getAdders();
+    public MenuItemWrapper[] getMenuItemWrappers(PropertySourceWrapper parentWrapper) {
+        // we have no menu items of our own.  just reuturn the integratorWrapper's menu items.
+        MenuItemWrapper[] integratorWrappers = integratorWrapper.getMenuItemWrappers(parentWrapper);
+        
+        return PropertySourceWrapper.combineMenuItemWrappers(
+                integratorWrappers, super.getMenuItemWrappers(parentWrapper));
     }
-    
+
     public boolean addObjectClass(Simulation sim, Class newObjectClass, Shell shell) {
         return integratorWrapper.addObjectClass(sim,newObjectClass,shell);
     }

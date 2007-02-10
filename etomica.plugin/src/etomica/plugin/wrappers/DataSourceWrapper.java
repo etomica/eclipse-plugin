@@ -8,13 +8,17 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.data.DataSource;
 import etomica.data.meter.Meter;
+import etomica.plugin.editors.EtomicaEditor;
+import etomica.plugin.editors.MenuItemCascadeWrapper;
+import etomica.plugin.editors.MenuItemWrapper;
 import etomica.plugin.views.DataPlotView;
 import etomica.plugin.views.DataTableView;
 import etomica.plugin.views.DataTableViewContentProvider;
 import etomica.plugin.views.DataTableViewLabelProvider;
+import etomica.plugin.wrappers.OpenItemWrapper.OpenViewItemWrapper;
 import etomica.simulation.Simulation;
 
-public class DataSourceWrapper extends InterfaceWrapper {
+public class DataSourceWrapper extends InterfaceWrapper implements OpenerWrapper {
 
     public DataSourceWrapper(DataSource object, Simulation sim) {
         super(object,sim);
@@ -28,10 +32,14 @@ public class DataSourceWrapper extends InterfaceWrapper {
         return null;
     }
     
-    public String[] getOpenViews() {
-        return new String[]{DISPLAY_TABLE, DISPLAY_PLOT};
+    public MenuItemWrapper[] getMenuItemWrappers(PropertySourceWrapper parentWrapper) {
+        MenuItemCascadeWrapper openItemWrapper = new OpenItemWrapper();
+
+        openItemWrapper.addSubmenuItem(new OpenViewItemWrapper(DISPLAY_TABLE, this));
+        openItemWrapper.addSubmenuItem(new OpenViewItemWrapper(DISPLAY_PLOT, this));
+        return new MenuItemWrapper[]{openItemWrapper};
     }
-    
+
     public boolean open(String openView, IWorkbenchPage page, Shell shell) {
         try {
             if (openView == DISPLAY_TABLE) {

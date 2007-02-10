@@ -14,17 +14,17 @@ import etomica.plugin.editors.EtomicaEditor;
  */
 public class ActionSelectionListener implements SelectionListener {
     
-    public ActionSelectionListener(EtomicaEditor editor) {
+    public ActionSelectionListener(EtomicaEditor editor, TreeViewer viewer, Action action) {
         etomicaEditor = editor;
+        this.viewer = viewer;
+        this.action = action;
     }
     
     public void widgetSelected(SelectionEvent e){
-        TreeViewer simViewer = (TreeViewer)e.widget.getData("viewer");
         //retrieve the selected tree item from the tree so we can get its parent
-        TreeItem selectedItem = simViewer.getTree().getSelection()[0];
-        Action action = (Action)e.widget.getData("action");
+        TreeItem selectedItem = viewer.getTree().getSelection()[0];
         action.actionPerformed();
-        simViewer.refresh(selectedItem);
+        viewer.refresh(selectedItem);
         etomicaEditor.markDirty();
     }
 
@@ -33,4 +33,6 @@ public class ActionSelectionListener implements SelectionListener {
     }
     
     private final EtomicaEditor etomicaEditor;
+    private final TreeViewer viewer;
+    private final Action action;
 }

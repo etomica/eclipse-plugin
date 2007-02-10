@@ -8,7 +8,6 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.internal.ExceptionHandler;
 
-import etomica.action.Action;
 import etomica.action.PDBWriter;
 import etomica.action.PhaseActionAdapter;
 import etomica.config.Configuration;
@@ -19,17 +18,27 @@ import etomica.lattice.LatticeCubicSimple;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
 import etomica.phase.Phase;
 import etomica.plugin.EtomicaPlugin;
+import etomica.plugin.editors.MenuItemCascadeWrapper;
+import etomica.plugin.editors.MenuItemWrapper;
 import etomica.plugin.views.ConfigurationViewDP;
 import etomica.plugin.views.PhaseView;
+import etomica.plugin.wrappers.ActionListItemWrapper.ActionItemWrapper;
+import etomica.plugin.wrappers.OpenItemWrapper.OpenViewItemWrapper;
 import etomica.simulation.Simulation;
 
-public class PhaseWrapper extends PropertySourceWrapper {
+public class PhaseWrapper extends PropertySourceWrapper implements OpenerWrapper {
 
     public PhaseWrapper(Phase phase, Simulation sim) {
         super(phase,sim);
     }
 
-    public Action[] getActions() {
+    public MenuItemWrapper[] getMenuItemWrappers(PropertySourceWrapper parentWrapper) {
+        MenuItemCascadeWrapper openItemWrapper = new OpenItemWrapper();
+
+        openItemWrapper.addSubmenuItem(new OpenViewItemWrapper(CONFIGURATION_DP, this));
+        openItemWrapper.addSubmenuItem(new OpenViewItemWrapper(CONFIGURATION_RASMOL, this));
+        openItemWrapper.addSubmenuItem(new OpenViewItemWrapper(PHASE, this));
+
         InitializeMolecules initializeMolecules = new InitializeMolecules();
         initializeMolecules.setPhase((Phase)object);
         BravaisLattice lattice = null;
@@ -43,11 +52,12 @@ public class PhaseWrapper extends PropertySourceWrapper {
             lattice = new LatticeCubicSimple(1, 1.0);
         }
         initializeMolecules.setConfiguration(new ConfigurationLattice(lattice));
-        return new Action[]{initializeMolecules};
-    }
-    
-    public String[] getOpenViews() {
-        return new String[]{CONFIGURATION_DP, CONFIGURATION_RASMOL, PHASE};
+        MenuItemCascadeWrapper actionItemWrapper = new ActionListItemWrapper();
+        actionItemWrapper.addSubmenuItem(new ActionItemWrapper(initializeMolecules));
+        
+        return PropertySourceWrapper.combineMenuItemWrappers(
+                new MenuItemWrapper[]{openItemWrapper,actionItemWrapper}, 
+                super.getMenuItemWrappers(parentWrapper));
     }
 
     public boolean open(String viewName, IWorkbenchPage page, Shell shell) {

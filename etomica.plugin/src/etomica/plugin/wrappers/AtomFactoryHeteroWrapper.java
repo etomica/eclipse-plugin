@@ -7,10 +7,12 @@ import etomica.atom.AtomFactoryHetero;
 import etomica.atom.AtomFactoryMono;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
+import etomica.plugin.editors.MenuItemWrapper;
+import etomica.plugin.wrappers.AddItemWrapper.AddClassItemWrapper;
 import etomica.simulation.Simulation;
 import etomica.space.CoordinateFactorySphere;
 
-public class AtomFactoryHeteroWrapper extends PropertySourceWrapper {
+public class AtomFactoryHeteroWrapper extends PropertySourceWrapper implements RemoverWrapper, AdderWrapper {
 
     public AtomFactoryHeteroWrapper(AtomFactoryHetero object, Simulation sim) {
         super(object,sim);
@@ -27,9 +29,6 @@ public class AtomFactoryHeteroWrapper extends PropertySourceWrapper {
     }
     
     public boolean canRemoveChild(Object child) {
-        if (child instanceof PropertySourceWrapper) {
-            child = ((PropertySourceWrapper)child).getObject();
-        }
         if (child instanceof AtomFactory) {
             AtomFactory[] childFactories = ((AtomFactoryHetero)object).getChildFactory();
             for (int i=0; i<childFactories.length; i++) {
@@ -41,10 +40,14 @@ public class AtomFactoryHeteroWrapper extends PropertySourceWrapper {
         return false;
     }
     
-    public Class[] getAdders() {
-        return new Class[]{AtomFactoryMono.class};
+    public MenuItemWrapper[] getMenuItemWrappers(PropertySourceWrapper parentWrapper) {
+        AddItemWrapper addItemWrapper = new AddItemWrapper();
+
+        addItemWrapper.addSubmenuItem(new AddClassItemWrapper(AtomFactoryMono.class, this));
+        return PropertySourceWrapper.combineMenuItemWrappers(
+                new MenuItemWrapper[]{addItemWrapper}, super.getMenuItemWrappers(parentWrapper));
     }
-    
+
     public boolean addObjectClass(Simulation sim, Class newObjectClass, Shell shell) {
         if (newObjectClass == AtomFactoryMono.class) {
             AtomTypeSphere leafType = new AtomTypeSphere(sim);

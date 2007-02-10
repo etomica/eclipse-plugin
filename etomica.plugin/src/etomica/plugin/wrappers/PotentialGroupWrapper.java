@@ -4,13 +4,15 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
 
 import etomica.atom.AtomType;
+import etomica.plugin.editors.MenuItemWrapper;
 import etomica.plugin.wizards.NewInterPotential;
 import etomica.plugin.wizards.NewIntraPotential;
+import etomica.plugin.wrappers.AddItemWrapper.AddClassItemWrapper;
 import etomica.potential.Potential;
 import etomica.potential.PotentialGroup;
 import etomica.simulation.Simulation;
 
-public class PotentialGroupWrapper extends PotentialWrapper {
+public class PotentialGroupWrapper extends PotentialWrapper implements RemoverWrapper, AdderWrapper {
 
     public PotentialGroupWrapper(PotentialGroup object, Simulation sim) {
         super(object,sim);
@@ -32,9 +34,6 @@ public class PotentialGroupWrapper extends PotentialWrapper {
     }
     
     public boolean canRemoveChild(Object obj) {
-        if (obj instanceof PropertySourceWrapper) {
-            obj = ((PropertySourceWrapper)obj).getObject();
-        }
         if (obj instanceof Potential) {
             Potential[] potentials = ((PotentialGroup)object).getPotentials();
             for (int i=0; i<potentials.length; i++) {
@@ -46,17 +45,23 @@ public class PotentialGroupWrapper extends PotentialWrapper {
         return false;
     }
 
-    public Class[] getAdders() {
+    public MenuItemWrapper[] getMenuItemWrappers(PropertySourceWrapper parentWrapper) {
+        
+        MenuItemWrapper[] itemWrappers = new MenuItemWrapper[0];
+        
         if (((PotentialGroup)object).nBody() == 1 || ((PotentialGroup)object).nBody() == 2) {
-            return new Class[]{Potential.class};
+            AddItemWrapper addItemWrapper = new AddItemWrapper();
+
+            addItemWrapper.addSubmenuItem(new AddClassItemWrapper(Potential.class, this));
+            itemWrappers = new MenuItemWrapper[]{addItemWrapper};
         }
-        return new Class[0];
+        
+        return PropertySourceWrapper.combineMenuItemWrappers(
+                itemWrappers, super.getMenuItemWrappers(parentWrapper));
     }
 
     public boolean addObjectClass(Simulation sim, Class newObjectClass, Shell shell) {
-        System.out.println("made it here");
         if (newObjectClass == Potential.class) {
-            System.out.println("and here");
             if (((PotentialGroup)object).nBody() == 1) {
                 NewIntraPotential wizard = new NewIntraPotential((PotentialGroup)object, sim);
 

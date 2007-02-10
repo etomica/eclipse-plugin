@@ -18,15 +18,12 @@ import java.util.LinkedList;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 
-import etomica.action.Action;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomPositionDefinition;
 import etomica.data.DataSink;
@@ -37,6 +34,8 @@ import etomica.nbr.NeighborCriterion;
 import etomica.phase.Phase;
 import etomica.plugin.Registry;
 import etomica.plugin.editors.EtomicaEditor;
+import etomica.plugin.editors.MenuItemCascadeWrapper;
+import etomica.plugin.editors.MenuItemWrapper;
 import etomica.plugin.views.CheckboxPropertyDescriptor;
 import etomica.plugin.views.ComboClassPropertyDescriptor;
 import etomica.plugin.views.ComboPropertyDescriptor;
@@ -85,7 +84,7 @@ public class PropertySourceWrapper implements IPropertySource {
     
     public static PropertySourceWrapper makeWrapper(Object obj, Simulation sim, EtomicaEditor editor) {
         if (wrapperHash == null) {
-            initHash();
+            initWrapperHash();
         }
         PropertySourceWrapper wrapper = null;
         Class objClass = obj.getClass();
@@ -95,7 +94,6 @@ public class PropertySourceWrapper implements IPropertySource {
             wrappedClass = Object[].class;
             // we have to special-case Object[] since Phase[].class != Object[].class
             wrapper = new ArrayWrapper((Object[])obj, sim);
-            System.out.println("using "+wrapper.getClass()+" for "+objClass+" ("+obj.getClass()+")");
         }
         while (wrapper == null) {
             Class wrapperClass = (Class)wrapperHash.get(objClass);
@@ -150,6 +148,10 @@ public class PropertySourceWrapper implements IPropertySource {
                 addInterfaceWrappersToWrapper(wrapper, parentInterfaces[i], wrappedClass, sim);
             }
         }
+    }
+    
+    public InterfaceWrapper[] getInterfaceWrappers() {
+        return interfaceWrappers;
     }
 
     public static Object makeWrapperForClass(Class wrapperClass, Object obj, Class objClass, Simulation sim) {
@@ -273,20 +275,13 @@ public class PropertySourceWrapper implements IPropertySource {
         return value;
     }
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.views.properties.IPropertySource#isPropertySet(java.lang.Object)
-	 */
 	public boolean isPropertySet(Object key) {
-		// TODO Auto-generated method stub
+        // not relevant
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.views.properties.IPropertySource#resetPropertyValue(java.lang.Object)
-	 */
 	public void resetPropertyValue(Object key) {
-		// TODO Auto-generated method stub
-
+        // not relevant -- do nothing
 	}
 
 	/* (non-Javadoc)
@@ -646,122 +641,90 @@ public class PropertySourceWrapper implements IPropertySource {
 
         return children;
     }
-    
+
     /**
-     * Removes the Object child from the object wrapped by this
-     * PropertySourceWrapper.  returns false if the child could not be removed.
+     * Returns an array of MenuItemWrappers appropriate for this wrapper and
+     * underlying object.  The MenuItemWrappers are taken from the
+     * PropertySourceWrapper (sub)class itself along with any
+     * InterfaceWrappers.
      */
-    public boolean removeChild(Object child) {
-        for (int i=0; i<interfaceWrappers.length; i++) {
-            if (interfaceWrappers[i].removeChild(child)) {
-                return true;
+    public MenuItemWrapper[] getMenuItemWrappers(PropertySourceWrapper parentWrapper) {
+        MenuItemWrapper[] itemWrappers = new MenuItemWrapper[0];
+
+        // removal depends on the parent rather than the child
+        if (parentWrapper != null) {
+            RemoverWrapper removerWrapper = getRemoverWrapper(parentWrapper);
+            if (removerWrapper != null) {
+                itemWrappers = (MenuItemWrapper[])Arrays.addObject(itemWrappers, 
+                        new RemoveItemWrapper(removerWrapper));
             }
         }
+
+        for (int i=0; i<interfaceWrappers.length; i++) {
+            MenuItemWrapper[] interfaceItemWrappers = interfaceWrappers[i].getMenuItemWrappers(parentWrapper);
+            itemWrappers = combineMenuItemWrappers(itemWrappers, interfaceItemWrappers);
+        }
+        return itemWrappers;
+    }
+
+    /**
+     * Returns an array containing the union of the two given arrays of item
+     * wrappers.  Wrappers are considered duplicates if
+     * wrapper1.equals(wrapper2).  With duplicate Cascade wrappers, the submenu
+     * items from wrapper2 are added to the wrapper1.
+     */
+    public static MenuItemWrapper[] combineMenuItemWrappers(MenuItemWrapper[] wrappers1, MenuItemWrapper[] wrappers2) {
+        for (int j=0; j<wrappers2.length; j++) {
+            boolean duplicate = false;
+            for (int k=0; k<wrappers1.length; k++) {
+                // include all wrappers from wrappers2 unless they're "equal" by their own definition,
+                // meaning that they accomplish the same task
+                if (wrappers1[k].equals(wrappers2[j])) {
+                    if (wrappers1[k] instanceof MenuItemCascadeWrapper) {
+                        // combine sub menus for wrappers of the same class
+                        ((MenuItemCascadeWrapper)wrappers1[k]).addSubmenuItems(
+                                ((MenuItemCascadeWrapper)wrappers1[j]).getSubmenuWrapperItems());
+                    }
+                    duplicate = true;
+                    break;
+                }
+            }
+            if (!duplicate) {
+                wrappers1 = (MenuItemWrapper[])Arrays.addObject(wrappers1, wrappers2[j]);
+            }
+        }
+
+        java.util.Arrays.sort(wrappers1);
+        return wrappers1;
+    }
+    
+    /**
+     * Check the parentWrapper and all its interfaceWrappers for ability to 
+     * remove us.  Returns the parent wrapper that can remove us, or null if
+     * no parent wrapper can.
+     */
+    protected RemoverWrapper getRemoverWrapper(PropertySourceWrapper parentWrapper) {
+        if (parentWrapper instanceof RemoverWrapper) {
+            if (((RemoverWrapper)parentWrapper).canRemoveChild(object)) {
+                return (RemoverWrapper)parentWrapper;
+            }
+        }
+        InterfaceWrapper[] parentInterfaceWrappers = parentWrapper.getInterfaceWrappers();
+        for (int i=0; i<parentInterfaceWrappers.length; i++) {
+            if (parentInterfaceWrappers[i] instanceof RemoverWrapper) {
+                if (((RemoverWrapper)parentInterfaceWrappers[i]).canRemoveChild(object)) {
+                    return (RemoverWrapper)parentInterfaceWrappers[i];
+                }
+            }
+        }
+        return null;
+    }
         
-        return false;
-    }
-
     /**
-     * Returns true if the given child can be removed (assumes that
-     * the given object is an actual child of the wrapped object).
+     * Returns the status of the underlying object (PEACHY, WARNING or ERROR).
+     * An object might not be happy becuase of its own internal state or
+     * because of its relationship with another object in the simulation.
      */
-    public boolean canRemoveChild(Object child) {
-        for (int i=0; i<interfaceWrappers.length; i++) {
-            if (interfaceWrappers[i].canRemoveChild(child)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-    
-    /**
-     * returns an array of Classes which can be added to the wrapped object.
-     */
-    public Class[] getAdders() {
-        Class[] adders = new Class[0];
-        
-        for (int i=0; i<interfaceWrappers.length; i++) {
-            Class[] moreAdders = interfaceWrappers[i].getAdders();
-            if (moreAdders.length > 0) {
-                Class[] newAdders = new Class[adders.length + moreAdders.length];
-                System.arraycopy(adders, 0, newAdders, 0, adders.length);
-                System.arraycopy(moreAdders, 0, newAdders, adders.length, moreAdders.length);
-                adders = newAdders;
-            }
-        }
-
-        return adders;
-    }
-    
-    /**
-     * Adds a new instance of an object of class newObjectClass to the wrapped object.
-     * The shell is passed so that a Wizard can be invoked if needed.
-     * Returns true if the operation is successful.
-     */
-    public boolean addObjectClass(Simulation sim, Class newObjectClass, Shell shell) {
-        for (int i=0; i<interfaceWrappers.length; i++) {
-            if (interfaceWrappers[i].addObjectClass(sim, newObjectClass, shell)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-    
-    /**
-     * returns an array of Actions relevant to the wrapped object.
-     */
-    public Action[] getActions() {
-        Action[] actions = new Action[0];
-        
-        for (int i=0; i<interfaceWrappers.length; i++) {
-            Action[] moreActions = interfaceWrappers[i].getActions();
-            if (moreActions.length > 0) {
-                Action[] newActions = new Action[actions.length + moreActions.length];
-                System.arraycopy(actions, 0, newActions, 0, actions.length);
-                System.arraycopy(moreActions, 0, newActions, actions.length, moreActions.length);
-                actions = newActions;
-            }
-        }
-
-        return actions;
-    }
-    
-    /**
-     * Returns an array of views in which the given object can be opened in
-     * @return
-     */
-    public String[] getOpenViews() {
-        String[] views = new String[0];
-        
-        for (int i=0; i<interfaceWrappers.length; i++) {
-            String[] moreViews = interfaceWrappers[i].getOpenViews();
-            if (moreViews.length > 0) {
-                String[] newViews = new String[views.length + moreViews.length];
-                System.arraycopy(views, 0, newViews, 0, views.length);
-                System.arraycopy(moreViews, 0, newViews, views.length, moreViews.length);
-                views = newViews;
-            }
-        }
-
-        return views;
-    }
-    
-    /**
-     * Opens the given object in the given type of view in the given page.
-     * Returns true if the object was opened successfully.
-     */
-    public boolean open(String openView, IWorkbenchPage page, Shell shell) {
-        for (int i=0; i<interfaceWrappers.length; i++) {
-            if (interfaceWrappers[i].open(openView, page, shell)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-    
     public EtomicaStatus getStatus() {
         EtomicaStatus status = EtomicaStatus.PEACHY;
         for (int i=0; i<interfaceWrappers.length; i++) {
@@ -811,22 +774,29 @@ public class PropertySourceWrapper implements IPropertySource {
     protected EtomicaEditor etomicaEditor;
     protected InterfaceWrapper[] interfaceWrappers;
     protected static HashMap wrapperHash;
-    
-    public static void initHash() {
+
+    /**
+     * Initializes the hash of Wrapper classes.
+     */
+    private static void initWrapperHash() {
         wrapperHash = new HashMap();
         addToWrapperHash(Registry.queryWhoExtends(PropertySourceWrapper.class));
         addToWrapperHash(Registry.queryWhoExtends(InterfaceWrapper.class));
     }
     
-    public static void addToWrapperHash(Collection wrappers) {
+    /**
+     * Adds the given wrappers to the wrapper hash.
+     */
+    private static void addToWrapperHash(Collection wrappers) {
         Iterator wrapperIterator = wrappers.iterator();
         while (wrapperIterator.hasNext()) {
             Class wrapperClass = (Class)wrapperIterator.next();
             if ((wrapperClass.getModifiers() & Modifier.ABSTRACT) != 0) {
                 // We're only interested in concrete classes
-                System.out.println("skipping "+wrapperClass);
                 continue;
             }
+            // Use the first constructor parameter to be the key in the hash.
+            // This should be the type of Object that the Wrapper wraps.
             Constructor[] constructors = wrapperClass.getConstructors();
             try {
                 if (constructors.length == 0) {
@@ -848,5 +818,4 @@ public class PropertySourceWrapper implements IPropertySource {
             }
         }
     }
-    
 }

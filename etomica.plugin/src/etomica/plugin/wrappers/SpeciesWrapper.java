@@ -13,6 +13,7 @@ public class SpeciesWrapper extends PropertySourceWrapper {
     }
 
     public PropertySourceWrapper[] getChildren() {
+        // we've got nothing interesting
         return new PropertySourceWrapper[0];
     }
     

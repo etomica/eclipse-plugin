@@ -9,7 +9,7 @@ import etomica.simulation.Simulation;
 import etomica.space.ICoordinateKinetic;
 import etomica.util.Arrays;
 
-public class AtomWrapper extends PropertySourceWrapper {
+public class AtomWrapper extends PropertySourceWrapper implements RemoverWrapper {
 
     public AtomWrapper(Atom object, Simulation sim) {
         super(object,sim);
@@ -54,6 +54,8 @@ public class AtomWrapper extends PropertySourceWrapper {
         return wrapper;
     }
     
+    // allow individual molecules to be removed.  molecules should be added via
+    // the property sheet for the SpeciesAgent
     public boolean removeChild(Object child) {
         if (child instanceof PropertySourceWrapper) {
             child = ((PropertySourceWrapper)child).getObject();
@@ -66,9 +68,6 @@ public class AtomWrapper extends PropertySourceWrapper {
     }
     
     public boolean canRemoveChild(Object child) {
-        if (child instanceof PropertySourceWrapper) {
-            child = ((PropertySourceWrapper)child).getObject();
-        }
         // we can only remove molecules
         if (child instanceof Atom && ((Atom)child).getNode().parentGroup() == object) {
             return true;

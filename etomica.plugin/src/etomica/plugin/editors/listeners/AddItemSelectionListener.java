@@ -3,11 +3,9 @@ package etomica.plugin.editors.listeners;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.TreeItem;
 
 import etomica.plugin.editors.EtomicaEditor;
-import etomica.plugin.wrappers.ArrayWrapper;
-import etomica.plugin.wrappers.PropertySourceWrapper;
+import etomica.plugin.wrappers.AdderWrapper;
 import etomica.plugin.wrappers.SimulationWrapper;
 import etomica.simulation.Simulation;
 
@@ -17,39 +15,20 @@ import etomica.simulation.Simulation;
  * wrapper.
  */
 public class AddItemSelectionListener implements SelectionListener {
-    public AddItemSelectionListener(EtomicaEditor editor) {
+    public AddItemSelectionListener(EtomicaEditor editor, AdderWrapper parentWrapper, 
+                                    Class addClass, TreeViewer simViewer) {
         etomicaEditor = editor;
+        this.parentWrapper = parentWrapper;
+        this.addClass = addClass;
+        this.simViewer = simViewer;
     }
     
     public void widgetSelected(SelectionEvent e){
-        TreeViewer simViewer = (TreeViewer)e.widget.getData("viewer");
         SimulationWrapper simWrapper = (SimulationWrapper)simViewer.getInput();
-        //retrieve the selected tree item from the tree so we can get its parent
-        TreeItem selectedItem = simViewer.getTree().getSelection()[0];
-        Object selectedObj = selectedItem.getData();
-        TreeItem parentItem = selectedItem;
-        Object parentObj = selectedObj;
-        if (parentObj instanceof ArrayWrapper) {
-            //retrieve the selected item's parent
-            parentItem = selectedItem.getParentItem();
-            while (parentItem != null) {
-                parentObj = parentItem.getData();
-                if (parentObj instanceof ArrayWrapper) {
-                    //if the parent was an array wrapper, then we really want the array's parent
-                    parentItem = parentItem.getParentItem();
-                    continue;
-                }
-                break;
-            }
-            if (parentItem == null) {
-                // selected item's parent must be the simulation.  retrieve it from
-                // the tree viewer's root.
-                parentObj = simWrapper;
-            }
-        }
-        if (((PropertySourceWrapper)parentObj).addObjectClass((Simulation)simWrapper.getObject(),
-                (Class)e.widget.getData("newClass"),simViewer.getControl().getShell())) {
-            simViewer.refresh(parentItem);
+
+        if (parentWrapper.addObjectClass((Simulation)simWrapper.getObject(),
+                addClass,simViewer.getControl().getShell())) {
+            simViewer.refresh(null);
             etomicaEditor.markDirty();
         }
     }
@@ -58,5 +37,8 @@ public class AddItemSelectionListener implements SelectionListener {
         widgetSelected(e);
     }
     
-    private final EtomicaEditor etomicaEditor;
+    protected final EtomicaEditor etomicaEditor;
+    protected final AdderWrapper parentWrapper;
+    protected final Class addClass;
+    protected final TreeViewer simViewer;
 }

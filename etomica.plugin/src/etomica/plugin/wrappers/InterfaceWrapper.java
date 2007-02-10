@@ -1,11 +1,9 @@
 package etomica.plugin.wrappers;
 
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
-import etomica.action.Action;
 import etomica.plugin.editors.EtomicaEditor;
+import etomica.plugin.editors.MenuItemWrapper;
 import etomica.simulation.Simulation;
 
 /**
@@ -101,60 +99,16 @@ public abstract class InterfaceWrapper {
     }
     
     /**
-     * Removes the Object child from the object wrapped by this
-     * PropertySourceWrapper.  returns false if the child could not be removed.
+     * Returns an array of MenuItemWrappers appropriate for this wrapper.  The
+     * only MenuItemWrappers returned are those special to the interface.
      */
-    public boolean removeChild(Object child) {
-        return false;
+    public MenuItemWrapper[] getMenuItemWrappers(PropertySourceWrapper parentWrapper) {
+        return new MenuItemWrapper[0];
     }
-
+    
     /**
-     * Returns true if the given child can be removed (assumes that
-     * the given object is an actual child of the wrapped object).
+     * Returns the status of the given object related to the wrapper interface.
      */
-    public boolean canRemoveChild(Object child) {
-        return false;
-    }
-
-    /**
-     * returns an array of Classes which can be added to the wrapped object.
-     */
-    public Class[] getAdders() {
-        return new Class[0];
-    }
-
-    /**
-     * Adds a new instance of an object of class newObjectClass to the wrapped object.
-     * The shell is passed so that a Wizard can be invoked if needed.
-     * Returns true if the operation is successful.
-     */
-    public boolean addObjectClass(Simulation sim, Class newObjectClass, Shell shell) {
-        return false;
-    }
-
-    /**
-     * returns an array of Actions relevant to the wrapped object.
-     */
-    public Action[] getActions() {
-        return new Action[0];
-    }
-
-    /**
-     * Returns an array of views in which the given object can be opened in
-     * @return
-     */
-    public String[] getOpenViews() {
-        return new String[0];
-    }
-
-    /**
-     * Opens the given object in the given type of view in the given page.
-     * Returns true if the object was opened successfully.
-     */
-    public boolean open(String openView, IWorkbenchPage page, Shell shell) {
-        return false;
-    }
-
     public EtomicaStatus getStatus() {
         return EtomicaStatus.PEACHY;
     }

@@ -2,18 +2,16 @@ package etomica.plugin.editors.listeners;
 
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.TreeItem;
 
-import etomica.action.Action;
 import etomica.plugin.editors.EtomicaEditor;
+import etomica.plugin.editors.EtomicaTreeViewer;
+import etomica.plugin.editors.MenuItemWrapper;
+import etomica.plugin.editors.RefreshItemWrapper;
 import etomica.plugin.wrappers.ArrayWrapper;
 import etomica.plugin.wrappers.PropertySourceWrapper;
-import etomica.plugin.wrappers.SimulationWrapper;
-import etomica.util.Arrays;
 
 /**
  * Listener that fires when an item is selected.  The listener populates
@@ -22,29 +20,27 @@ import etomica.util.Arrays;
  */
 public class EditorSelectionChangedListener implements ISelectionChangedListener {
     
-    public EditorSelectionChangedListener(MenuItem open, MenuItem remove, 
-            MenuItem add, MenuItem action, EtomicaEditor editor) {
-        openItem = open;
-        removeItem = remove;
-        addItem = add;
-        actionItem = action;
+    public EditorSelectionChangedListener(Menu menu, EtomicaEditor editor) {
+        this.menu = menu;
         etomicaEditor = editor;
     }
     
     public void selectionChanged(SelectionChangedEvent e) {
+        clearSubMenu(menu);
+
         if (e.getSelection().isEmpty()) {
             return;
         }
-        TreeViewer simViewer = (TreeViewer)e.getSource();
+        EtomicaTreeViewer simViewer = (EtomicaTreeViewer)e.getSource();
         //retrieve the selected tree item from the tree so we can get its parent
         TreeItem selectedItem = simViewer.getTree().getSelection()[0];
         Object selectedObj = selectedItem.getData();
         
         //retrieve the selected item's parent
         TreeItem parentItem = selectedItem.getParentItem();
-        Object parentObj = null;
+        PropertySourceWrapper parentObj = null;
         while (parentItem != null) {
-            parentObj = parentItem.getData();
+            parentObj = (PropertySourceWrapper)parentItem.getData();
             if (parentObj instanceof ArrayWrapper) {
                 //if the parent was an array wrapper, then we really want the array's parent
                 parentItem = parentItem.getParentItem();
@@ -54,92 +50,18 @@ public class EditorSelectionChangedListener implements ISelectionChangedListener
         }
         if (parentItem == null) {
             // selected item's parent must be the simulation
-            parentObj = (SimulationWrapper)simViewer.getInput();
+            parentObj = (PropertySourceWrapper)simViewer.getInput();
         }
-        
-        // query the parent's wrapper to see if the selected child can be removed 
-        if (parentObj instanceof PropertySourceWrapper
-              && ((PropertySourceWrapper)parentObj).canRemoveChild(selectedObj)) {
-            removeItem.setEnabled(true);
-        }
-        else {
-            removeItem.setEnabled(false);
-        }
+
+        new RefreshItemWrapper().addItemToMenu(menu, simViewer, etomicaEditor);
         
         if (selectedObj instanceof PropertySourceWrapper) {
-            // fix up add menu item
-            Class[] adders;
-            if (selectedObj instanceof ArrayWrapper) {
-                // if we have an array, we really want to add something to the 
-                // array's parent.
-                adders = ((PropertySourceWrapper)parentObj).getAdders();
-                Object obj = ((PropertySourceWrapper)selectedObj).getObject();
-                Class arrayClass = obj.getClass();
-                Class componentClass = arrayClass.getComponentType();
-
-                for (int i=0; i<adders.length; ) {
-                    if (!adders[i].isAssignableFrom(componentClass)) {
-                        adders = (Class[])Arrays.removeObject(adders,adders[i]);
-                    }
-                    else {
-                        i++;
-                    }
-                }
-            }
-            else {
-                adders = ((PropertySourceWrapper)selectedObj).getAdders();
-            }
-            if (adders.length == 0) {
-                addItem.setEnabled(false);
-            }
-            else {
-                addItem.setEnabled(true);
-                Menu addSubMenu = addItem.getMenu();
-                clearSubMenu(addSubMenu);
-                for (int i=0; i<adders.length; i++) {
-                    MenuItem addSubItem = new MenuItem(addSubMenu,SWT.NONE);
-                    addSubItem.setText(adders[i].getName());
-                    addSubItem.setData("viewer",simViewer);
-                    addSubItem.setData("newClass",adders[i]);
-                    addSubItem.addSelectionListener(new AddItemSelectionListener(etomicaEditor));
-                }
-            }
-
-            // fix up action item
-            Action[] actions = ((PropertySourceWrapper)selectedObj).getActions();
-            if (actions.length == 0) {
-                actionItem.setEnabled(false);
-            }
-            else {
-                actionItem.setEnabled(true);
-                Menu actionSubMenu = actionItem.getMenu();
-                clearSubMenu(actionSubMenu);
-                for (int i=0; i<actions.length; i++) {
-                    MenuItem actionSubItem = new MenuItem(actionSubMenu,SWT.NONE);
-                    actionSubItem.setText(actions[i].getLabel());
-                    actionSubItem.setData("viewer",simViewer);
-                    actionSubItem.setData("action",actions[i]);
-                    actionSubItem.addSelectionListener(new ActionSelectionListener(etomicaEditor));
-                }
-            }
-
-            String[] openViews = ((PropertySourceWrapper)selectedObj).getOpenViews();
-            if (openViews.length == 0) {
-                openItem.setEnabled(false);
-            }
-            else {
-                openItem.setEnabled(true);
-                Menu openSubMenu = openItem.getMenu();
-                clearSubMenu(openSubMenu);
-                for (int i=0; i<openViews.length; i++) {
-                    MenuItem openSubItem = new MenuItem(openSubMenu,SWT.NONE);
-                    openSubItem.setText(openViews[i]);
-                    openSubItem.setData("viewer",simViewer);
-                    openSubItem.setData("openView",openViews[i]);
-                    openSubItem.addSelectionListener(new OpenSelectionListener(etomicaEditor.getSite().getPage()));
-                }
+            MenuItemWrapper[] itemWrappers = ((PropertySourceWrapper)selectedObj).getMenuItemWrappers(parentObj);
+            for (int i=0; i<itemWrappers.length; i++) {
+                itemWrappers[i].addItemToMenu(menu, simViewer, etomicaEditor);
             }
         }
+        
     }
 
     protected void clearSubMenu(Menu subMenu) {
@@ -149,6 +71,6 @@ public class EditorSelectionChangedListener implements ISelectionChangedListener
         }
     }
         
-    private final MenuItem openItem, removeItem, addItem, actionItem;
-    private final EtomicaEditor etomicaEditor;
+    protected final Menu menu;
+    protected final EtomicaEditor etomicaEditor;
 }

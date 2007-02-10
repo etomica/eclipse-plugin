@@ -7,11 +7,14 @@ import etomica.action.Action;
 import etomica.action.ActionGroup;
 import etomica.action.activity.ActivityGroup;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.plugin.editors.MenuItemCascadeWrapper;
+import etomica.plugin.editors.MenuItemWrapper;
 import etomica.plugin.wizards.NewActionWizard;
 import etomica.plugin.wizards.NewIntegratorWizard;
+import etomica.plugin.wrappers.AddItemWrapper.AddClassItemWrapper;
 import etomica.simulation.Simulation;
 
-public class ActionGroupWrapper extends InterfaceWrapper {
+public class ActionGroupWrapper extends InterfaceWrapper implements RemoverWrapper, AdderWrapper {
 
     public ActionGroupWrapper(ActionGroup object, Simulation sim) {
         super(object,sim);
@@ -36,19 +39,16 @@ public class ActionGroupWrapper extends InterfaceWrapper {
         return success;
     }
     
-    public Class[] getAdders() {
-        Class[] actionClasses;
+    public MenuItemWrapper[] getMenuItemWrappers(PropertySourceWrapper parentWrapper) {
+        MenuItemCascadeWrapper addItemWrapper = new AddItemWrapper();
+        
+        addItemWrapper.addSubmenuItem(new AddClassItemWrapper(Action.class, this));
         if (object instanceof ActivityGroup) {
-            actionClasses = new Class[2];
-            actionClasses[1] = ActivityIntegrate.class;
+            addItemWrapper.addSubmenuItem(new AddClassItemWrapper(ActivityIntegrate.class, this));
         }
-        else {
-            actionClasses = new Class[1];
-        }
-        actionClasses[0] = Action.class;
-        return actionClasses;
+        return new MenuItemWrapper[]{addItemWrapper};
     }
-    
+
     public boolean addObjectClass(Simulation sim, Class newObjectClass, Shell shell) {
         if (newObjectClass == Action.class) {
             NewActionWizard wizard = new NewActionWizard((ActionGroup)object);
@@ -72,9 +72,6 @@ public class ActionGroupWrapper extends InterfaceWrapper {
     }
 
     public boolean canRemoveChild(Object obj) {
-        if (obj instanceof PropertySourceWrapper) {
-            obj = ((PropertySourceWrapper)obj).getObject();
-        }
         Action[] actions = ((ActionGroup)object).getAllActions();
         for (int i=0; i<actions.length; i++) {
             if (actions[i] == obj) {

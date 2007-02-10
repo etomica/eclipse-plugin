@@ -14,7 +14,10 @@ import etomica.integrator.IntegratorPhase;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.nbr.site.PotentialMasterSite;
 import etomica.phase.Phase;
+import etomica.plugin.editors.MenuItemCascadeWrapper;
+import etomica.plugin.editors.MenuItemWrapper;
 import etomica.plugin.wizards.NewIntervalListenerWizard;
+import etomica.plugin.wrappers.AddItemWrapper.AddClassItemWrapper;
 import etomica.potential.Potential;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialHard;
@@ -22,7 +25,7 @@ import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialSoft;
 import etomica.simulation.Simulation;
 
-public class IntegratorWrapper extends PropertySourceWrapper {
+public class IntegratorWrapper extends PropertySourceWrapper implements RemoverWrapper, AdderWrapper {
 
     public IntegratorWrapper(Integrator object, Simulation sim) {
         super(object,sim);
@@ -57,9 +60,6 @@ public class IntegratorWrapper extends PropertySourceWrapper {
     }
     
     public boolean canRemoveChild(Object obj) {
-        if (obj instanceof PropertySourceWrapper) {
-            obj = ((PropertySourceWrapper)obj).getObject();
-        }
         if (obj instanceof IntegratorIntervalListener) {
             IntegratorIntervalListener[] listeners = ((Integrator)object).getIntervalListeners();
             for (int i=0; i<listeners.length; i++) {
@@ -81,11 +81,16 @@ public class IntegratorWrapper extends PropertySourceWrapper {
         }
         return false;
     }
-    
-    public Class[] getAdders() {
-        return new Class[]{IntegratorIntervalListener.class};
+
+    public MenuItemWrapper[] getMenuItemWrappers(PropertySourceWrapper parentWrapper) {
+        MenuItemCascadeWrapper addItemWrapper = new AddItemWrapper();
+
+        addItemWrapper.addSubmenuItem(new AddClassItemWrapper(IntegratorIntervalListener.class, this));
+
+        return PropertySourceWrapper.combineMenuItemWrappers(
+                new MenuItemWrapper[]{addItemWrapper}, super.getMenuItemWrappers(parentWrapper));
     }
-    
+
     public boolean addObjectClass(Simulation sim, Class newObjectClass, Shell shell) {
         if (newObjectClass == IntegratorIntervalListener.class) {
             NewIntervalListenerWizard wizard = new NewIntervalListenerWizard((Integrator)object,simulation);
