@@ -15,7 +15,6 @@ import etomica.action.activity.ActivityGroup;
 import etomica.atom.AtomAddressManager;
 import etomica.compatibility.FeatureSet;
 import etomica.data.DataInfo;
-import etomica.junit.AtomIndexManagerTest;
 import etomica.math.geometry.Polytope;
 import etomica.phase.Phase;
 import etomica.plugin.wrappers.ArrayWrapper;
