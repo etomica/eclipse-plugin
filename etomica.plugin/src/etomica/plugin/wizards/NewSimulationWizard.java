@@ -44,14 +44,14 @@ import etomica.simulation.Simulation;
  * be able to open it.
  */
 
-public class NewEtomicaDocument extends Wizard implements INewWizard {
-	private NewEtomicaDocumentPage page;
+public class NewSimulationWizard extends Wizard implements INewWizard {
+	private NewSimulationPage page;
 	private ISelection selection;
 
 	/**
 	 * Constructor for NewEtomicaDocument.
 	 */
-	public NewEtomicaDocument() {
+	public NewSimulationWizard() {
 		super();
 		setNeedsProgressMonitor(true);
 	}
@@ -60,7 +60,7 @@ public class NewEtomicaDocument extends Wizard implements INewWizard {
 	 * Adding the page to the wizard.
 	 */
 	public void addPages() {
-		page = new NewEtomicaDocumentPage(selection);
+		page = new NewSimulationPage(selection);
 		addPage(page);
 	}
 

@@ -30,7 +30,7 @@ import etomica.simulation.Simulation;
  * with the extension that matches the expected one (etom).
  */
 
-public class NewEtomicaDocumentPage extends WizardPage {
+public class NewSimulationPage extends WizardPage {
 	private ISelection selection;
 	private SpaceDimensionSelector sds;
 	
@@ -45,7 +45,7 @@ public class NewEtomicaDocumentPage extends WizardPage {
 	 * Constructor for SampleNewWizardPage.
 	 * @param pageName
 	 */
-	public NewEtomicaDocumentPage(ISelection selection) {
+	public NewSimulationPage(ISelection selection) {
 		super("wizardPage");
 		setTitle("Etomica New File Wizard");
 		setDescription("This wizard creates a new Etomica document.");

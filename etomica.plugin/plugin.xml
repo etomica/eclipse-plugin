@@ -85,13 +85,13 @@
       </wizard>
       <wizard
             icon="icons/sample.gif"
-            class="etomica.plugin.wizards.NewEtomicaDocument"
+            class="etomica.plugin.wizards.NewSimulationWizard"
             descriptionImage="src/etomica/plugin/icons/element.gif"
             category="etomica.plugin"
             project="false"
             preferredPerspectives="EtomicaRun"
             name="Etomica Simulation"
-            id="etomica.plugin.wizards.NewEtomicaDocument"/>
+            id="etomica.plugin.wizards.NewSimulationWizard"/>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
