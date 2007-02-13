@@ -34,7 +34,7 @@ public class IntegratorSelectionPage extends WizardPage implements IPageChangedL
 
     public class ClassLabelProvider extends LabelProvider {
         public String getText(Object element) {
-            return ( (Class) element ).getName();
+            return ((Class)element).getName();
         }
     }
 

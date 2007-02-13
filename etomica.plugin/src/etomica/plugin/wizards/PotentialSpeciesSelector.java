@@ -346,7 +346,6 @@ public class PotentialSpeciesSelector extends Composite {
         wideGridData.horizontalSpan = 3;
 
         GridData tallGridData = new org.eclipse.swt.layout.GridData();
-        simpleGridData.horizontalSpan = 1;
         tallGridData.verticalSpan = 2;
 
         GridData textGridData = new org.eclipse.swt.layout.GridData();
