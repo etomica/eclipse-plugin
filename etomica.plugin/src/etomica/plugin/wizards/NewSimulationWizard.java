@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IContainer;
@@ -22,7 +23,9 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
@@ -30,8 +33,12 @@ import org.eclipse.ui.IWorkbenchWizard;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.internal.WorkbenchPlugin;
 
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
+import etomica.space.Space;
+import etomica.util.ParamBase;
 
 /**
  * This is a sample new wizard. Its role is to create a new file 
@@ -45,7 +52,8 @@ import etomica.simulation.Simulation;
  */
 
 public class NewSimulationWizard extends Wizard implements INewWizard {
-	private NewSimulationPage page;
+    private NewSimulationPage page;
+	private SimulationParametersPage page2;
 	private ISelection selection;
 
 	/**
@@ -62,6 +70,8 @@ public class NewSimulationWizard extends Wizard implements INewWizard {
 	public void addPages() {
 		page = new NewSimulationPage(selection);
 		addPage(page);
+        page2 = new SimulationParametersPage();
+        addPage(page2);
 	}
 
 	/**
@@ -71,7 +81,7 @@ public class NewSimulationWizard extends Wizard implements INewWizard {
 	 */
 	public boolean performFinish() {
 	  	// Create simulation based on user's choices
-	  	Simulation sim = page.createSimulation();
+	  	Simulation sim = createSimulation();
 	  	if ( sim==null )
 			return false;
 	  	
@@ -186,8 +196,7 @@ public class NewSimulationWizard extends Wizard implements INewWizard {
 	 * We will initialize file contents with a sample text.
 	 */
 
-	private InputStream openContentStream() 
-	{
+	private InputStream openContentStream() {
 		
 		ByteArrayOutputStream fos = new ByteArrayOutputStream();
 		ObjectOutputStream out = null;
@@ -205,7 +214,97 @@ public class NewSimulationWizard extends Wizard implements INewWizard {
 		return new ByteArrayInputStream( fos.toByteArray() );
 	}
 
-	/**
+    public Simulation createSimulation() {
+        Class simclass = page.getSimulationClass();
+        if ( simclass!=null )
+        {
+            ParamBase simParams = page2.getSimulationParameters();
+            try {
+                if (simParams != null) {
+                    Constructor simConstructor = null;
+                    try {
+                        simConstructor = simclass.getConstructor(new Class[]{simParams.getClass()});
+                    }
+                    catch (NoSuchMethodException e) {
+                        throw new RuntimeException(e);
+                    }
+                    try {
+                        return (Simulation)simConstructor.newInstance(new Object[]{simParams});
+                    }
+                    catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+                    catch (InvocationTargetException e) {
+                        throw new RuntimeException(e);
+                    }
+                    catch (InstantiationException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                try {
+                    return (Simulation) simclass.newInstance();
+                } catch (InstantiationException e) {
+                    throw new RuntimeException(e);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            catch (RuntimeException e) {
+                WorkbenchPlugin.getDefault().getLog().log(
+                        new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID, 0, e.getMessage(), e.getCause()));
+            }                
+            return null;//new Simulation();
+        }
+        // It's not a stock one
+        Class spaceClass = page.getSpaceClass();
+        Space space = null;
+        try {
+            space = (Space)spaceClass.getDeclaredMethod("getInstance",new Class[]{}).invoke(null,new Object[]{});
+        }
+        catch (IllegalAccessException e) {
+            System.err.println( "Illegal access while creating Space class: " + e.getMessage() );
+            e.printStackTrace();
+            return null;
+        }
+        catch (NoSuchMethodException e) {
+            System.err.println( "No such method exception while creating Space class: " + e.getMessage() );
+            e.printStackTrace();
+            return null;
+        }
+        catch (InvocationTargetException e) {
+            System.err.println( "Invocation exception while creating Space class: " + e.getMessage() );
+            e.printStackTrace();
+            return null;
+        }
+        Class potClass = page.getPotentialMasterClass();
+        PotentialMaster pot = null;
+        try {
+            pot = (PotentialMaster)potClass.getConstructor(new Class[]{Space.class}).newInstance(new Space[]{space});
+        }
+        catch (IllegalAccessException e) {
+            System.err.println( "Illegal access while creating PotentialMaster class: " + e.getMessage() );
+            e.printStackTrace();
+            return null;
+        }
+        catch (NoSuchMethodException e) {
+            System.err.println( "No such method exception while creating PotentialMaster class: " + e.getMessage() );
+            e.printStackTrace();
+            return null;
+        }
+        catch (InstantiationException e) {
+            System.err.println( "Instantiation exception while creating PotentialMaster class: " + e.getMessage() );
+            e.printStackTrace();
+            return null;
+        }
+        catch (InvocationTargetException e) {
+            System.err.println( "Invocation exception while creating space class: " + e.getMessage() );
+            e.printStackTrace();
+            return null;
+        }
+        return new Simulation(space, true, pot);
+    }
+
+    /**
 	 * We will accept the selection in the workbench to see if
 	 * we can initialize from it.
 	 * @see IWorkbenchWizard#init(IWorkbench, IStructuredSelection)
@@ -213,62 +312,14 @@ public class NewSimulationWizard extends Wizard implements INewWizard {
 	public void init(IWorkbench workbench, IStructuredSelection newSelection) {
 		selection = newSelection;
 	}
-	/*
-	protected void createProject(IProgressMonitor monitor)
-	{
-	   monitor.beginTask( "Creating project...",50);
-	   try
-	   {
-	      IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-	      monitor.subTask("Creating directories...");
-	      IProject project = root.getProject( page.getProjectName());
-	      IProjectDescription description = ResourcesPlugin.getWorkspace().newProjectDescription(project.getName());
-	      if(!Platform.getLocation().equals(page.getLocationPath()))
-	         description.setLocation(page.getLocationPath());
-	      description.setNatureIds(new String[] { PluginConstants.NATURE_ID });
-	      ICommand command = description.newCommand();
-	      command.setBuilderName(PluginConstants.BUILDER_ID);
-	      description.setBuildSpec(new ICommand[] { command });
-	      project.create(description,monitor);
-	      monitor.worked(10);
-	      
-	      project.open(monitor);
-	      project.setPersistentProperty(PluginConstants.SOURCE_PROPERTY_NAME,"src");
-	      project.setPersistentProperty(PluginConstants.RULES_PROPERTY_NAME,"rules");
-	      project.setPersistentProperty(PluginConstants.PUBLISH_PROPERTY_NAME,"publish");
-	      project.setPersistentProperty(PluginConstants.BUILD_PROPERTY_NAME,"false");
-	      monitor.worked(10);
-	      IPath projectPath = project.getFullPath(),
-	            srcPath = projectPath.append("src"),
-	            rulesPath = projectPath.append("rules"),
-	            publishPath = projectPath.append("publish");
-	      IFolder srcFolder = root.getFolder(srcPath),
-	              rulesFolder = root.getFolder(rulesPath),
-	              publishFolder = root.getFolder(publishPath);
-	      createFolderHelper(srcFolder,monitor);
-	      createFolderHelper(rulesFolder,monitor);
-	      createFolderHelper(publishFolder,monitor);
-	      monitor.worked(10);
-	      monitor.subTask(Resources.getString("eclipse.creatingfiles"));
-	      IPath indexPath = srcPath.append("index.xml"),
-	            defaultPath = rulesPath.append("default.xsl");
-	      IFile indexFile = root.getFile(indexPath),
-	            defaultFile = root.getFile(defaultPath);
-	      Class clasz = getClass();
-	      InputStream indexIS = clasz.getResourceAsStream("/org/ananas/xm/eclipse/resources/index.xml"),
-	          defaultIS = clasz.getResourceAsStream("/org/ananas/xm/eclipse/resources/default.xsl");
-	      indexFile.create(indexIS,false,new SubProgressMonitor(monitor,10));
-	      defaultFile.create(defaultIS,false,new SubProgressMonitor(monitor,10));
-	   }
-	   catch(CoreException x)
-	   {
-	      reportError(x);
-	   }
-	   finally
-	   {
-	      monitor.done();
-	   }
-	}
-	*/
+
+    public void createPageControls(Composite pageContainer) {
+        // the default behavior is to create all the pages controls
+        IWizardPage[] pages = getPages();
+        for (int i = 0; i < pages.length; i++) {
+            pages[i].createControl(pageContainer);
+        }
+    }
+    
 	private Simulation newsim = null;
 }

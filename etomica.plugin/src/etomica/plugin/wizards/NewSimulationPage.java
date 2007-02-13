@@ -1,10 +1,15 @@
 package etomica.plugin.wizards;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.IDialogPage;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -19,9 +24,11 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
+import org.eclipse.ui.internal.WorkbenchPlugin;
 
-import etomica.simulation.Simulation;
+import etomica.util.ParamBase;
 
 /**
  * The "New" wizard page allows setting the container for
@@ -31,26 +38,26 @@ import etomica.simulation.Simulation;
  */
 
 public class NewSimulationPage extends WizardPage {
-	private ISelection selection;
-	private SpaceDimensionSelector sds;
-	
-	// These are to follow eclipse UI guidelines - not to present an error message while the user 
-	//   did not input anything yet
-	private boolean containerNameModified = false;
-	private boolean fileNameModified = false;
-	private boolean simTypeModified = false;
-	private boolean spaceTypeModified = false;
-	private boolean pMasterTypeModified = false;
-	/**
-	 * Constructor for SampleNewWizardPage.
-	 * @param pageName
-	 */
-	public NewSimulationPage(ISelection selection) {
-		super("wizardPage");
-		setTitle("Etomica New File Wizard");
-		setDescription("This wizard creates a new Etomica document.");
-		this.selection = selection;
-	}
+    private ISelection selection;
+    private SpaceDimensionSelector sds;
+
+    // These are to follow eclipse UI guidelines - not to present an error message while the user 
+    //   did not input anything yet
+    private boolean containerNameModified = false;
+    private boolean fileNameModified = false;
+    private boolean simTypeModified = false;
+    private boolean spaceTypeModified = false;
+    private boolean pMasterTypeModified = false;
+    /**
+     * Constructor for SampleNewWizardPage.
+     * @param pageName
+     */
+    public NewSimulationPage(ISelection selection) {
+        super("wizardPage");
+        setTitle("Etomica New File Wizard");
+        setDescription("This wizard creates a new Etomica document.");
+        this.selection = selection;
+    }
 
 	public class ClassLabelProvider extends LabelProvider {
 		public String getText(Object element) {
@@ -62,11 +69,41 @@ public class NewSimulationPage extends WizardPage {
 	 * 
 	 * @return new Simulation based on user's choices 
 	 */
-	public Simulation createSimulation()
-	{
-		return sds.createSimulation();
-	}
+    public Class getSimulationClass() {
+        return sds.getSimulationClass();
+    }
 	
+    public Class getSpaceClass() {
+        return sds.getSpaceClass();
+    }
+    
+    public Class getPotentialMasterClass() {
+        return sds.getPotentialMasterClass();
+    }
+    
+    public ParamBase getSimulationParam() {
+        Method paramGetter = null;
+        try {
+            paramGetter = getSimulationClass().getMethod("getParameters", null);
+        }
+        catch (NoSuchMethodException e) {
+            // method doesn't exist, which is OK
+            return null;
+        }
+        ParamBase parameters = null;
+        try {
+            parameters = (ParamBase)paramGetter.invoke(null, null);
+        }
+        catch (IllegalAccessException e) {
+            WorkbenchPlugin.getDefault().getLog().log(
+                    new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID, 0, e.getMessage(), e.getCause()));
+        }
+        catch (InvocationTargetException e) {
+            WorkbenchPlugin.getDefault().getLog().log(
+                    new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID, 0, e.getMessage(), e.getCause()));
+        }
+        return parameters;
+    }
 
 	/**
 	 * @see IDialogPage#createControl(Composite)
@@ -184,37 +221,6 @@ public class NewSimulationPage extends WizardPage {
 		IWorkspaceRoot myroot = ResourcesPlugin.getWorkspace().getRoot();
 		Shell shell = getShell();
 		
-		
-		/*
-		FileDialog dialog = new FileDialog( shell );
-		
-		String filename = dialog.open();
-		if ( filename.length()>0 )
-		{
-			containerText.setText( filename );
-		}
-		*/
-		 
-		/*
-		ResourceSelectionDialog dialog =
-			new ResourceSelectionDialog(
-				shell,
-				myroot,
-				"Select new file container");
-		if (dialog.open() == ResourceSelectionDialog.OK) {
-			Object[] result = dialog.getResult();
-			int nfiles = result.length;
-			if (nfiles >= 1) {
-				sds.container_name.setText(((Path)result[0]).toOSString());
-			}
-			else
-			{
-				// leave it blank
-				sds.container_name.setText( "" ); 
-			}
-		}
-		*/
-		
 		ContainerSelectionDialog dialog = new ContainerSelectionDialog
 			( shell, myroot, true, "Select new file container");
 		if ( dialog.open()==ContainerSelectionDialog.OK )
@@ -300,77 +306,9 @@ public class NewSimulationPage extends WizardPage {
 		return sds.file_name.getText();
 	}
 
+    public boolean canFlipToNextPage() {
+        //if the selected Simulation class has parameters, user can go to the
+        //next page to set them.
+        return isPageComplete() && (getSimulationParam() != null);
+    }
 }
-
-
-/*
-/////// FILE ASSIGN
-Composite container = new Composite(root_container, SWT.NULL);
-GridLayout layout = new GridLayout();
-container.setLayout(layout);
-layout.numColumns = 3;
-layout.verticalSpacing = 9;
-Label label = new Label(container, SWT.NULL);
-label.setText("&Container:");
-
-containerText = new Text(container, SWT.BORDER | SWT.SINGLE);
-GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-containerText.setLayoutData(gd);
-containerText.addModifyListener(new ModifyListener() {
-	public void modifyText(ModifyEvent e) {
-		dialogChanged();
-	}
-});
-
-Button button = new Button(container, SWT.PUSH);
-button.setText("Browse...");
-button.addSelectionListener(new SelectionAdapter() {
-	public void widgetSelected(SelectionEvent e) {
-		handleBrowse();
-	}
-});
-label = new Label(container, SWT.NULL);
-label.setText("&File name:");
-
-fileText = new Text(container, SWT.BORDER | SWT.SINGLE);
-gd = new GridData(GridData.FILL_HORIZONTAL);
-fileText.setLayoutData(gd);
-fileText.addModifyListener(new ModifyListener() {
-	public void modifyText(ModifyEvent e) {
-		dialogChanged();
-	}
-});
-
-////////// SPACE SELECTION
-container = new Composite(root_container, SWT.NULL);
-layout = new GridLayout();
-container.setLayout(layout);
-layout.numColumns = 1;
-layout.verticalSpacing = 9;
-
-// List of spaces
-label = new Label(container, SWT.NULL);
-label.setText("&Space:");
-ListViewer spacelist = new ListViewer( container );
-Collection spaces_from_registry = Registry.queryWhoExtends( etomica.Space.class );
-
-spacelist.setContentProvider( 
-		new IStructuredContentProvider() 
-		{
-			public Object[] getElements( Object input ) {
-				return ((Collection)input).toArray();
-			}
-
-			public void dispose() {	}
-
-			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-			}
-		}
-	);
-spacelist.setLabelProvider( new ClassLabelProvider() );
-spacelist.setInput( spaces_from_registry );
-
-
-Collection pmaster_from_registry = Registry.queryWhoExtends( etomica.PotentialMaster.class );
-*/
-

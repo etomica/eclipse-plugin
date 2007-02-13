@@ -6,7 +6,6 @@
  */
 package etomica.plugin.wizards;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -22,9 +21,7 @@ import org.eclipse.swt.widgets.Text;
 
 import etomica.EtomicaInfo;
 import etomica.plugin.Registry;
-import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
-import etomica.space.Space;
 /**
  * @author Henrique
  *
@@ -48,74 +45,21 @@ public class SpaceDimensionSelector extends Composite {
 	private HashMap potmap = new HashMap();
 	
 	private Label label5 = null;
-	public Simulation createSimulation()
-	{
-		int item = sim_types.getSelectionIndex();
-		Class simclass = (Class) simtypemap.get( sim_types.getItem( item ) );
-		if ( simclass!=null )
-		{
-			try {
-				return (Simulation) simclass.newInstance();
-			} catch (InstantiationException e) {
-				System.err.println( "Could not instantiate class: " + e.getMessage() );
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				System.err.println( "Illegal access while creating class: " + e.getMessage() );
-				e.printStackTrace();
-			}
-			return null;//new Simulation();
-		}
-		// It's not a stock one
-		Class spaceClass = (Class)spacemap.get(space_list.getText());
-		Space space = null;
-		try {
-			space = (Space)spaceClass.getDeclaredMethod("getInstance",new Class[]{}).invoke(null,new Object[]{});
-		}
-		catch (IllegalAccessException e) {
-			System.err.println( "Illegal access while creating Space class: " + e.getMessage() );
-			e.printStackTrace();
-			return null;
-		}
-		catch (NoSuchMethodException e) {
-			System.err.println( "No such method exception while creating Space class: " + e.getMessage() );
-			e.printStackTrace();
-			return null;
-		}
-		catch (InvocationTargetException e) {
-			System.err.println( "Invocation exception while creating Space class: " + e.getMessage() );
-			e.printStackTrace();
-			return null;
-		}
-		Class potClass = (Class) potmap.get( master_potential_list.getText() );
-        PotentialMaster pot = null;
-        try {
-            pot = (PotentialMaster)potClass.getConstructor(new Class[]{Space.class}).newInstance(new Space[]{space});
-        }
-        catch (IllegalAccessException e) {
-            System.err.println( "Illegal access while creating PotentialMaster class: " + e.getMessage() );
-            e.printStackTrace();
-            return null;
-        }
-        catch (NoSuchMethodException e) {
-            System.err.println( "No such method exception while creating PotentialMaster class: " + e.getMessage() );
-            e.printStackTrace();
-            return null;
-        }
-        catch (InstantiationException e) {
-            System.err.println( "Instantiation exception while creating PotentialMaster class: " + e.getMessage() );
-            e.printStackTrace();
-            return null;
-        }
-        catch (InvocationTargetException e) {
-            System.err.println( "Invocation exception while creating space class: " + e.getMessage() );
-            e.printStackTrace();
-            return null;
-        }
-		return new Simulation(space, true, pot);
-	}
-	
-	
-	/**
+    
+    public Class getSimulationClass() {
+        int item = sim_types.getSelectionIndex();
+        return (Class)simtypemap.get(sim_types.getItem(item));
+    }
+    
+    public Class getSpaceClass() {
+        return (Class)spacemap.get(space_list.getText());
+    }
+    
+    public Class getPotentialMasterClass() {
+        return (Class)potmap.get(master_potential_list.getText());
+    }
+    
+    /**
 	 * @param parent
 	 * @param style
 	 */
@@ -202,24 +146,6 @@ public class SpaceDimensionSelector extends Composite {
 		gridData12.horizontalAlignment = org.eclipse.swt.layout.GridData.FILL;
 		gridData12.verticalAlignment = org.eclipse.swt.layout.GridData.CENTER;
 		sim_types.setLayoutData(gridData12);
-	}
-       	public static void main(String[] args) {
-		/* Before this is run, be sure to set up the following in the launch configuration 
-		 * (Arguments->VM Arguments) for the correct SWT library path. 
-		 * The following is a windows example:
-		 * -Djava.library.path="installation_directory\plugins\org.eclipse.swt.win32_3.0.0\os\win32\x86"
-		 */
-		org.eclipse.swt.widgets.Display display = org.eclipse.swt.widgets.Display.getDefault();		
-		org.eclipse.swt.widgets.Shell shell = new org.eclipse.swt.widgets.Shell(display);
-		shell.setLayout(new org.eclipse.swt.layout.FillLayout());
-		shell.setSize(new org.eclipse.swt.graphics.Point(300,200));
-		SpaceDimensionSelector thisClass = new SpaceDimensionSelector(shell, org.eclipse.swt.SWT.NONE);
-		shell.open();
-		
-		while (!shell.isDisposed()) {
-			if (!display.readAndDispatch()) display.sleep ();
-		}
-		display.dispose();		
 	}
 
 	private void initialize() {
