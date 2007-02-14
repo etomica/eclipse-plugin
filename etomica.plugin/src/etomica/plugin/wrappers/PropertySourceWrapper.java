@@ -733,40 +733,9 @@ public class PropertySourceWrapper implements IPropertySource {
                 status = interfaceStatus;
             }
         }
-        if (status.type.severity == 0 && (object instanceof IntegratorIntervalListener ||
-             object instanceof IntegratorNonintervalListener) &&
-            !isListenerListening(object)) {
-            return new EtomicaStatus(toString()+" is an Integrator listener, but is not listening to any Integrator", EtomicaStatus.WARNING);
-        }
         return status;
     }
 
-    /**
-     * Returns true if the given listener is listening to any Integrator held
-     * by the Simulation.
-     */
-    protected boolean isListenerListening(Object listener) {
-        boolean foundListener = false;
-        Iterator integratorIterator = simulation.getIntegratorList().iterator();
-        while (!foundListener && integratorIterator.hasNext()) {
-            Integrator integrator = (Integrator)integratorIterator.next();
-            Object[] listeners = integrator.getIntervalListeners();
-            for (int i=0; i<listeners.length; i++) {
-                if (listeners[i] == listener) {
-                    return true;
-                }
-            }
-
-            listeners = integrator.getNonintervalListeners();
-            for (int i=0; i<listeners.length; i++) {
-                if (listeners[i] == listener) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-    
     protected Object object;
 	protected IPropertyDescriptor[] descriptors;
     protected String displayName;
