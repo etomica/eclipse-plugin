@@ -38,7 +38,7 @@ import org.eclipse.ui.internal.WorkbenchPlugin;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
-import etomica.util.ParamBase;
+import etomica.util.ParameterBase;
 
 /**
  * This is a sample new wizard. Its role is to create a new file 
@@ -218,7 +218,7 @@ public class NewSimulationWizard extends Wizard implements INewWizard {
         Class simclass = page.getSimulationClass();
         if ( simclass!=null )
         {
-            ParamBase simParams = page2.getSimulationParameters();
+            ParameterBase simParams = page2.getSimulationParameters();
             try {
                 if (simParams != null) {
                     Constructor simConstructor = null;

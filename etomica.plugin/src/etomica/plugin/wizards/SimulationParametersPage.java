@@ -27,7 +27,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.WorkbenchPlugin;
 
 import etomica.util.EnumeratedType;
-import etomica.util.ParamBase;
+import etomica.util.ParameterBase;
 
 /**
  * Wizard page that allows the user to review and change simulation parameters.
@@ -102,7 +102,7 @@ public class SimulationParametersPage extends WizardPage implements IPageChanged
      * If any user-entered value is invalid (doesn't match the type), an
      * IllegalArgumentException is thrown.
      */
-    public ParamBase getSimulationParameters() throws IllegalArgumentException {
+    public ParameterBase getSimulationParameters() throws IllegalArgumentException {
         Field[] fields = parameters.getClass().getFields();
         for (int i=0; i<fields.length; i++) {
             String value = "";
@@ -209,6 +209,6 @@ public class SimulationParametersPage extends WizardPage implements IPageChanged
         return inputBox;
     }
     
-    protected ParamBase parameters;
+    protected ParameterBase parameters;
     protected Control[] parameterControls;
 }

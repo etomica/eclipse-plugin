@@ -28,7 +28,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import org.eclipse.ui.internal.WorkbenchPlugin;
 
-import etomica.util.ParamBase;
+import etomica.util.ParameterBase;
 
 /**
  * The "New" wizard page allows setting the container for
@@ -81,7 +81,7 @@ public class NewSimulationPage extends WizardPage {
         return sds.getPotentialMasterClass();
     }
     
-    public ParamBase getSimulationParam() {
+    public ParameterBase getSimulationParam() {
         Method paramGetter = null;
         try {
             paramGetter = getSimulationClass().getMethod("getParameters", null);
@@ -90,9 +90,9 @@ public class NewSimulationPage extends WizardPage {
             // method doesn't exist, which is OK
             return null;
         }
-        ParamBase parameters = null;
+        ParameterBase parameters = null;
         try {
-            parameters = (ParamBase)paramGetter.invoke(null, null);
+            parameters = (ParameterBase)paramGetter.invoke(null, null);
         }
         catch (IllegalAccessException e) {
             WorkbenchPlugin.getDefault().getLog().log(
