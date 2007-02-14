@@ -20,14 +20,6 @@ public class PotentialMasterWrapper extends PropertySourceWrapper implements Rem
         super(object,sim);
     }
 
-    public Action[] getActions() {
-        if (object instanceof PotentialMasterCell || object instanceof PotentialMasterList) {
-            PotentialMasterReset potentialMasterReset = new PotentialMasterReset((PotentialMaster)object);
-            return new Action[]{potentialMasterReset};
-        }
-        return new Action[0];
-    }
-    
     public boolean removeChild(Object obj) {
         if (obj instanceof PropertySourceWrapper) {
             obj = ((PropertySourceWrapper)obj).getObject();
