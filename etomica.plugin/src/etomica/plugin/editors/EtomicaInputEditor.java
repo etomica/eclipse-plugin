@@ -28,10 +28,10 @@ import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.views.properties.PropertySheetEntry;
 
 import etomica.plugin.editors.eclipse.EtomicaPropertyViewer;
-import etomica.plugin.wrappers.ParamWrapper;
-import etomica.util.ParamBase;
-import etomica.util.ReadParams;
-import etomica.util.WriteParams;
+import etomica.plugin.wrappers.ParameterWrapper;
+import etomica.util.ParameterBase;
+import etomica.util.ReadParameters;
+import etomica.util.WriteParameters;
 
 
 public class EtomicaInputEditor extends EditorPart {
@@ -62,7 +62,7 @@ public class EtomicaInputEditor extends EditorPart {
         IResource resource = workspace.getRoot().findMember(dir);
         IPath absPath = resource.getLocation();
         String filename = absPath.append(savePath.lastSegment()).toOSString();
-        WriteParams paramWriter = new WriteParams(filename,paramObject);
+        WriteParameters paramWriter = new WriteParameters(filename,paramObject);
         
         try {
             paramWriter.writeParameters(); 
@@ -128,19 +128,15 @@ public class EtomicaInputEditor extends EditorPart {
     }
     
     protected void readFromFile( String filename ) {
-        ReadParams paramReader = new ReadParams(filename);
+        ReadParameters paramReader = new ReadParameters(filename);
         // paramReader reads the class name, instantiates the object and reads the values from the file!
-        boolean success = false;
         try {
-            success = paramReader.readParameters();
+            paramReader.readParameters();
         }
         catch (RuntimeException ex) {
             WorkbenchPlugin.getDefault().getLog().log(
                     new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID, 0, "Unable to read input file " + filename, ex));
-        }
-        if (!success) {
-            WorkbenchPlugin.getDefault().getLog().log(
-                    new Status(IStatus.WARNING, PlatformUI.PLUGIN_ID, 0, "Problems reading input file " + filename, paramReader.getFirstException()));
+            return;
         }
         paramObject = paramReader.getParameterWrapper();
         if (paramObject == null) {
@@ -202,7 +198,7 @@ public class EtomicaInputEditor extends EditorPart {
         
         // Update viewer 
         if (viewer != null) {
-            viewer.setInput(new ParamWrapper[]{new ParamWrapper(paramObject)});
+            viewer.setInput(new ParameterWrapper[]{new ParameterWrapper(paramObject)});
         }
     }
 
@@ -210,7 +206,7 @@ public class EtomicaInputEditor extends EditorPart {
         viewer = new EtomicaPropertyViewer(parent);
         viewer.setRootEntry(new PropertySheetEntry());
         if (paramObject != null) {
-            viewer.setInput(new ParamWrapper[]{new ParamWrapper(paramObject)});
+            viewer.setInput(new ParameterWrapper[]{new ParameterWrapper(paramObject)});
         }
     }
 	
@@ -222,7 +218,7 @@ public class EtomicaInputEditor extends EditorPart {
     }
 
     private IPath path = null;
-    private ParamBase paramObject;
+    private ParameterBase paramObject;
     private EtomicaPropertyViewer viewer;
     private boolean dirty_flag = false;
     private boolean isBusy = false;
