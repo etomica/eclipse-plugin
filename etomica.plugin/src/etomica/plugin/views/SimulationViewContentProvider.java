@@ -13,8 +13,11 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.action.activity.ActivityGroup;
 import etomica.atom.AtomAddressManager;
+import etomica.atom.AtomTreeNode;
+import etomica.atom.iterator.AtomsetIterator;
 import etomica.compatibility.FeatureSet;
 import etomica.data.DataInfo;
+import etomica.data.DataTag;
 import etomica.math.geometry.Polytope;
 import etomica.phase.Phase;
 import etomica.plugin.wrappers.ArrayWrapper;
@@ -108,9 +111,10 @@ public class SimulationViewContentProvider implements ITreeContentProvider {
      * @param inputElement a linked list containing the simulation instances,
      * coming from Simulation.getInstances
      */
-    //the call to viewer.setInput in createPartControl causes the list of
-    //simulation instances to be the input element in this method
     public Object[] getElements(Object inputElement) {
+        //the call to viewer.setInput in createPartControl causes the list of
+        //simulation instances to be the input element in this method
+        //we'll save it for later
         simulation = (Simulation)((PropertySourceWrapper)inputElement).getObject();
         return ((PropertySourceWrapper)inputElement).getChildren();
     }
@@ -120,8 +124,7 @@ public class SimulationViewContentProvider implements ITreeContentProvider {
     }
 
     public boolean hasChildren(Object wrappedElement) {
-        // this will return false positives for non-Object or null children
-        return ((PropertySourceWrapper)wrappedElement).getPropertyDescriptors().length > 0;
+        return getChildren(wrappedElement).length > 0;
     }
 
     public void dispose() {
@@ -133,5 +136,6 @@ public class SimulationViewContentProvider implements ITreeContentProvider {
     private Simulation simulation;
     private static final Class[] excludedClasses = new Class[]{Number.class,Boolean.class,
             Color.class,Vector.class,DataInfo.class,EnumeratedType.class,AtomAddressManager.class,
-            String.class,FeatureSet.class,LinkedList.class,Space.class,Polytope.class,Class.class};
+            String.class,FeatureSet.class,LinkedList.class,Space.class,Polytope.class,Class.class,
+            AtomsetIterator.class,Space.class,DataTag.class,AtomTreeNode.class};
 }

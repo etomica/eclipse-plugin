@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -17,6 +19,8 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.WorkbenchPlugin;
 
 import etomica.EtomicaInfo;
 import etomica.plugin.ClassDiscovery;
@@ -46,12 +50,14 @@ public class SimpleClassSelector extends Composite {
     
 	private Class[] excludedClasses = new Class[0];
     private Object[][] extraChoices = new Object[0][2];
+    private Class[] extraParameterClasses = new Class[0];
+    private final Simulation sim;
     
     /**
      * @param parent
      * @param style
      */
-    public SimpleClassSelector(Composite parent, int style, String name) {
+    public SimpleClassSelector(Composite parent, int style, String name, Simulation sim) {
         super(parent, style);
         
         baseClass = new Class[0];
@@ -91,9 +97,21 @@ public class SimpleClassSelector extends Composite {
                 SimpleClassSelector.this.layout();
             }
         });
+        
+        this.sim = sim;
     }
     
-	public Object createObject(Simulation sim, Object[] extraParameters) {
+    public void setExtraParameterClasses(Class[] newExtraParameterClasses) {
+        extraParameterClasses = newExtraParameterClasses;
+        rebuildClassList();
+    }
+    
+	public Object createObject(Object[] extraParameters) {
+        if (extraParameterClasses.length < extraParameters.length) {
+            WorkbenchPlugin.getDefault().getLog().log(
+                    new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID, 0, "Extra parameters passed that do not match expectations", null));
+            return null;
+        }
         int item = classCombo.getSelectionIndex();
         Object selection = getSelection();
         if (selection == null) {
@@ -109,6 +127,8 @@ public class SimpleClassSelector extends Composite {
 
         Constructor[] constructors = objectClass.getConstructors();
         if (constructors.length == 0) {
+            WorkbenchPlugin.getDefault().getLog().log(
+                    new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID, 0, "Selected class had no constructor", null));
             return null;
         }
         for (int i=0; i<constructors.length; i++) {
@@ -167,6 +187,46 @@ public class SimpleClassSelector extends Composite {
         }
         return null;
 	}
+    
+    protected Constructor getConstructor(Class objectClass) {
+        Constructor[] constructors = objectClass.getConstructors();
+        if (constructors.length == 0) {
+            return null;
+        }
+        for (int i=0; i<constructors.length; i++) {
+            boolean found = true;
+            Class[] parameterClasses = constructors[i].getParameterTypes();
+            Object[] parameters = new Object[parameterClasses.length];
+            for (int j=0; j<parameters.length; j++) {
+                if (sim != null) {
+                    if (parameterClasses[j] != Simulation.class && 
+                        parameterClasses[j] != PotentialMaster.class &&
+                        parameterClasses[j] != Space.class) {
+                        found = false;
+                        break;
+                    }
+                }
+                else {
+                    found = false;
+                    for (int k=0; k<extraParameterClasses.length; k++) {
+                        if (parameterClasses[j].isAssignableFrom(extraParameterClasses[k])) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        break;
+                    }
+                }
+            }
+            if (!found) {
+                continue;
+            }
+            return constructors[i];
+        }
+        System.out.println("no constructor for "+objectClass.getName());
+        return null;
+    }
     
     public Object getSelection() {
         int item = classCombo.getSelectionIndex();
@@ -339,8 +399,19 @@ public class SimpleClassSelector extends Composite {
                 // user wants a specific type of Class.
                 continue;
             }
+            //look for a constructor we can use.  if there isn't one, there's no point in showing the class
+            Constructor objConstructor = getConstructor(objectClass);
+            if (objConstructor == null) {
+                continue;
+            }
+            //now we drop the constructor on the floor.  :(
+            
             EtomicaInfo info = EtomicaInfo.getInfo(objectClass);
             String str = ClassDiscovery.chopClassName(objectClass.getName())+": "+info.getShortDescription();
+            if (classMap.get(str) != null) {
+                // class was included twice due to multiple desired interfaces
+                continue;
+            }
             classCombo.add(str);
             classMap.put(str, objectClass );
         }

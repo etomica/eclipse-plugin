@@ -47,12 +47,11 @@ public class NewObjectSimplePage extends WizardPage {
         }
     }
 
-    /** Creates simulation based on user's settings 
-     * 
-     * @return new Simulation based on user's choices 
+    /** 
+     * Creates object based on user's settings
      */
     public Object createObject() {
-        Object obj = classSelector.createObject(simulation, extraParameters);
+        Object obj = classSelector.createObject(extraParameters);
         if (obj == null) {
             return null;
         }
@@ -80,8 +79,7 @@ public class NewObjectSimplePage extends WizardPage {
     public void setExtraParameters(Object[] moreParameters) {
         extraParameters = (Object[])moreParameters.clone();
     }
-        
-	
+
     /**
      * @see IDialogPage#createControl(Composite)
      */
@@ -91,7 +89,7 @@ public class NewObjectSimplePage extends WizardPage {
 	    master_layout.type = SWT.VERTICAL;
 	    root_container.setLayout( master_layout );
 
-	    classSelector = new SimpleClassSelector(root_container, org.eclipse.swt.SWT.NONE, name);
+	    classSelector = new SimpleClassSelector(root_container, org.eclipse.swt.SWT.NONE, name, simulation);
 	    wizard.fixupSelector(classSelector);
         
 	    classSelector.objectName.addModifyListener(new ModifyListener() {

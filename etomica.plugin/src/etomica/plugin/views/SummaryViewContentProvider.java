@@ -31,8 +31,6 @@ public class SummaryViewContentProvider implements ITreeContentProvider {
      * @param inputElement a linked list containing the simulation instances,
      * coming from Simulation.getInstances
      */
-    //the call to viewer.setInput in createPartControl causes the list of
-    //simulation instances to be the input element in this method
     public Object[] getElements(Object inputElement) {
         return ((PropertySourceWrapper)inputElement).getChildren();
     }
