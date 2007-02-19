@@ -13,6 +13,7 @@ import etomica.data.DataSource;
 import etomica.data.meter.Meter;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalListener;
+import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.plugin.wizards.NewObjectSimplePage.SimpleClassWizard;
@@ -26,11 +27,11 @@ import etomica.simulation.Simulation;
  * the user can also select a NeighborListManager or a DataPump from a 
  * DataStream registered with the simulation.
  */
-public class NewIntervalListenerWizard extends Wizard implements SimpleClassWizard {
+public class NewIntegratorListenerWizard extends Wizard implements SimpleClassWizard {
     /**
      * Constructor for NewEtomicaDocument.
      */
-    public NewIntervalListenerWizard(Integrator integrator, Simulation sim) {
+    public NewIntegratorListenerWizard(Integrator integrator, Simulation sim) {
         super();
         this.integrator = integrator;
         simulation = sim;
@@ -41,19 +42,20 @@ public class NewIntervalListenerWizard extends Wizard implements SimpleClassWiza
      * Adding the page to the wizard.
      */
     public void addPages() {
-        intervalListenerPage = new NewObjectSimplePage(this,simulation,"Interval Listener");
+        intervalListenerPage = new NewObjectSimplePage(this,simulation,"Integrator Listener");
         addPage(intervalListenerPage);
     }
     
     public void fixupSelector(SimpleClassSelector selector) {
-        selector.addBaseClass(IntegratorIntervalListener.class);
-        selector.addCategory("Interval Listener",IntegratorIntervalListener.class);
+        selector.addBaseClass(IntegratorListener.class);
+        selector.addCategory("Integrator Listener",IntegratorListener.class);
         selector.addBaseClass(Action.class);
         selector.addCategory("Action",Action.class);
         selector.addCategory("Phase Action",PhaseAction.class);
         selector.addCategory("Integrator Action",IntegratorAction.class);
         selector.addCategory("Simulation Action",SimulationAction.class);
         selector.setExcludedClasses(new Class[]{AtomAction.class,Activity.class});
+        selector.setExtraParameterClasses(new Class[]{Integrator.class});
         
         if (simulation.getPotentialMaster() instanceof PotentialMasterList) {
             selector.addExtraObject("Neighbor Manager",
