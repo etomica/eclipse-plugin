@@ -1,19 +1,21 @@
 package etomica.plugin.wrappers;
 
+import java.util.Vector;
+
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
 import etomica.plugin.views.DecimalPropertyDescriptor;
-import etomica.space.Vector;
+import etomica.space.IVector;
 
 public class VectorWrapper extends PropertySourceWrapper {
 
-    public VectorWrapper(Vector obj) {
+    public VectorWrapper(IVector obj) {
         super(obj);
         setDisplayName("Vector");
     }
 
     protected void generateDescriptors() {
-        Vector vector = (Vector)object;
+        IVector vector = (IVector)object;
        //Introspection to get array of all properties
         descriptors= new PropertyDescriptor[vector.D()];
         for (int i=0; i<descriptors.length; i++) {
@@ -23,12 +25,12 @@ public class VectorWrapper extends PropertySourceWrapper {
 
     public Object getPropertyValue(Object key) {
         int index = ((Integer)key).intValue();
-        return new Double(((Vector)object).x(index));
+        return new Double(((IVector)object).x(index));
     }
     
     public void setPropertyValue(Object arg0, Object arg1) {
         int index = ((Integer)arg0).intValue();
-        ((Vector)object).setX(index,((Double)arg1).doubleValue());
+        ((IVector)object).setX(index,((Double)arg1).doubleValue());
     }
 
     

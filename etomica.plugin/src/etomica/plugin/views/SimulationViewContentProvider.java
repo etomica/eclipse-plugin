@@ -27,9 +27,8 @@ import etomica.plugin.wrappers.AtomTypeWrapper;
 import etomica.plugin.wrappers.PropertySourceWrapper;
 import etomica.plugin.wrappers.SimulationWrapper;
 import etomica.simulation.Simulation;
-import etomica.space.ICoordinate;
+import etomica.space.IVector;
 import etomica.space.Space;
-import etomica.space.Vector;
 import etomica.util.Arrays;
 import etomica.util.EnumeratedType;
 
@@ -190,9 +189,9 @@ public class SimulationViewContentProvider implements ITreeContentProvider {
     
     private Simulation simulation;
     private static final Class[] excludedClasses = new Class[]{Number.class,Boolean.class,
-            Color.class,Vector.class,DataInfo.class,EnumeratedType.class,AtomAddressManager.class,
+            Color.class,IVector.class,DataInfo.class,EnumeratedType.class,AtomAddressManager.class,
             String.class,FeatureSet.class,LinkedList.class,Space.class,Polytope.class,Class.class,
-            AtomsetIterator.class,Space.class,DataTag.class,AtomTreeNode.class,ICoordinate.class};
+            AtomsetIterator.class,Space.class,DataTag.class,AtomTreeNode.class};
     
     private HashMap wrapperHash;
     

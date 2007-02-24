@@ -3,10 +3,8 @@ package etomica.plugin.wrappers;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.atom.Atom;
-import etomica.atom.AtomLeaf;
 import etomica.atom.AtomTreeNodeGroup;
 import etomica.simulation.Simulation;
-import etomica.space.ICoordinateKinetic;
 import etomica.util.Arrays;
 
 public class AtomWrapper extends PropertySourceWrapper implements RemoverWrapper {
@@ -20,12 +18,6 @@ public class AtomWrapper extends PropertySourceWrapper implements RemoverWrapper
         if (((Atom)object).getNode().childAtomCount() > 0) {
             descriptors = (IPropertyDescriptor[])Arrays.addObject(descriptors,new org.eclipse.ui.views.properties.PropertyDescriptor("children","children"));
         }
-        if (object instanceof AtomLeaf) {
-            descriptors = (IPropertyDescriptor[])Arrays.addObject(descriptors,new org.eclipse.ui.views.properties.PropertyDescriptor("position","position"));
-            if (((AtomLeaf)object).getCoord() instanceof ICoordinateKinetic) {
-                descriptors = (IPropertyDescriptor[])Arrays.addObject(descriptors,new org.eclipse.ui.views.properties.PropertyDescriptor("velocity","velocity"));
-            }
-        }
     }
 
     public Object getPropertyValue(Object key) {
@@ -38,14 +30,6 @@ public class AtomWrapper extends PropertySourceWrapper implements RemoverWrapper
             Atom[] childAtoms = ((AtomTreeNodeGroup)((Atom)object).getNode()).getChildList().toArray();
             wrapper = PropertySourceWrapper.makeWrapper(childAtoms, simulation, etomicaEditor);
             wrapper.setDisplayName("Child Atoms");
-        }
-        if (keyString.equals("position")) {
-            wrapper = PropertySourceWrapper.makeWrapper(((AtomLeaf)object).getCoord().position(), 
-                    simulation, etomicaEditor);
-        }
-        if (keyString.equals("velocity")) {
-            wrapper = PropertySourceWrapper.makeWrapper(((ICoordinateKinetic)((AtomLeaf)object).getCoord()).velocity(),
-                    simulation, etomicaEditor);
         }
         return wrapper;
     }

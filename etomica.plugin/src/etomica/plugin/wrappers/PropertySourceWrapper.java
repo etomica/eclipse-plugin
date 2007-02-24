@@ -28,8 +28,6 @@ import etomica.atom.AtomFactory;
 import etomica.atom.AtomPositionDefinition;
 import etomica.data.DataSink;
 import etomica.integrator.Integrator;
-import etomica.integrator.IntegratorIntervalListener;
-import etomica.integrator.IntegratorNonintervalListener;
 import etomica.nbr.NeighborCriterion;
 import etomica.phase.Phase;
 import etomica.plugin.Registry;
@@ -43,7 +41,7 @@ import etomica.plugin.views.DecimalPropertyDescriptor;
 import etomica.plugin.views.IntegerPropertyDescriptor;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
-import etomica.space.Vector;
+import etomica.space.IVector;
 import etomica.units.Dimension;
 import etomica.units.Unit;
 import etomica.units.systems.UnitSystem;
@@ -83,7 +81,7 @@ public class PropertySourceWrapper implements IPropertySource {
     }
     
     public static PropertySourceWrapper makeWrapper(Object obj, Simulation sim, EtomicaEditor editor) {
-        if (wrapperHash == null) {
+        if (wrapperClassHash == null) {
             initWrapperHash();
         }
         PropertySourceWrapper wrapper = null;
@@ -96,7 +94,7 @@ public class PropertySourceWrapper implements IPropertySource {
             wrapper = new ArrayWrapper((Object[])obj, sim);
         }
         while (wrapper == null) {
-            Class wrapperClass = (Class)wrapperHash.get(objClass);
+            Class wrapperClass = (Class)wrapperClassHash.get(objClass);
             if (wrapperClass != null) {
                 wrappedClass = objClass;
                 wrapper = (PropertySourceWrapper)makeWrapperForClass(wrapperClass, obj, objClass, sim);
@@ -131,7 +129,7 @@ public class PropertySourceWrapper implements IPropertySource {
     }
     
     public static void addInterfaceWrappersToWrapper(PropertySourceWrapper wrapper, Class someInterface, Class wrappedClass, Simulation sim) {
-        Class wrapperClass = (Class)wrapperHash.get(someInterface);
+        Class wrapperClass = (Class)wrapperClassHash.get(someInterface);
         if (wrapperClass != null) {
             // we found a wrapper for this specific interface
             Object obj = wrapper.getObject();
@@ -266,8 +264,8 @@ public class PropertySourceWrapper implements IPropertySource {
         if (value != null && value.getClass().isArray()) {
             return PropertySourceWrapper.makeWrapper(value, simulation, etomicaEditor);
         }
-        if (value instanceof Vector) {
-            return new VectorWrapper((Vector)value);
+        if (value instanceof IVector) {
+            return new VectorWrapper((IVector)value);
         }
         if (value instanceof Double) {
             value = getDisplayValue((Double)value, pd.getReadMethod().getName());
@@ -742,13 +740,13 @@ public class PropertySourceWrapper implements IPropertySource {
     protected Simulation simulation;
     protected EtomicaEditor etomicaEditor;
     protected InterfaceWrapper[] interfaceWrappers;
-    protected static HashMap wrapperHash;
+    private static HashMap wrapperClassHash;
 
     /**
      * Initializes the hash of Wrapper classes.
      */
     private static void initWrapperHash() {
-        wrapperHash = new HashMap();
+        wrapperClassHash = new HashMap();
         addToWrapperHash(Registry.queryWhoExtends(PropertySourceWrapper.class));
         addToWrapperHash(Registry.queryWhoExtends(InterfaceWrapper.class));
     }
@@ -776,10 +774,10 @@ public class PropertySourceWrapper implements IPropertySource {
                     throw new RuntimeException("Parameterless wrapper constructor for "+wrapperClass);
                 }
                 Class wrappedClass = constructorParameterClasses[0];
-                if (wrapperHash.get(wrappedClass) != null) {
-                    throw new RuntimeException("duplicate wrapper classes for "+wrappedClass+": "+wrapperClass+" and "+wrapperHash.get(wrappedClass));
+                if (wrapperClassHash.get(wrappedClass) != null) {
+                    throw new RuntimeException("duplicate wrapper classes for "+wrappedClass+": "+wrapperClass+" and "+wrapperClassHash.get(wrappedClass));
                 }
-                wrapperHash.put(wrappedClass, wrapperClass);
+                wrapperClassHash.put(wrappedClass, wrapperClass);
             }
             catch (RuntimeException e) {
                 WorkbenchPlugin.getDefault().getLog().log(
