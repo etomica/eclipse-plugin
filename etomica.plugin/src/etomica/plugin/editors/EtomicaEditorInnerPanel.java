@@ -49,7 +49,7 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
         viewer.addSelectionChangedListener(new EditorSelectionChangedListener(viewMenu, editor));
         viewer.getTree().setMenu(viewMenu);
 
-        viewer.addSelectionChangedListener(new EtomicaStatusBarUpdater(
+        viewer.addPostSelectionChangedListener(new EtomicaStatusBarUpdater(
                 ((EditorActionBars)editor.getEditorSite().getActionBars()).getStatusLineManager()));
         
         actionsViewer = new TreeViewer(actionsTree);
