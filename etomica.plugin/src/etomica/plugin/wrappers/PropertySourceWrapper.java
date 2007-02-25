@@ -736,10 +736,6 @@ public class PropertySourceWrapper implements IPropertySource {
                 return true;
             }
         }
-        if (childWrapper.getClass() == PropertySourceWrapper.class &&
-            childWrapper.getInterfaceWrappers().length == 0) {
-            System.out.println(objClass+" should not be excluded but it has no PropertySourceWrapper subclass or interfaceWrapper");
-        }
 
         return false;
     }
