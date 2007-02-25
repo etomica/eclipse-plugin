@@ -1,5 +1,7 @@
 package etomica.plugin.wrappers;
 
+import java.beans.PropertyDescriptor;
+
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.atom.Atom;
@@ -18,6 +20,13 @@ public class AtomWrapper extends PropertySourceWrapper implements RemoverWrapper
         if (((Atom)object).getNode().childAtomCount() > 0) {
             descriptors = (IPropertyDescriptor[])Arrays.addObject(descriptors,new org.eclipse.ui.views.properties.PropertyDescriptor("children","children"));
         }
+    }
+
+    protected IPropertyDescriptor makeDescriptor(PropertyDescriptor property) {
+        if (property.getDisplayName().equals("node")) {
+            return null;
+        }
+        return super.makeDescriptor(property);
     }
 
     public Object getPropertyValue(Object key) {

@@ -18,7 +18,6 @@ import java.util.LinkedList;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
@@ -28,15 +27,9 @@ import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomPositionDefinition;
-import etomica.atom.AtomTreeNode;
-import etomica.atom.SpeciesRoot;
 import etomica.atom.iterator.AtomsetIterator;
-import etomica.compatibility.FeatureSet;
-import etomica.data.DataInfo;
 import etomica.data.DataSink;
-import etomica.data.DataTag;
 import etomica.integrator.Integrator;
-import etomica.math.geometry.Polytope;
 import etomica.nbr.NeighborCriterion;
 import etomica.phase.Phase;
 import etomica.plugin.Registry;
@@ -51,7 +44,6 @@ import etomica.plugin.views.IntegerPropertyDescriptor;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.IVector;
-import etomica.space.Space;
 import etomica.species.Species;
 import etomica.units.Dimension;
 import etomica.units.Unit;
@@ -720,9 +712,41 @@ public class PropertySourceWrapper implements IPropertySource {
         }
 
         for (int j=0; j<excludedChildClasses.length; j++) {
+            if (childWrapper.getClass() == PropertySourceWrapper.class) {
+                // don't auto-exclude objects with PropertySourceWrapper subclasses
+                // since they might have open/remove functionality
+                if ((objClass.getModifiers() & Modifier.NATIVE) != 0) {
+                    // no native types
+                    return true;
+                }
+                String canonicalName = objClass.getCanonicalName();
+                String firstPackage = canonicalName.substring(0, canonicalName.indexOf("."));
+                if (firstPackage.equals("java")) {
+                    // no LinkedList, Class, etc
+                    // this might be better off as !equals("etomica")
+                    return true;
+                }
+                IPropertyDescriptor[] childDescriptors = childWrapper.getPropertyDescriptors();
+                if (childDescriptors.length == 0) {
+                    System.out.println("excluding "+objClass+" because it has no props");
+                    return true;
+                }
+            }
+                
             if (excludedChildClasses[j].isAssignableFrom(objClass)) {
+                System.out.println("excluding "+objClass);
+//                if (childWrapper.getClass() != PropertySourceWrapper.class) {
+//                    System.out.println(objClass+" should be excluded but it has a PropertySourceWrapper subclass");
+//                }
+//                if (childWrapper.getInterfaceWrappers().length > 1) {
+//                    System.out.println(objClass+" should be excluded but it has an interfaceWrapper (or more)");
+//                }
                 return true;
             }
+        }
+        if (childWrapper.getClass() == PropertySourceWrapper.class &&
+            childWrapper.getInterfaceWrappers().length == 0) {
+            System.out.println(objClass+" should not be excluded but it has no PropertySourceWrapper subclass or interfaceWrapper");
         }
 
         return false;
@@ -899,9 +923,9 @@ public class PropertySourceWrapper implements IPropertySource {
         }
     }
 
-    private static final Class[] excludedChildClasses = new Class[]{Number.class,Boolean.class,
-        Color.class,IVector.class,DataInfo.class,EnumeratedType.class,AtomAddressManager.class,
-        String.class,FeatureSet.class,LinkedList.class,Space.class,Polytope.class,Class.class,
-        AtomsetIterator.class,Space.class,DataTag.class,AtomTreeNode.class,Phase.class,
-        Species.class,SpeciesRoot.class};
+    private static final Class[] excludedChildClasses = new Class[]{
+        IVector.class,
+        AtomAddressManager.class,AtomsetIterator.class,
+        Phase.class,Species.class,
+    };
 }
