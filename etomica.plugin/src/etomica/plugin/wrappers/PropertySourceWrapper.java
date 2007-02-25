@@ -728,19 +728,11 @@ public class PropertySourceWrapper implements IPropertySource {
                 }
                 IPropertyDescriptor[] childDescriptors = childWrapper.getPropertyDescriptors();
                 if (childDescriptors.length == 0) {
-                    System.out.println("excluding "+objClass+" because it has no props");
                     return true;
                 }
             }
                 
             if (excludedChildClasses[j].isAssignableFrom(objClass)) {
-                System.out.println("excluding "+objClass);
-//                if (childWrapper.getClass() != PropertySourceWrapper.class) {
-//                    System.out.println(objClass+" should be excluded but it has a PropertySourceWrapper subclass");
-//                }
-//                if (childWrapper.getInterfaceWrappers().length > 1) {
-//                    System.out.println(objClass+" should be excluded but it has an interfaceWrapper (or more)");
-//                }
                 return true;
             }
         }
