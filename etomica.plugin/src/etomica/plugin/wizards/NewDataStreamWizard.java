@@ -44,6 +44,10 @@ public class NewDataStreamWizard extends Wizard implements SimpleClassWizard {
     public void fixupSelector(SimpleClassSelector selector) {
         selector.setBaseClass(DataSource.class);
         selector.setExcludedClasses(new Class[]{DataSink.class});
+        // the user can select an integrator to pass on page 2
+        //FIXME hopefully they don't select a class that requires an Integrator
+        // and then not select an Integrator!
+        selector.setExtraParameterClasses(new Class[]{Integrator.class});
     }
 
     /**
