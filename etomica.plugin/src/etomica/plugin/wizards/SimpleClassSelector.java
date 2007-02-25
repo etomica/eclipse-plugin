@@ -144,7 +144,7 @@ public class SimpleClassSelector extends Composite {
                         parameters[j] = sim.getPotentialMaster();
                     }
                     else if (parameterClasses[j] == Space.class) {
-                        parameters[j] = sim.space();
+                        parameters[j] = sim.getSpace();
                     }
                     else {
                         found = false;

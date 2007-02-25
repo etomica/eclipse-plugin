@@ -68,8 +68,8 @@ public class PotentialSpeciesSelector extends Composite {
                     if (parameterTypes[0].isInstance(simulation)) {
                         potential = (Potential)constructors[i].newInstance(new Object[]{simulation});
                     }
-                    else if (parameterTypes[0].isInstance(simulation.space())) {
-                        potential = (Potential)constructors[i].newInstance(new Object[]{simulation.space()});
+                    else if (parameterTypes[0].isInstance(simulation.getSpace())) {
+                        potential = (Potential)constructors[i].newInstance(new Object[]{simulation.getSpace()});
                     }
                     else {
                         continue;
