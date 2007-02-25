@@ -12,11 +12,6 @@ public class SpeciesWrapper extends PropertySourceWrapper {
         super(species,sim);
     }
 
-    public PropertySourceWrapper[] getChildren() {
-        // we've got nothing interesting
-        return new PropertySourceWrapper[0];
-    }
-    
     protected IPropertyDescriptor makeDescriptor(java.beans.PropertyDescriptor property) {
 
         if (property.getPropertyType() == SpeciesSignature.class) {

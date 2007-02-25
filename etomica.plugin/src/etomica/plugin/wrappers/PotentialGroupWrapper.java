@@ -18,10 +18,6 @@ public class PotentialGroupWrapper extends PotentialWrapper implements RemoverWr
         super(object,sim);
     }
 
-    public PropertySourceWrapper[] getChildren() {
-        return PropertySourceWrapper.wrapArrayElements(((PotentialGroup)object).getPotentials(),simulation,etomicaEditor);
-    }
-    
     public boolean removeChild(Object obj) {
         if (obj instanceof PropertySourceWrapper) {
             obj = ((PropertySourceWrapper)obj).getObject();

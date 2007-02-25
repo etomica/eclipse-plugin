@@ -1,5 +1,7 @@
 package etomica.plugin.wrappers;
 
+import java.util.LinkedList;
+
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
@@ -97,12 +99,12 @@ public class ActivityIntegrateWrapper extends PropertySourceWrapper implements R
         return integratorWrapper.removeChild(obj);
     }
     
-    public EtomicaStatus getStatus() {
-        EtomicaStatus superStatus = super.getStatus();
+    public EtomicaStatus getStatus(LinkedList parentList) {
+        EtomicaStatus superStatus = super.getStatus(parentList);
         if (superStatus.type != EtomicaStatus.OK) {
             return superStatus;
         }
-        return integratorWrapper.getStatus();
+        return integratorWrapper.getStatus(parentList);
     }
     
     private IntegratorWrapper integratorWrapper;

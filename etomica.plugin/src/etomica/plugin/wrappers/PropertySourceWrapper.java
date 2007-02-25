@@ -18,16 +18,25 @@ import java.util.LinkedList;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 
+import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomPositionDefinition;
+import etomica.atom.AtomTreeNode;
+import etomica.atom.SpeciesRoot;
+import etomica.atom.iterator.AtomsetIterator;
+import etomica.compatibility.FeatureSet;
+import etomica.data.DataInfo;
 import etomica.data.DataSink;
+import etomica.data.DataTag;
 import etomica.integrator.Integrator;
+import etomica.math.geometry.Polytope;
 import etomica.nbr.NeighborCriterion;
 import etomica.phase.Phase;
 import etomica.plugin.Registry;
@@ -42,6 +51,8 @@ import etomica.plugin.views.IntegerPropertyDescriptor;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.IVector;
+import etomica.space.Space;
+import etomica.species.Species;
 import etomica.units.Dimension;
 import etomica.units.Unit;
 import etomica.units.systems.UnitSystem;
@@ -70,6 +81,8 @@ public class PropertySourceWrapper implements IPropertySource {
 		this.object = object;
         simulation = sim;
         interfaceWrappers = new InterfaceWrapper[0];
+        childWrappers = null;
+        status = null;
 	}
 	
     public static PropertySourceWrapper makeWrapper(Object obj) {
@@ -624,20 +637,95 @@ public class PropertySourceWrapper implements IPropertySource {
         return wrappedArray;
     }
 
-    public PropertySourceWrapper[] getChildren() {
-        PropertySourceWrapper[] children = new PropertySourceWrapper[0];
+    public PropertySourceWrapper[] getChildren(LinkedList parentList) {
+        if (childWrappers != null) {
+            return childWrappers;
+        }
+        
+        childWrappers = new PropertySourceWrapper[0];
         
         for (int i=0; i<interfaceWrappers.length; i++) {
             PropertySourceWrapper[] moreChildren = interfaceWrappers[i].getChildren();
             if (moreChildren.length > 0) {
-                PropertySourceWrapper[] newChildren = new PropertySourceWrapper[children.length + moreChildren.length];
-                System.arraycopy(children, 0, newChildren, 0, children.length);
-                System.arraycopy(moreChildren, 0, newChildren, children.length, moreChildren.length);
-                children = newChildren;
+                PropertySourceWrapper[] newChildren = new PropertySourceWrapper[childWrappers.length + moreChildren.length];
+                System.arraycopy(childWrappers, 0, newChildren, 0, childWrappers.length);
+                System.arraycopy(moreChildren, 0, newChildren, childWrappers.length, moreChildren.length);
+                childWrappers = newChildren;
             }
         }
 
-        return children;
+        // this assigns the descriptors to the |descriptors| field
+        getPropertyDescriptors();
+        int count = 0;
+        for (int i=0; i<descriptors.length; i++) {
+            Object pd = descriptors[i].getId();
+            Object value = getPropertyValue(pd);
+            if (value == null) {
+                continue;
+            }
+            PropertySourceWrapper childWrapper;
+            Object obj;
+            if (value instanceof PropertySourceWrapper) {
+                childWrapper = (PropertySourceWrapper)value;
+                obj = ((PropertySourceWrapper)value).getObject();
+            }
+            else {
+                obj = value;
+                childWrapper = PropertySourceWrapper.makeWrapper(obj,simulation,getEditor());
+            }
+            
+            Iterator parentIterator = parentList.iterator();
+            boolean excluded = false;
+            while (parentIterator.hasNext()) {
+                if (parentIterator.next() == obj) {
+                    excluded = true;
+                    break;
+                }
+            }
+            if (excluded) {
+                continue;
+            }
+
+            if (isChildExcluded(descriptors[i], childWrapper, obj)) {
+                continue;
+            }
+            
+            // append the new wrapper
+            childWrappers = (PropertySourceWrapper[])Arrays.resizeArray(childWrappers,++count);
+            childWrappers[count-1] = childWrapper;
+        }
+        return childWrappers;
+    }
+    
+    /**
+     * Returns true if the child associated with the given descriptor and
+     * childWrapper should not be considered a "child" of the wrapped object.
+     */
+    public boolean isChildExcluded(IPropertyDescriptor descriptor, PropertySourceWrapper childWrapper, Object child) {
+        for (int i=0; i<interfaceWrappers.length; i++) {
+            if (interfaceWrappers[i].isChildExcluded(descriptor, childWrapper, child)) return true;
+        }
+
+        Class objClass = child.getClass();
+        if (objClass.isArray()) {
+            if (!(child instanceof Object[])) {
+                // arrays of natives aren't children
+                return true;
+            }
+            if (((Object[])child).length == 0) {
+                // just omit empty arrays
+                return true;
+            }
+            objClass = objClass.getComponentType();
+        }
+
+        for (int j=0; j<excludedChildClasses.length; j++) {
+            if (excludedChildClasses[j].isAssignableFrom(objClass)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -723,15 +811,38 @@ public class PropertySourceWrapper implements IPropertySource {
      * An object might not be happy becuase of its own internal state or
      * because of its relationship with another object in the simulation.
      */
-    public EtomicaStatus getStatus() {
-        EtomicaStatus status = EtomicaStatus.PEACHY;
+    public EtomicaStatus getStatus(LinkedList parentList) {
+        if (status != null) {
+            return status;
+        }
+
+        status = EtomicaStatus.PEACHY;
         for (int i=0; i<interfaceWrappers.length; i++) {
             EtomicaStatus interfaceStatus = interfaceWrappers[i].getStatus();
             if (interfaceStatus.type.severity > status.type.severity) {
                 status = interfaceStatus;
             }
         }
+        
+        // now check children
+        LinkedList childsParentList = new LinkedList();
+        childsParentList.addAll(parentList);
+        childsParentList.add(object);
+        getChildren(childsParentList);
+        
+        for (int i=0; i<childWrappers.length; i++) {
+            EtomicaStatus childStatus = childWrappers[i].getStatus(childsParentList);
+            if (childStatus.type.severity > status.type.severity) {
+                status = childStatus;
+            }
+        }
+        
         return status;
+    }
+    
+    public void refresh() {
+        status = null;
+        childWrappers = null;
     }
 
     protected Object object;
@@ -741,6 +852,8 @@ public class PropertySourceWrapper implements IPropertySource {
     protected EtomicaEditor etomicaEditor;
     protected InterfaceWrapper[] interfaceWrappers;
     private static HashMap wrapperClassHash;
+    protected PropertySourceWrapper[] childWrappers;
+    protected EtomicaStatus status;
 
     /**
      * Initializes the hash of Wrapper classes.
@@ -785,4 +898,10 @@ public class PropertySourceWrapper implements IPropertySource {
             }
         }
     }
+
+    private static final Class[] excludedChildClasses = new Class[]{Number.class,Boolean.class,
+        Color.class,IVector.class,DataInfo.class,EnumeratedType.class,AtomAddressManager.class,
+        String.class,FeatureSet.class,LinkedList.class,Space.class,Polytope.class,Class.class,
+        AtomsetIterator.class,Space.class,DataTag.class,AtomTreeNode.class,Phase.class,
+        Species.class,SpeciesRoot.class};
 }

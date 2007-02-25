@@ -48,7 +48,7 @@ public class IntegratorListenerWrapper extends InterfaceWrapper {
      */
     public EtomicaStatus getStatus() {
         return isListening() ? EtomicaStatus.PEACHY : 
-            new EtomicaStatus(toString()+" is an Integrator listener, but is not listening to any Integrator", EtomicaStatus.WARNING);
+            new EtomicaStatus(object+" is an Integrator listener, but is not listening to any Integrator", EtomicaStatus.WARNING);
     }
 
     /**

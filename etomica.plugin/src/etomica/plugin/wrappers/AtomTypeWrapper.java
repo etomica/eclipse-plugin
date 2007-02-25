@@ -20,5 +20,15 @@ public class AtomTypeWrapper extends PropertySourceWrapper {
         
         return super.makeDescriptor(property);
     }
+    
+    public boolean isChildExcluded(IPropertyDescriptor descriptor, PropertySourceWrapper childWrapper, Object child) {
+        if (descriptor.getDisplayName().equals("parentType")) {
+            // recursion check usually excludes parentType, but sometimes
+            // something holds a child AtomType directly, defeating the
+            // recursion check
+            return true;
+        }
+        return super.isChildExcluded(descriptor, childWrapper, child);
+    }
 
 }

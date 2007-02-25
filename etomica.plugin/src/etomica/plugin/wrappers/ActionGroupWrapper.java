@@ -20,11 +20,6 @@ public class ActionGroupWrapper extends InterfaceWrapper implements RemoverWrapp
         super(object,sim);
     }
 
-    public PropertySourceWrapper[] getChildren() {
-        return PropertySourceWrapper.wrapArrayElements(((ActionGroup)object).getAllActions(),
-                simulation, etomicaEditor);
-    }
-    
     public boolean removeChild(Object obj) {
         if (obj instanceof PropertySourceWrapper) {
             obj = ((PropertySourceWrapper)obj).getObject();

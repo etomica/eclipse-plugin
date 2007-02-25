@@ -1,5 +1,7 @@
 package etomica.plugin.wrappers;
 
+import java.util.LinkedList;
+
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
 
@@ -61,8 +63,8 @@ public class MCMoveManagerWrapper extends PropertySourceWrapper implements Remov
         return false;
     }
     
-    public EtomicaStatus getStatus() {
-        EtomicaStatus superStatus = super.getStatus();
+    public EtomicaStatus getStatus(LinkedList parentList) {
+        EtomicaStatus superStatus = super.getStatus(parentList);
         if (superStatus.type == EtomicaStatus.OK && ((MCMoveManager)object).getMCMoves().length == 0) {
             return new EtomicaStatus("MCMoveManager needs MCMoves", EtomicaStatus.WARNING);
         }

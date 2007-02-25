@@ -1,7 +1,5 @@
 package etomica.plugin.wrappers;
 
-import java.util.Vector;
-
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
 import etomica.plugin.views.DecimalPropertyDescriptor;
@@ -33,6 +31,5 @@ public class VectorWrapper extends PropertySourceWrapper {
         ((IVector)object).setX(index,((Double)arg1).doubleValue());
     }
 
-    
     private static String[] xyz = new String[]{"x","y","z"};
 }

@@ -1,5 +1,6 @@
 package etomica.plugin.wrappers;
 
+import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 
 import etomica.plugin.editors.MenuItemCascadeWrapper;
@@ -14,8 +15,10 @@ public class ArrayWrapper extends PropertySourceWrapper {
         setDisplayName(object.getClass().getComponentType().getName()+" array");
     }
 
-    public PropertySourceWrapper[] getChildren() {
-        return PropertySourceWrapper.wrapArrayElements((Object[])object, simulation, etomicaEditor);
+    public boolean isChildExcluded(IPropertyDescriptor descriptor, PropertySourceWrapper childWrapper, Object child) {
+        // If something decided we (the array) was their child, they're going
+        // to get our elements.
+        return false;
     }
 
     public Object getEditableValue() {
@@ -25,7 +28,7 @@ public class ArrayWrapper extends PropertySourceWrapper {
     protected void generateDescriptors() {
         Object[] objArray = (Object[])object;
         //Introspection to get array of all properties
-        descriptors= new PropertyDescriptor[objArray.length];
+        descriptors = new PropertyDescriptor[objArray.length];
         for (int i=0; i<objArray.length; i++) {
             descriptors[i] = super.makeDescriptor(new Integer(i),((Object[])object)[i],object.getClass().getComponentType(),Integer.toString(i));
         }

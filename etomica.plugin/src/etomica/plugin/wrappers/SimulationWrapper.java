@@ -2,6 +2,7 @@ package etomica.plugin.wrappers;
 
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.action.Action;
 import etomica.action.activity.ActivityGroup;
@@ -11,7 +12,6 @@ import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.phase.Phase;
-import etomica.plugin.editors.EtomicaEditor;
 import etomica.plugin.editors.MenuItemWrapper;
 import etomica.plugin.wizards.NewDataStreamWizard;
 import etomica.plugin.wizards.NewSpeciesWizard;
@@ -26,14 +26,14 @@ public class SimulationWrapper extends PropertySourceWrapper implements RemoverW
         super(sim,sim);
     }
 
-    public PropertySourceWrapper[] getChildren() {
-        Simulation sim = (Simulation)object;
-        Phase[] phases = sim.getPhases();
-        Species[] species = sim.getSpecies();
-        DataStreamHeader[] streams = sim.getDataStreams();
-        return PropertySourceWrapper.wrapArrayElements(new Object[]{
-                sim.getController(),sim.getPotentialMaster(),phases,species,streams,sim.getDefaults()},
-                (Simulation)object,etomicaEditor);
+    public boolean isChildExcluded(IPropertyDescriptor descriptor, PropertySourceWrapper childWrapper, Object child) {
+        if (child instanceof Phase[] || child instanceof DataStreamHeader[] ||
+            child instanceof Species[]) {
+            // Phases and Species get excluded by PropertySourceWrapper
+            // Phase[], Species[] and DataStreamHeader[] should be shown, even if empty
+            return false;
+        }
+        return super.isChildExcluded(descriptor, childWrapper, child);
     }
 
     public boolean removeChild(Object obj) {

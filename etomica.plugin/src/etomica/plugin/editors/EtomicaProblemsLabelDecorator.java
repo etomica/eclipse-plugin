@@ -1,5 +1,7 @@
 package etomica.plugin.editors;
 
+import java.util.LinkedList;
+
 import org.eclipse.jdt.ui.JavaElementImageDescriptor;
 import org.eclipse.jdt.ui.ProblemsLabelDecorator;
 
@@ -14,7 +16,7 @@ public class EtomicaProblemsLabelDecorator extends ProblemsLabelDecorator {
 
     protected int computeAdornmentFlags(Object obj) {
         if (obj instanceof PropertySourceWrapper) {
-            EtomicaStatus status = ((PropertySourceWrapper)obj).getStatus();
+            EtomicaStatus status = ((PropertySourceWrapper)obj).getStatus(new LinkedList());
             if (status.type == EtomicaStatus.OK) {
                 return 0;
             }

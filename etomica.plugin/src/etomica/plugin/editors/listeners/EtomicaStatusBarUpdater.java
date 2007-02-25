@@ -1,5 +1,7 @@
 package etomica.plugin.editors.listeners;
 
+import java.util.LinkedList;
+
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -29,7 +31,7 @@ public class EtomicaStatusBarUpdater implements ISelectionChangedListener {
         Object obj = ((StructuredSelection)e.getSelection()).getFirstElement();
         
         if (obj instanceof PropertySourceWrapper) {
-            EtomicaStatus status = ((PropertySourceWrapper)obj).getStatus();
+            EtomicaStatus status = ((PropertySourceWrapper)obj).getStatus(new LinkedList());
             if (status.type != EtomicaStatus.OK) {
                 statusLineManager.setErrorMessage(status.message);
             }

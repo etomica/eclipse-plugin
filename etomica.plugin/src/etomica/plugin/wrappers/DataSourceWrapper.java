@@ -8,7 +8,6 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.data.DataSource;
 import etomica.data.meter.Meter;
-import etomica.plugin.editors.EtomicaEditor;
 import etomica.plugin.editors.MenuItemCascadeWrapper;
 import etomica.plugin.editors.MenuItemWrapper;
 import etomica.plugin.views.DataPlotView;

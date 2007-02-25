@@ -4,6 +4,8 @@
  */
 package etomica.plugin.views;
 
+import java.util.LinkedList;
+
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
@@ -35,7 +37,7 @@ public class SpeciesViewContentProvider implements ITreeContentProvider {
      */
     public Object[] getChildren(Object wrappedElement) {
         if (wrappedElement instanceof ArrayWrapper) {
-            return ((ArrayWrapper)wrappedElement).getChildren();
+            return ((ArrayWrapper)wrappedElement).getChildren(new LinkedList());
         }
         Object element = ((PropertySourceWrapper)wrappedElement).getObject();
         if (element instanceof AtomType) {

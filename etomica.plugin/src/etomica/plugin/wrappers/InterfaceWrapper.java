@@ -97,7 +97,16 @@ public abstract class InterfaceWrapper {
     public PropertySourceWrapper[] getChildren() {
         return new PropertySourceWrapper[0];
     }
-    
+
+    /**
+     * Returns true if the given child (possibly found via reflection from
+     * another wrapper) should be excluded.  This gives the interfaceWrapper
+     * an opportunity to veto children as well as add them.
+     */
+    public boolean isChildExcluded(IPropertyDescriptor descriptor, PropertySourceWrapper childWrapper, Object child) {
+        return false;
+    }
+
     /**
      * Returns an array of MenuItemWrappers appropriate for this wrapper.  The
      * only MenuItemWrappers returned are those special to the interface.

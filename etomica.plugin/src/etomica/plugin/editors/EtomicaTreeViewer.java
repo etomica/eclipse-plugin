@@ -31,6 +31,19 @@ public class EtomicaTreeViewer extends TreeViewer {
     }
 
     public void refresh(final Object object) {
+        // the wrappers cache their status and children.
+        if (object != null) {
+            ((PropertySourceWrapper)object).refresh();
+        }
+        else {
+            // input will be the SimulationWrapper, but might be null during
+            // initialization
+            Object root = getInput();
+            if (root != null) {
+                ((PropertySourceWrapper)root).refresh();
+            }
+        }
+
         //Construct tree of expanded items.  Root isn't actually a tree item, so 
         //The top-level structure is for the children of the root.
         ExpandedState[] linkTrees = new ExpandedState(null, getTree().getItems()).getChildren();
@@ -39,7 +52,7 @@ public class EtomicaTreeViewer extends TreeViewer {
 
         resetExpansion(getTree().getItems(), linkTrees);
     }
-    
+
     /**
      * Resets the expanded state of tree items from the ExpandedLink tree
      */
