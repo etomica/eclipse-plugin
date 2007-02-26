@@ -42,10 +42,10 @@ public class PhaseWrapper extends PropertySourceWrapper implements OpenerWrapper
         InitializeMolecules initializeMolecules = new InitializeMolecules();
         initializeMolecules.setPhase((Phase)object);
         BravaisLattice lattice = null;
-        if (((Phase)object).space().D() == 3) {
+        if (((Phase)object).getSpace().D() == 3) {
             lattice = new LatticeCubicFcc();
         }
-        else if (((Phase)object).space().D() == 2) {
+        else if (((Phase)object).getSpace().D() == 2) {
             lattice = new LatticeOrthorhombicHexagonal();
         }
         else {
