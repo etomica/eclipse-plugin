@@ -46,10 +46,8 @@ public abstract class InterfaceWrapper {
     
     /**
      * Returns the property value if the given key requires special handling 
-     * by this interfaceWrapper.  If the property value should not be returned
-     * at all because of something specific to the interface, an 
-     * IllegalArgumentException is thrown.  If the property is not special to 
-     * the interface at all and should be handled by the PropertySourceWrapper,
+     * by this interfaceWrapper.  If the property is not special to the
+     * interface at all and should be handled by the PropertySourceWrapper,
      * null is returned
      */
     public Object getPropertyValue(Object key) {
@@ -58,36 +56,27 @@ public abstract class InterfaceWrapper {
 
     /**
      * Sets the property value and returns true if the given key requires 
-     * special handling by this interfaceWrapper.  If the property value should
-     * not be set at all because of something specific to the interface, the
-     * method returns false.  If the property is not special to the interface
-     * at all and should be handled by the PropertySourceWrapper.
+     * special handling by this interfaceWrapper.  If the property is not
+     * special to the interface at all and should be handled by the 
+     * PropertySourceWrapper, the method returns false.
      */
 	public boolean setPropertyValue(Object key, Object value) {
         return false;
     }
 	
-    /**
-     * Creates the property descriptor if the given key requires special handling 
-     * by this interfaceWrapper.  If the property descriptor should not be
-     * returned at all because of something specific to the interface, an 
-     * IllegalArgumentException is thrown.  If the property is not special to 
-     * the interface at all and should be handled by the PropertySourceWrapper,
-     * null is returned.
-     */
-    protected IPropertyDescriptor makeDescriptor(java.beans.PropertyDescriptor property) throws IllegalArgumentException {
-        return null;
+    public IPropertyDescriptor[] generateDescriptors() {
+        return new IPropertyDescriptor[0];
     }
-    
+
     /**
      * Creates the property descriptor if the given key requires special handling 
      * by this interfaceWrapper.  If the property descriptor should not be
-     * returned at all because of something specific to the interface, an 
-     * IllegalArgumentException is thrown.  If the property is not special to 
+     * returned at all because of something specific to the interface, 
+     * PropertySourceWrapper.PROPERTY_VETO.  If the property is not special to 
      * the interface at all and should be handled by the PropertySourceWrapper,
      * null is returned.
      */
-    protected IPropertyDescriptor makeDescriptor(Object property, Object value, Class type, String name) throws IllegalArgumentException {
+    protected IPropertyDescriptor makeDescriptor(Object property, Object value, Class type, String name) {
         return null;
     }
 

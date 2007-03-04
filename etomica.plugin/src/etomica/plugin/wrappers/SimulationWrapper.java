@@ -7,6 +7,7 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import etomica.action.Action;
 import etomica.action.activity.ActivityGroup;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.atom.SpeciesRoot;
 import etomica.data.DataSource;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalListener;
@@ -32,6 +33,9 @@ public class SimulationWrapper extends PropertySourceWrapper implements RemoverW
             // Phases and Species get excluded by PropertySourceWrapper
             // Phase[], Species[] and DataStreamHeader[] should be shown, even if empty
             return false;
+        }
+        if (child instanceof SpeciesRoot) {
+            return true;
         }
         return super.isChildExcluded(descriptor, childWrapper, child);
     }

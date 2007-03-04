@@ -15,21 +15,21 @@ public class DefaultWrapper extends PropertySourceWrapper {
         setDisplayName("Defaults");
     }
     
-    protected void generateDescriptors() {
-        super.generateDescriptors();
+    protected IPropertyDescriptor[] generateDescriptors() {
+        IPropertyDescriptor[] superDescriptors = super.generateDescriptors();
         Field[] fields = Default.class.getFields();
         //loop through fields and generate descriptors
         LinkedList list = new LinkedList();
         for (int i = 0; i < fields.length; i++) {
-            IPropertyDescriptor pd = makeDescriptor(fields[i],null,fields[i].getType(),fields[i].getName());
+            IPropertyDescriptor pd = makeDescriptor(fields[i],null,fields[i].getType(),fields[i].getName(),simulation);
             if(pd != null) list.add(pd);
         }
         
         //make array of descriptors from list
-        IPropertyDescriptor[] newDescriptors = (IPropertyDescriptor[])list.toArray(new IPropertyDescriptor[descriptors.length+list.size()]);
+        IPropertyDescriptor[] newDescriptors = (IPropertyDescriptor[])list.toArray(new IPropertyDescriptor[superDescriptors.length+list.size()]);
         //combine field descriptors with getters from superclass
-        System.arraycopy(descriptors,0,newDescriptors,list.size(),descriptors.length);
-        descriptors = newDescriptors;
+        System.arraycopy(superDescriptors,0,newDescriptors,list.size(),superDescriptors.length);
+        return newDescriptors;
     }
 
     public Object getPropertyValue(Object key) {

@@ -1,6 +1,6 @@
 package etomica.plugin.wrappers;
 
-import org.eclipse.ui.views.properties.PropertyDescriptor;
+import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 public class BooleanArrayWrapper extends PropertySourceWrapper {
 
@@ -9,13 +9,15 @@ public class BooleanArrayWrapper extends PropertySourceWrapper {
         setDisplayName("boolean array");
     }
 
-    protected void generateDescriptors() {
+    protected IPropertyDescriptor[] generateDescriptors() {
+        // don't call superclass method since we don't care about the actual array props
         boolean[] booleanArray = (boolean[])object;
         //Introspection to get array of all properties
-        descriptors= new PropertyDescriptor[booleanArray.length];
+        IPropertyDescriptor[] newDescriptors = new IPropertyDescriptor[booleanArray.length];
         for (int i=0; i<booleanArray.length; i++) {
-            descriptors[i] = makeDescriptor(new Integer(i),new Boolean(((boolean[])object)[i]),boolean.class,Integer.toString(i));
+            newDescriptors[i] = makeDescriptor(new Integer(i),new Boolean(((boolean[])object)[i]),boolean.class,Integer.toString(i),simulation);
         }
+        return newDescriptors;
     }
 
     public Object getPropertyValue(Object key) {

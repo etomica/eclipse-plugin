@@ -15,7 +15,7 @@ public class AtomSourceWrapper extends InterfaceWrapper {
 
         // hide the getAtom method in the property sheet (since it alters the state)
         if (property.getDisplayName().equals("atom")) {
-            throw new IllegalArgumentException();
+            return PropertySourceWrapper.PROPERTY_VETO;
         }
         
         return null;

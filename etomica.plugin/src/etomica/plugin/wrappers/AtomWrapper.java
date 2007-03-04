@@ -15,15 +15,19 @@ public class AtomWrapper extends PropertySourceWrapper implements RemoverWrapper
         super(object,sim);
     }
     
-    protected void generateDescriptors() {
-        super.generateDescriptors();
+    protected IPropertyDescriptor[] generateDescriptors() {
+        IPropertyDescriptor[] newDescriptors = super.generateDescriptors();
         if (((Atom)object).getNode().childAtomCount() > 0) {
-            descriptors = (IPropertyDescriptor[])Arrays.addObject(descriptors,new org.eclipse.ui.views.properties.PropertyDescriptor("children","children"));
+            // add the child list since that's actually a property of the node
+            // and we hide the node
+            newDescriptors = (IPropertyDescriptor[])Arrays.addObject(newDescriptors,new org.eclipse.ui.views.properties.PropertyDescriptor("children","children"));
         }
+        return newDescriptors;
     }
 
     protected IPropertyDescriptor makeDescriptor(PropertyDescriptor property) {
         if (property.getDisplayName().equals("node")) {
+            // we don't need to show the node
             return null;
         }
         return super.makeDescriptor(property);

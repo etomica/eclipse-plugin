@@ -27,17 +27,18 @@ public class ParameterWrapper extends PropertySourceWrapper {
     }
     
     
-    protected void generateDescriptors() {
+    protected IPropertyDescriptor[] generateDescriptors() {
+        //we just want the fields (parameters)
         Field[] fields = object.getClass().getFields();
         //loop through fields and generate descriptors
         LinkedList list = new LinkedList();
         for (int i = 0; i < fields.length; i++) {
-            IPropertyDescriptor pd = makeDescriptor(fields[i],null,fields[i].getType(),fields[i].getName());
+            IPropertyDescriptor pd = makeDescriptor(fields[i],null,fields[i].getType(),fields[i].getName(),simulation);
             if(pd != null) list.add(pd);
         }
         
         //make array of descriptors from list
-        descriptors = (IPropertyDescriptor[])list.toArray(new IPropertyDescriptor[list.size()]);
+        return (IPropertyDescriptor[])list.toArray(new IPropertyDescriptor[list.size()]);
     }
 
     public Object getPropertyValue(Object key) {

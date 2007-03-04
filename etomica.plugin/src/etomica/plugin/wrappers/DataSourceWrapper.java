@@ -26,7 +26,7 @@ public class DataSourceWrapper extends InterfaceWrapper implements OpenerWrapper
     protected IPropertyDescriptor makeDescriptor(java.beans.PropertyDescriptor property) {
         if (property.getName().startsWith("data") && !property.getName().equals("dataInfo")) {
             // exclude getData, getDataDouble, getDataAsScalar, maybe others
-            throw new IllegalArgumentException();
+            return PropertySourceWrapper.PROPERTY_VETO;
         }
         return null;
     }

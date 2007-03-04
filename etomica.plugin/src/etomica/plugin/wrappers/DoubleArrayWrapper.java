@@ -1,6 +1,6 @@
 package etomica.plugin.wrappers;
 
-import org.eclipse.ui.views.properties.PropertyDescriptor;
+import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 public class DoubleArrayWrapper extends PropertySourceWrapper {
 
@@ -13,13 +13,14 @@ public class DoubleArrayWrapper extends PropertySourceWrapper {
         return this;
     }
 
-    protected void generateDescriptors() {
+    protected IPropertyDescriptor[] generateDescriptors() {
         double[] doubleArray = (double[])object;
        //Introspection to get array of all properties
-        descriptors= new PropertyDescriptor[doubleArray.length];
+        IPropertyDescriptor[] newDescriptors = new IPropertyDescriptor[doubleArray.length];
         for (int i=0; i<doubleArray.length; i++) {
-            descriptors[i] = makeDescriptor(new Integer(i),new Double(((double[])object)[i]),double.class,Integer.toString(i));
+            newDescriptors[i] = makeDescriptor(new Integer(i),new Double(((double[])object)[i]),double.class,Integer.toString(i),simulation);
         }
+        return newDescriptors;
     }
 
     public Object getPropertyValue(Object key) {

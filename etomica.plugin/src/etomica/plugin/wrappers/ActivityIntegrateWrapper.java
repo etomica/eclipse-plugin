@@ -1,5 +1,6 @@
 package etomica.plugin.wrappers;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.eclipse.swt.widgets.Shell;
@@ -16,6 +17,7 @@ public class ActivityIntegrateWrapper extends PropertySourceWrapper implements R
         super(object,sim);
         integratorWrapper = (IntegratorWrapper)PropertySourceWrapper.makeWrapper(object.getIntegrator(),sim);
         setDisplayName(integratorWrapper.toString());
+        descriptorHash = new HashMap();
     }
     
     public void setEditor(EtomicaEditor editor) {
@@ -23,60 +25,47 @@ public class ActivityIntegrateWrapper extends PropertySourceWrapper implements R
         integratorWrapper.setEditor(editor);
     }
 
-    public IPropertyDescriptor[] getPropertyDescriptors() {
-        if (descriptors == null) {
-            generateDescriptors();
-            nActivityDescriptors = descriptors.length;
-            IPropertyDescriptor[] integratorDescriptors = integratorWrapper.getPropertyDescriptors();
-            IPropertyDescriptor[] allDescriptors = new IPropertyDescriptor[descriptors.length+integratorDescriptors.length];
-            System.arraycopy(descriptors,0,allDescriptors,0,nActivityDescriptors);
-            System.arraycopy(integratorDescriptors,0,allDescriptors,nActivityDescriptors,allDescriptors.length-nActivityDescriptors);
-            descriptors = allDescriptors;
+    protected IPropertyDescriptor[] generateDescriptors() {
+        // get our own bean descriptors
+        IPropertyDescriptor[] activityDescriptors = super.generateDescriptors();
+        
+        for (int i=0; i<activityDescriptors.length; i++) {
+            descriptorHash.put(activityDescriptors[i],activityDescriptors[i]);
         }
-        return descriptors;
+
+        // now grab the integrators and combine them in one big array
+        int nActivityDescriptors = activityDescriptors.length;
+        IPropertyDescriptor[] integratorDescriptors = integratorWrapper.getPropertyDescriptors();
+        IPropertyDescriptor[] allDescriptors = new IPropertyDescriptor[activityDescriptors.length+integratorDescriptors.length];
+        System.arraycopy(activityDescriptors,0,allDescriptors,0,nActivityDescriptors);
+        System.arraycopy(integratorDescriptors,0,allDescriptors,nActivityDescriptors,allDescriptors.length-nActivityDescriptors);
+
+        return allDescriptors;
     }
     
     protected IPropertyDescriptor makeDescriptor(java.beans.PropertyDescriptor property) {
-        String name = property.getDisplayName();  //Localized display name 
-        if(name.equals("integrator")) return null;//skip the integrator since we're pretending to be it
+        if(property.getDisplayName().equals("integrator")) return null;//skip the integrator since we're pretending to be it
         return super.makeDescriptor(property);
     }
 
 
     public Object getPropertyValue(Object key) {
-        java.beans.PropertyDescriptor pd = (java.beans.PropertyDescriptor)key;
-        for (int i=0; i<descriptors.length; i++) {
-            if (pd == descriptors[i].getId()) {
-                if (i < nActivityDescriptors) {
-                    return super.getPropertyValue(key);
-                }
-                return integratorWrapper.getPropertyValue(key);
-            }
+
+        if (descriptorHash.get(key) != null) {
+            return super.getPropertyValue(key);
         }
-        // couldn't find the property descriptor in our own list.  :(
-        return null;
+        return integratorWrapper.getPropertyValue(key);
     }
 
     public void setPropertyValue(Object key, Object value) {
-        java.beans.PropertyDescriptor pd = (java.beans.PropertyDescriptor)key;
-        for (int i=0; i<descriptors.length; i++) {
-            if (pd == descriptors[i].getId()) {
-                //the first n descriptors are ours, the rest are the integrator's
-                if (i < nActivityDescriptors) {
-                    super.setPropertyValue(key,value);
-                    return;
-                }
-                integratorWrapper.setPropertyValue(key,value);
-                
-                // re-refresh the viewer since the integratorWrapper's attempt
-                // to do so would have failed.
-                if (etomicaEditor != null) {
-                    etomicaEditor.getInnerPanel().getViewer().refresh(this);
-                }
-                return;
-            }
+        if (descriptorHash.get(key) != null) {
+            super.setPropertyValue(key, value);
+            return;
         }
-        // couldn't find the property descriptor in our own list.  :(
+        integratorWrapper.setPropertyValue(key,value);
+//        if (etomicaEditor != null) {
+//            etomicaEditor.getInnerPanel().getViewer().refresh(this);
+//        }
     }
 
     public MenuItemWrapper[] getMenuItemWrappers(PropertySourceWrapper parentWrapper) {
@@ -107,6 +96,6 @@ public class ActivityIntegrateWrapper extends PropertySourceWrapper implements R
         return integratorWrapper.getStatus(parentList);
     }
     
-    private IntegratorWrapper integratorWrapper;
-    private int nActivityDescriptors;
+    protected IntegratorWrapper integratorWrapper;
+    protected final HashMap descriptorHash;
 }

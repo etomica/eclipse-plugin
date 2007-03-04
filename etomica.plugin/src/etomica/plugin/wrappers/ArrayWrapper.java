@@ -25,13 +25,16 @@ public class ArrayWrapper extends PropertySourceWrapper {
         return this;
     }
 
-    protected void generateDescriptors() {
+    protected IPropertyDescriptor[] generateDescriptors() {
+        //don't call superclass method because we don't care about the actual array props
         Object[] objArray = (Object[])object;
         //Introspection to get array of all properties
-        descriptors = new PropertyDescriptor[objArray.length];
+        IPropertyDescriptor[] newDescriptors = new PropertyDescriptor[objArray.length];
         for (int i=0; i<objArray.length; i++) {
-            descriptors[i] = super.makeDescriptor(new Integer(i),((Object[])object)[i],object.getClass().getComponentType(),Integer.toString(i));
+            newDescriptors[i] = PropertySourceWrapper.makeDescriptor(new Integer(i),((Object[])object)[i],
+                    object.getClass().getComponentType(),Integer.toString(i), simulation);
         }
+        return newDescriptors;
     }
 
     public Object getPropertyValue(Object key) {

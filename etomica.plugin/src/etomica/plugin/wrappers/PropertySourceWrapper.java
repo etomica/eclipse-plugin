@@ -11,6 +11,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -18,6 +19,9 @@ import java.util.LinkedList;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.viewers.CellEditor;
+import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
@@ -119,9 +123,9 @@ public class PropertySourceWrapper implements IPropertySource {
             while (wrappedClass != objClass) {
                 Class[] interfaces = objClass.getInterfaces();
                 for (int i=0; i<interfaces.length; i++) {
-                    addInterfaceWrappersToWrapper(wrapper, interfaces[i], wrappedClass, sim);
+                    addInterfaceWrappersToWrapper(wrapper, interfaces[i], wrappedClass, editor);
                 }
-    
+                
                 // now look at the parent class' interfaces.  They weren't returned
                 // when we asked for the interfaces of objClass
                 objClass = objClass.getSuperclass();
@@ -133,12 +137,13 @@ public class PropertySourceWrapper implements IPropertySource {
         return wrapper;
     }
     
-    public static void addInterfaceWrappersToWrapper(PropertySourceWrapper wrapper, Class someInterface, Class wrappedClass, Simulation sim) {
+    public static void addInterfaceWrappersToWrapper(PropertySourceWrapper wrapper, Class someInterface, Class wrappedClass, EtomicaEditor editor) {
         Class wrapperClass = (Class)wrapperClassHash.get(someInterface);
         if (wrapperClass != null) {
             // we found a wrapper for this specific interface
             Object obj = wrapper.getObject();
-            InterfaceWrapper interfaceWrapper = (InterfaceWrapper)makeWrapperForClass(wrapperClass, obj, someInterface, sim);
+            InterfaceWrapper interfaceWrapper = (InterfaceWrapper)makeWrapperForClass(wrapperClass, obj, someInterface, editor.getSimulation());
+            wrapper.setEditor(editor);
             wrapper.addInterfaceWrapper(interfaceWrapper);
         }
         Class[] parentInterfaces = someInterface.getInterfaces();
@@ -148,7 +153,7 @@ public class PropertySourceWrapper implements IPropertySource {
             // expected to handle any special features of the object related
             // to the interface
             if (!parentInterfaces[i].isAssignableFrom(wrappedClass)) {
-                addInterfaceWrappersToWrapper(wrapper, parentInterfaces[i], wrappedClass, sim);
+                addInterfaceWrappersToWrapper(wrapper, parentInterfaces[i], wrappedClass, editor);
             }
         }
     }
@@ -195,12 +200,15 @@ public class PropertySourceWrapper implements IPropertySource {
             WorkbenchPlugin.getDefault().getLog().log(
                     new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID, 0, e.getMessage(), e.getCause()));
         }
-        return wrapper;
+        return null;
     }
 
     
     public void setEditor(EtomicaEditor editor) {
         etomicaEditor = editor;
+        for (int i=0; i<interfaceWrappers.length; i++) {
+            interfaceWrappers[i].setEditor(etomicaEditor);
+        }
     }
     
     public EtomicaEditor getEditor() {
@@ -247,14 +255,7 @@ public class PropertySourceWrapper implements IPropertySource {
     public Object getPropertyValue(Object key) {
         Object value = null;
         for (int i=0; i<interfaceWrappers.length; i++) {
-            try {
-                value = interfaceWrappers[i].getPropertyValue(key);
-            }
-            catch (IllegalArgumentException e) {
-                // throwing an exception is the interfaceWrapper's way of 
-                // vetoing this key
-                return null;
-            }
+            value = interfaceWrappers[i].getPropertyValue(key);
             if (value != null) {
                 return value;
             }
@@ -266,11 +267,8 @@ public class PropertySourceWrapper implements IPropertySource {
         catch(NullPointerException ex) {value = null;}
         catch(InvocationTargetException ex) {value = null;}
         catch(IllegalAccessException ex) {value = null;}
-        if (value != null && value.getClass().isArray()) {
+        if (value != null && (value.getClass().isArray() || value instanceof IVector)) {
             return PropertySourceWrapper.makeWrapper(value, simulation, etomicaEditor);
-        }
-        if (value instanceof IVector) {
-            return new VectorWrapper((IVector)value);
         }
         if (value instanceof Double) {
             value = getDisplayValue((Double)value, pd.getReadMethod().getName());
@@ -397,49 +395,62 @@ public class PropertySourceWrapper implements IPropertySource {
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.views.properties.IPropertySource#getPropertyDescriptors()
 	 */
-	public IPropertyDescriptor[] getPropertyDescriptors() {
-		if(descriptors == null) generateDescriptors();
-		return descriptors;
+	public final IPropertyDescriptor[] getPropertyDescriptors() {
+		if(descriptors != null) return descriptors;
+        descriptors = generateDescriptors();
+        return descriptors;
 	}
-	
-	protected void generateDescriptors() {
-       //Introspection to get array of all properties
-        java.beans.PropertyDescriptor[] properties = null;
+
+    /**
+     * Returns an array of property descriptors associated with the wrapped
+     * object.  Subclasses can override this method to add properties.
+     * Properties can also be vetoed by removing them after-the-fact, but that
+     * should be done via makeDescriptor.
+     */
+    protected IPropertyDescriptor[] generateDescriptors() {
+        //Introspection to get array of all properties
+        java.beans.PropertyDescriptor[] properties = new java.beans.PropertyDescriptor[0];
         try {
-	        BeanInfo bi = Introspector.getBeanInfo(object.getClass());
-	        properties = bi.getPropertyDescriptors();
-	    } 
-	    catch (IntrospectionException ex) {
-	        error("PropertySheet: Couldn't introspect", ex);
-	        return;
-	    }
+            BeanInfo bi = Introspector.getBeanInfo(object.getClass());
+            properties = bi.getPropertyDescriptors();
+        } 
+        catch (IntrospectionException ex) {
+            error("PropertySheet: Couldn't introspect", ex);
+        }
+
 	    //loop through properties and generate descriptors
-	    LinkedList list = new LinkedList();
+	    ArrayList list = new ArrayList();
 	    for (int i = 0; i < properties.length; i++) {
 	        IPropertyDescriptor pd = makeDescriptor(properties[i]);
 	        if(pd != null) list.add(pd);
 	    }//end of loop over properties
 	    
-	    //make array of descriptors from list
-	    descriptors = (IPropertyDescriptor[])list.toArray(new IPropertyDescriptor[list.size()]);
-	}
-
-    protected IPropertyDescriptor makeDescriptor(java.beans.PropertyDescriptor property) {
-
         for (int i=0; i<interfaceWrappers.length; i++) {
-            IPropertyDescriptor descriptor = null;
-            try {
-                descriptor = interfaceWrappers[i].makeDescriptor(property);
-            }
-            catch (IllegalArgumentException e) {
-                // throwing an exception is the interfaceWrapper's way of
-                // vetoing the property
-                return null;
-            }
-            if (descriptor != null) {
-                return descriptor;
+            IPropertyDescriptor[] interfaceProperties = interfaceWrappers[i].generateDescriptors();
+            for (int j=0; j<interfaceProperties.length; j++) {
+                boolean duplicate = false;
+                for (int k=0; k<list.size(); k++) {
+                    if (((IPropertyDescriptor)list.get(k)).getDisplayName().equals(interfaceProperties[j].getDisplayName())) {
+                        duplicate = true;
+                        break;
+                    }
+                }
+                if (!duplicate) {
+                    list.add(interfaceProperties[j]);
+                }
             }
         }
+        
+	    //make array of descriptors from list
+	    return (IPropertyDescriptor[])list.toArray(new IPropertyDescriptor[list.size()]);
+	}
+
+    /**
+     * Creates an IPropertyDescriptor (what we want) from a java beans
+     * PropertyDescriptor (what java gives us).  InterfaceWrappers get a first
+     * crack at handling the property.
+     */
+    protected IPropertyDescriptor makeDescriptor(java.beans.PropertyDescriptor property) {
         
 		// Don't display hidden or expert properties.
 		if (property.isHidden() || property.isExpert()) {
@@ -488,22 +499,9 @@ public class PropertySourceWrapper implements IPropertySource {
             }
         }
                         
-        return makeDescriptor(property,value,type,name);
-    }
-
-    /**
-     * Creates a PropertyDescriptor for the given |property| of Class |type|,
-     * having name |name|. For properties which have a list of choices, the
-     * |value| (if not null) is used as the current choice.
-     */
-    protected IPropertyDescriptor makeDescriptor(Object property, Object value, Class type, String name) {
-
         for (int i=0; i<interfaceWrappers.length; i++) {
-            IPropertyDescriptor descriptor = null;
-            try {
-                descriptor = interfaceWrappers[i].makeDescriptor(property, value, type, name);
-            }
-            catch (IllegalArgumentException e) {
+            IPropertyDescriptor descriptor = interfaceWrappers[i].makeDescriptor(property, value, type, name);
+            if (descriptor == PROPERTY_VETO) {
                 // throwing an exception is the interfaceWrapper's way of
                 // vetoing the property
                 return null;
@@ -512,6 +510,16 @@ public class PropertySourceWrapper implements IPropertySource {
                 return descriptor;
             }
         }
+
+        return makeDescriptor(property,value,type,name,simulation);
+    }
+
+    /**
+     * Creates a PropertyDescriptor for the given |property| of Class |type|,
+     * having name |name|. For properties which have a list of choices, the
+     * |value| (if not null) is used as the current choice.
+     */
+    protected static IPropertyDescriptor makeDescriptor(Object property, Object value, Class type, String name, Simulation sim) {
 
         // Do not display dimension specifications as properties
         if(etomica.units.Dimension.class.isAssignableFrom(type)) return null;
@@ -553,8 +561,8 @@ public class PropertySourceWrapper implements IPropertySource {
 		else if(String.class == type) {
 			pd = new TextPropertyDescriptor(property, name);
 		}
-        else if (Phase.class.isAssignableFrom(type) && simulation != null) {
-            Phase[] simPhases = simulation.getPhases();
+        else if (Phase.class.isAssignableFrom(type) && sim != null) {
+            Phase[] simPhases = sim.getPhases();
             Phase[] phases = new Phase[0];
             for (int i=0; i<simPhases.length; i++) {
                 if (type.isInstance(simPhases[i])) {
@@ -563,8 +571,8 @@ public class PropertySourceWrapper implements IPropertySource {
             }
             pd = new ComboPropertyDescriptor(property, name, phases);
         }
-        else if (Integrator.class.isAssignableFrom(type) && simulation != null) {
-            Iterator integratorIterator = simulation.getIntegratorList().iterator();
+        else if (Integrator.class.isAssignableFrom(type) && sim != null) {
+            Iterator integratorIterator = sim.getIntegratorList().iterator();
             Object[] integrators = new Object[0];
             while (integratorIterator.hasNext()) {
                 Integrator integrator = (Integrator)integratorIterator.next();
@@ -574,7 +582,7 @@ public class PropertySourceWrapper implements IPropertySource {
             }
             pd = new ComboPropertyDescriptor(property, name, integrators);
         }
-        else if (simulation != null && (AtomPositionDefinition.class.isAssignableFrom(type) ||
+        else if (sim != null && (AtomPositionDefinition.class.isAssignableFrom(type) ||
                 Boundary.class.isAssignableFrom(type) || AtomFactory.class.isAssignableFrom(type) ||
                 DataSink.class.isAssignableFrom(type) || NeighborCriterion.class.isAssignableFrom(type) ||
                 UnitSystem.class.isAssignableFrom(type))) {
@@ -593,7 +601,7 @@ public class PropertySourceWrapper implements IPropertySource {
                     choices = Arrays.addObject(choices,thisClass);
                 }
             }
-            pd = new ComboClassPropertyDescriptor(property, name, choices, new Object[]{simulation});
+            pd = new ComboClassPropertyDescriptor(property, name, choices, new Object[]{sim});
         }
 		if (pd == null) {
 			pd = new org.eclipse.ui.views.properties.PropertyDescriptor(property, name);
@@ -827,6 +835,10 @@ public class PropertySourceWrapper implements IPropertySource {
         if (status != null) {
             return status;
         }
+        
+        if (parentList.size() > 10) {
+            throw new RuntimeException("parent list too long.  probable infinite recursion");
+        }
 
         status = EtomicaStatus.PEACHY;
         for (int i=0; i<interfaceWrappers.length; i++) {
@@ -858,7 +870,7 @@ public class PropertySourceWrapper implements IPropertySource {
     }
 
     protected Object object;
-	protected IPropertyDescriptor[] descriptors;
+	private IPropertyDescriptor[] descriptors;
     protected String displayName;
     protected Simulation simulation;
     protected EtomicaEditor etomicaEditor;
@@ -916,4 +928,21 @@ public class PropertySourceWrapper implements IPropertySource {
         AtomAddressManager.class,AtomsetIterator.class,
         Phase.class,Species.class,
     };
+
+    // this fields sole purpose is to allow InterfaceWrappers to return
+    // something that tells us to not include a property descriptor (as opposed
+    // to returning null, which means, it doesn't handle that property)
+    public static final IPropertyDescriptor PROPERTY_VETO = new PropertyDescriptorVeto();
+    
+    protected static final class PropertyDescriptorVeto implements IPropertyDescriptor {
+        public CellEditor createPropertyEditor(Composite parent) {return null;}
+        public String getCategory() {return null;}
+        public String getDescription() {return null;}
+        public String getDisplayName() {return null;}
+        public String[] getFilterFlags() {return null;}
+        public Object getHelpContextIds() {return null;}
+        public Object getId() {return null;}
+        public ILabelProvider getLabelProvider() {return null;}
+        public boolean isCompatibleWith(IPropertyDescriptor anotherProperty) {return false;}
+    }
 }
