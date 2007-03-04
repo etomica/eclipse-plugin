@@ -2,7 +2,6 @@ package etomica.plugin.wrappers;
 
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
-import etomica.plugin.editors.EtomicaEditor;
 import etomica.plugin.editors.MenuItemWrapper;
 import etomica.simulation.Simulation;
 
@@ -29,14 +28,6 @@ public abstract class InterfaceWrapper {
         simulation = sim;
 	}
 	
-    public void setEditor(EtomicaEditor editor) {
-        etomicaEditor = editor;
-    }
-    
-    public EtomicaEditor getEditor() {
-        return etomicaEditor;
-    }
-    
 	/**
 	 * @return the wrapped object
 	 */
@@ -113,5 +104,4 @@ public abstract class InterfaceWrapper {
 
     protected Object object;
     protected Simulation simulation;
-    protected EtomicaEditor etomicaEditor;
 }

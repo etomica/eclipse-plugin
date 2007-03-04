@@ -206,9 +206,6 @@ public class PropertySourceWrapper implements IPropertySource {
     
     public void setEditor(EtomicaEditor editor) {
         etomicaEditor = editor;
-        for (int i=0; i<interfaceWrappers.length; i++) {
-            interfaceWrappers[i].setEditor(etomicaEditor);
-        }
     }
     
     public EtomicaEditor getEditor() {
@@ -285,43 +282,43 @@ public class PropertySourceWrapper implements IPropertySource {
         // not relevant -- do nothing
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.views.properties.IPropertySource#setPropertyValue(java.lang.Object, java.lang.Object)
-	 */
 	public void setPropertyValue(Object key, Object value) {
         if (value instanceof PropertySourceWrapper) {
             value = ((PropertySourceWrapper)value).getObject();
         }
 
+        boolean handled = false;
         for (int i=0; i<interfaceWrappers.length; i++) {
+            if (interfaceWrappers[i].setPropertyValue(key, value)) {
+                // true means the interfaceWrapper handled it
+                handled = true;
+                break;
+            }
+        }
+        if (!handled) {
+    		java.beans.PropertyDescriptor pd = (java.beans.PropertyDescriptor)key;
+    		Method setter = pd.getWriteMethod(); //method used to read value of property in this object
+    		if(setter == null) return;
+            if (value instanceof Double) {
+                value = getSimValue((Double)value, pd.getReadMethod().getName());
+            }
+            
             try {
-                if (interfaceWrappers[i].setPropertyValue(key, value)) {
-                    // true means the interfaceWrapper handled it
-                    return;
-                }
+    			setter.invoke(object, new Object[] {value});
             }
-            catch (IllegalArgumentException e) {
-                // throwing an exception is the interfaceWrapper's way of 
-                // vetoing this key
-                return;
+            catch (IllegalAccessException ex) {
+                WorkbenchPlugin.getDefault().getLog().log(
+                        new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID, 0, ex.getMessage(), ex.getCause()));
+            }
+            catch (InvocationTargetException ex) {
+                WorkbenchPlugin.getDefault().getLog().log(
+                        new Status(IStatus.WARNING, PlatformUI.PLUGIN_ID, 0, ex.getMessage(), ex.getCause()));
             }
         }
-		java.beans.PropertyDescriptor pd = (java.beans.PropertyDescriptor)key;
-		Method setter = pd.getWriteMethod(); //method used to read value of property in this object
-		if(setter == null) return;
-        if (value instanceof Double) {
-            value = getSimValue((Double)value, pd.getReadMethod().getName());
+		if (etomicaEditor != null) {
+            etomicaEditor.markDirty();
+            etomicaEditor.getInnerPanel().getViewer().refresh(this);
         }
-        
-        try {
-			setter.invoke(object, new Object[] {value});
-			if (etomicaEditor != null) {
-                etomicaEditor.markDirty();
-                etomicaEditor.getInnerPanel().getViewer().refresh(this);
-            }
-		}
-		catch(IllegalAccessException ex) {}  //unlikely
-		catch(InvocationTargetException ex) {}  //maybe
 	}
 	
     /**
