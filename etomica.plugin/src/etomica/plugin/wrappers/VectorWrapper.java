@@ -15,7 +15,7 @@ public class VectorWrapper extends PropertySourceWrapper {
     protected void generateDescriptors() {
         IVector vector = (IVector)object;
        //Introspection to get array of all properties
-        descriptors= new PropertyDescriptor[vector.D()];
+        descriptors= new PropertyDescriptor[vector.getD()];
         for (int i=0; i<descriptors.length; i++) {
             descriptors[i] = new DecimalPropertyDescriptor(new Integer(i),xyz[i]);
         }
