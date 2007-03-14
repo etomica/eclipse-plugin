@@ -30,7 +30,7 @@ public class ActivityIntegrateWrapper extends PropertySourceWrapper implements R
         IPropertyDescriptor[] activityDescriptors = super.generateDescriptors();
         
         for (int i=0; i<activityDescriptors.length; i++) {
-            descriptorHash.put(activityDescriptors[i],activityDescriptors[i]);
+            descriptorHash.put(activityDescriptors[i].getId(),activityDescriptors[i].getId());
         }
 
         // now grab the integrators and combine them in one big array
