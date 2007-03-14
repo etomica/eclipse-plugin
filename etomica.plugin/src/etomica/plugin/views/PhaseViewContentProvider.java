@@ -9,26 +9,22 @@ import org.eclipse.jface.viewers.Viewer;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomArrayList;
-import etomica.atom.AtomTreeNode;
-import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.AtomGroup;
 import etomica.phase.Phase;
 import etomica.plugin.wrappers.PropertySourceWrapper;
 
-/**
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
+
 public class PhaseViewContentProvider implements ITreeContentProvider {
 
     public PhaseViewContentProvider() {}
 
     public Object[] getChildren(Object wrappedElement) {
         // wrapped element is an atom.  If it's a parent, return the children
-        AtomTreeNode node = ((Atom)((PropertySourceWrapper)wrappedElement).getObject()).getNode();
-        if (!(node instanceof AtomTreeNodeGroup)) {
+        Atom atom = (Atom)((PropertySourceWrapper)wrappedElement).getObject();
+        if (!(atom instanceof AtomGroup)) {
             return new Object[0];
         }
-        return wrapAtomList(((AtomTreeNodeGroup)node).getChildList());
+        return wrapAtomList(((AtomGroup)atom).getChildList());
     }
     
     /**
@@ -39,7 +35,7 @@ public class PhaseViewContentProvider implements ITreeContentProvider {
     //simulation instances to be the input element in this method
     public Object[] getElements(Object inputElement) {
         Phase phase = (Phase)((PropertySourceWrapper)inputElement).getObject();
-        AtomArrayList agentList = ((AtomTreeNodeGroup)phase.getSpeciesMaster().getNode()).getChildList();
+        AtomArrayList agentList = ((AtomGroup)phase.getSpeciesMaster()).getChildList();
         return wrapAtomList(agentList);
     }
     

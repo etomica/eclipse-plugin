@@ -5,7 +5,7 @@ import java.beans.PropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.atom.Atom;
-import etomica.atom.AtomTreeNodeGroup;
+import etomica.atom.AtomGroup;
 import etomica.simulation.Simulation;
 import etomica.util.Arrays;
 
@@ -17,7 +17,7 @@ public class AtomWrapper extends PropertySourceWrapper implements RemoverWrapper
     
     protected IPropertyDescriptor[] generateDescriptors() {
         IPropertyDescriptor[] newDescriptors = super.generateDescriptors();
-        if (((Atom)object).getNode().childAtomCount() > 0) {
+        if (object instanceof AtomGroup && ((AtomGroup)object).getChildList().size() > 0) {
             // add the child list since that's actually a property of the node
             // and we hide the node
             newDescriptors = (IPropertyDescriptor[])Arrays.addObject(newDescriptors,new org.eclipse.ui.views.properties.PropertyDescriptor("children","children"));
@@ -40,7 +40,7 @@ public class AtomWrapper extends PropertySourceWrapper implements RemoverWrapper
         String keyString = (String)key;
         PropertySourceWrapper wrapper = null;
         if (keyString.equals("children")) {
-            Atom[] childAtoms = ((AtomTreeNodeGroup)((Atom)object).getNode()).getChildList().toArray();
+            Atom[] childAtoms = ((AtomGroup)object).getChildList().toArray();
             wrapper = PropertySourceWrapper.makeWrapper(childAtoms, simulation, etomicaEditor);
             wrapper.setDisplayName("Child Atoms");
         }
@@ -53,8 +53,8 @@ public class AtomWrapper extends PropertySourceWrapper implements RemoverWrapper
         if (child instanceof PropertySourceWrapper) {
             child = ((PropertySourceWrapper)child).getObject();
         }
-        if (child instanceof Atom && ((Atom)child).getNode().parentSpeciesAgent() == object) {
-            ((Atom)child).getNode().setParent(null);
+        if (child instanceof Atom && ((Atom)child).parentSpeciesAgent() == object) {
+            ((Atom)child).setParent(null);
             return true;
         }
         return false;
@@ -62,7 +62,7 @@ public class AtomWrapper extends PropertySourceWrapper implements RemoverWrapper
     
     public boolean canRemoveChild(Object child) {
         // we can only remove molecules
-        if (child instanceof Atom && ((Atom)child).getNode().parentGroup() == object) {
+        if (child instanceof Atom && ((Atom)child).parentGroup() == object) {
             return true;
         }
         return false;
