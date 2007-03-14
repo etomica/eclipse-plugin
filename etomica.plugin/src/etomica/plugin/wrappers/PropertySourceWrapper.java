@@ -34,6 +34,7 @@ import etomica.atom.AtomPositionDefinition;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.data.DataSink;
 import etomica.integrator.Integrator;
+import etomica.math.geometry.Shape;
 import etomica.nbr.NeighborCriterion;
 import etomica.phase.Phase;
 import etomica.plugin.Registry;
@@ -48,6 +49,7 @@ import etomica.plugin.views.IntegerPropertyDescriptor;
 import etomica.simulation.Simulation;
 import etomica.space.Boundary;
 import etomica.space.IVector;
+import etomica.space.Tensor;
 import etomica.species.Species;
 import etomica.units.Dimension;
 import etomica.units.Unit;
@@ -921,7 +923,7 @@ public class PropertySourceWrapper implements IPropertySource {
     }
 
     private static final Class[] excludedChildClasses = new Class[]{
-        IVector.class,
+        IVector.class,Tensor.class,Shape.class,
         AtomAddressManager.class,AtomsetIterator.class,
         Phase.class,Species.class,
     };
