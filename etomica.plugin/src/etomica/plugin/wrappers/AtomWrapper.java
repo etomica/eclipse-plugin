@@ -26,8 +26,9 @@ public class AtomWrapper extends PropertySourceWrapper implements RemoverWrapper
     }
 
     protected IPropertyDescriptor makeDescriptor(PropertyDescriptor property) {
-        if (property.getDisplayName().equals("node")) {
-            // we don't need to show the node
+        if (property.getDisplayName().equals("childList")) {
+            // we don't need to show the childList since we make explicit
+            // descriptors for the individual children
             return null;
         }
         return super.makeDescriptor(property);
