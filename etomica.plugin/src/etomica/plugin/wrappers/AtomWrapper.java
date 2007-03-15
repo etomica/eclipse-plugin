@@ -6,6 +6,7 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.atom.Atom;
 import etomica.atom.AtomGroup;
+import etomica.atom.SpeciesAgent;
 import etomica.simulation.Simulation;
 import etomica.util.Arrays;
 
@@ -54,7 +55,7 @@ public class AtomWrapper extends PropertySourceWrapper implements RemoverWrapper
         if (child instanceof PropertySourceWrapper) {
             child = ((PropertySourceWrapper)child).getObject();
         }
-        if (child instanceof Atom && ((Atom)child).parentSpeciesAgent() == object) {
+        if (object instanceof SpeciesAgent && child instanceof Atom && ((Atom)child).getParentGroup() == object) {
             ((Atom)child).setParent(null);
             return true;
         }
@@ -63,7 +64,7 @@ public class AtomWrapper extends PropertySourceWrapper implements RemoverWrapper
     
     public boolean canRemoveChild(Object child) {
         // we can only remove molecules
-        if (child instanceof Atom && ((Atom)child).parentGroup() == object) {
+        if (object instanceof SpeciesAgent && child instanceof Atom && ((Atom)child).getParentGroup() == object) {
             return true;
         }
         return false;
