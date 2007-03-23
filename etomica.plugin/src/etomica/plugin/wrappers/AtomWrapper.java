@@ -27,9 +27,10 @@ public class AtomWrapper extends PropertySourceWrapper implements RemoverWrapper
     }
 
     protected IPropertyDescriptor makeDescriptor(PropertyDescriptor property) {
-        if (property.getDisplayName().equals("childList")) {
+        if (property.getDisplayName().equals("childList") || property.getDisplayName().startsWith("parent")) {
             // we don't need to show the childList since we make explicit
             // descriptors for the individual children
+            // we also don't want parent{Species,Molecule,Group} since we want children only.
             return null;
         }
         return super.makeDescriptor(property);
