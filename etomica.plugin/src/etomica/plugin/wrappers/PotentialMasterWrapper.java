@@ -52,7 +52,7 @@ public class PotentialMasterWrapper extends PropertySourceWrapper implements Rem
         if (object instanceof PotentialMasterCell || object instanceof PotentialMasterList) {
             PotentialMasterReset potentialMasterReset = new PotentialMasterReset((PotentialMaster)object);
             ActionListItemWrapper actionListItemWrapper = new ActionListItemWrapper();
-            actionListItemWrapper.addSubmenuItem(new ActionItemWrapper(potentialMasterReset));
+            actionListItemWrapper.addSubmenuItem(new ActionItemWrapper(potentialMasterReset, "Reset"));
             itemWrappers = new MenuItemWrapper[]{addItemWrapper, actionListItemWrapper};
         }
         else {
@@ -111,10 +111,6 @@ public class PotentialMasterWrapper extends PropertySourceWrapper implements Rem
             else if (potentialMaster instanceof PotentialMasterList) {
                 ((PotentialMasterList)potentialMaster).reset();
             }
-        }
-        
-        public String getLabel() {
-            return "Reset";
         }
         
         private final PotentialMaster potentialMaster;

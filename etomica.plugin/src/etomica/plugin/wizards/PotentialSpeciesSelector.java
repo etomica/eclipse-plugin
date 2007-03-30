@@ -207,7 +207,7 @@ public class PotentialSpeciesSelector extends Composite {
         });
         
         //add the Species from the simulation
-        Species[] speciesArray = simulation.getSpeciesRoot().getSpecies();
+        Species[] speciesArray = simulation.getSpeciesManager().getSpecies();
         for (int i=0; i<speciesArray.length; i++) {
 			Species species = speciesArray[i];
 			speciesCombo.add(species.getName());

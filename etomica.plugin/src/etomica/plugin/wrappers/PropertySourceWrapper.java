@@ -145,7 +145,7 @@ public class PropertySourceWrapper implements IPropertySource {
             // we found a wrapper for this specific interface
             Object obj = wrapper.getObject();
             InterfaceWrapper interfaceWrapper = (InterfaceWrapper)makeWrapperForClass(wrapperClass, obj, someInterface, editor.getSimulation());
-            wrapper.setEditor(editor);
+            interfaceWrapper.setEditor(editor);
             wrapper.addInterfaceWrapper(interfaceWrapper);
         }
         Class[] parentInterfaces = someInterface.getInterfaces();
@@ -835,7 +835,7 @@ public class PropertySourceWrapper implements IPropertySource {
             return status;
         }
         
-        if (parentList.size() > 10) {
+        if (parentList.size() > 11) {
             throw new RuntimeException("parent list too long.  probable infinite recursion");
         }
 
@@ -925,7 +925,7 @@ public class PropertySourceWrapper implements IPropertySource {
     private static final Class[] excludedChildClasses = new Class[]{
         IVector.class,Tensor.class,Shape.class,
         AtomAddressManager.class,AtomsetIterator.class,
-        Phase.class,Species.class,
+        Phase.class,Species.class,Simulation.class
     };
 
     // this fields sole purpose is to allow InterfaceWrappers to return

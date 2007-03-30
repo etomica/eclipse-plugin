@@ -10,7 +10,6 @@ import etomica.action.PhaseAction;
 import etomica.action.SimulationAction;
 import etomica.data.DataPump;
 import etomica.data.DataSource;
-import etomica.data.meter.Meter;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorListener;
@@ -83,9 +82,6 @@ public class NewIntegratorListenerWizard extends Wizard implements SimpleClassWi
             if (!streamAlreadyAdded) {
                 DataSource dataSource = dataStreams[i].getDataSource();
                 String string = dataSource.getDataInfo().getLabel();
-                if (dataSource instanceof Meter) {
-                    string = ((Meter)dataSource).getName();
-                }
                 selector.addExtraObject(string+" stream",new IntervalActionAdapter((DataPump)dataStreams[i].getClient()));
             }
             if (!listenerAlreadyAdded && dataStreams[i].getDataSource() instanceof IntegratorIntervalListener) {

@@ -2,6 +2,7 @@ package etomica.plugin.wrappers;
 
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
+import etomica.plugin.editors.EtomicaEditor;
 import etomica.plugin.editors.MenuItemWrapper;
 import etomica.simulation.Simulation;
 
@@ -34,6 +35,10 @@ public abstract class InterfaceWrapper {
 	public Object getObject() {
 		return object;
 	}
+    
+    public void setEditor(EtomicaEditor newEditor) {
+        editor = newEditor;
+    }
     
     /**
      * Returns the property value if the given key requires special handling 
@@ -104,4 +109,5 @@ public abstract class InterfaceWrapper {
 
     protected Object object;
     protected Simulation simulation;
+    protected EtomicaEditor editor;
 }

@@ -2,11 +2,13 @@ package etomica.plugin.wrappers;
 
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.action.Action;
 import etomica.action.ActionGroup;
 import etomica.action.activity.ActivityGroup;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.action.activity.Controller;
 import etomica.plugin.editors.MenuItemCascadeWrapper;
 import etomica.plugin.editors.MenuItemWrapper;
 import etomica.plugin.wizards.NewActionWizard;
@@ -18,6 +20,17 @@ public class ActionGroupWrapper extends InterfaceWrapper implements RemoverWrapp
 
     public ActionGroupWrapper(ActionGroup object, Simulation sim) {
         super(object,sim);
+    }
+
+    public PropertySourceWrapper[] getChildren() {
+        return PropertySourceWrapper.wrapArrayElements(((Controller)object).getAllActions(),simulation,editor);
+    }
+    
+    public boolean isChildExcluded(IPropertyDescriptor descriptor, PropertySourceWrapper childWrapper, Object child) {
+        if (child instanceof Action[]) {
+            return true;
+        }
+        return false;
     }
 
     public boolean removeChild(Object obj) {

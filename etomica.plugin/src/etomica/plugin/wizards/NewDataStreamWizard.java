@@ -1,13 +1,19 @@
 package etomica.plugin.wizards;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.WorkbenchPlugin;
 
 import etomica.data.DataPump;
 import etomica.data.DataSink;
 import etomica.data.DataSource;
-import etomica.data.meter.Meter;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorPhase;
@@ -79,10 +85,24 @@ public class NewDataStreamWizard extends Wizard implements SimpleClassWizard {
                 else {
                     integrator.addListener(new IntervalActionAdapter(pump));
                 }
-                if (integrator instanceof IntegratorPhase && dataSource instanceof Meter) {
+                if (integrator instanceof IntegratorPhase) {
                     Phase phase = ((IntegratorPhase)integrator).getPhase();
                     if (phase != null) {
-                        ((Meter)dataSource).setPhase(phase);
+                        try {
+                            Method phaseSetter = dataSource.getClass().getMethod("setPhase", new Class[]{Phase.class});
+                            phaseSetter.invoke(dataSource, new Object[]{phase});
+                        }
+                        catch (NoSuchMethodException e) {
+                            // datasource had no setPhase method
+                        }
+                        catch (IllegalAccessException e) {
+                            WorkbenchPlugin.getDefault().getLog().log(
+                                    new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID, 0, e.getMessage(), e.getCause()));
+                        }
+                        catch (InvocationTargetException e) {
+                            WorkbenchPlugin.getDefault().getLog().log(
+                                    new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID, 0, e.getMessage(), e.getCause()));
+                        }
                     }
                 }
                 //FIXME we should call setIntegrator on DataSources that have 

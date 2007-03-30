@@ -1,13 +1,13 @@
 package etomica.plugin.wrappers;
 
+import java.util.LinkedList;
+
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.action.Action;
 import etomica.action.activity.ActivityGroup;
 import etomica.action.activity.ActivityIntegrate;
-import etomica.atom.SpeciesRoot;
 import etomica.data.DataSource;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalListener;
@@ -27,17 +27,18 @@ public class SimulationWrapper extends PropertySourceWrapper implements RemoverW
         super(sim,sim);
     }
 
-    public boolean isChildExcluded(IPropertyDescriptor descriptor, PropertySourceWrapper childWrapper, Object child) {
-        if (child instanceof Phase[] || child instanceof DataStreamHeader[] ||
-            child instanceof Species[]) {
-            // Phases and Species get excluded by PropertySourceWrapper
-            // Phase[], Species[] and DataStreamHeader[] should be shown, even if empty
-            return false;
-        }
-        if (child instanceof SpeciesRoot) {
-            return true;
-        }
-        return super.isChildExcluded(descriptor, childWrapper, child);
+    public PropertySourceWrapper[] getChildren(LinkedList parentList) {
+        // we're not really supposed to override this, but the list we want
+        // is so different from the list we get from reflection
+        Simulation sim = (Simulation)object;
+        childWrappers = new PropertySourceWrapper[]{
+                makeWrapper(sim.getController(),sim,etomicaEditor),
+                makeWrapper(sim.getPotentialMaster(),sim,etomicaEditor),
+                makeWrapper(sim.getPhases(),sim,etomicaEditor),
+                makeWrapper(sim.getSpeciesManager().getSpecies(),sim,etomicaEditor),
+                makeWrapper(sim.getDataStreams(),sim,etomicaEditor),
+                makeWrapper(sim.getDefaults(),sim,etomicaEditor)};
+        return childWrappers;
     }
 
     public boolean removeChild(Object obj) {
@@ -49,7 +50,7 @@ public class SimulationWrapper extends PropertySourceWrapper implements RemoverW
             return true;
         }
         if (obj instanceof Species) {
-            return ((Simulation)object).getSpeciesRoot().removeSpecies((Species)obj);
+            return ((Simulation)object).getSpeciesManager().removeSpecies((Species)obj);
         }
         if (obj instanceof DataStreamHeader) {
             Object client = ((DataStreamHeader)obj).getClient();
@@ -69,7 +70,7 @@ public class SimulationWrapper extends PropertySourceWrapper implements RemoverW
             objs = ((Simulation)object).getPhases();
         }
         else if (obj instanceof Species) {
-            objs = ((Simulation)object).getSpeciesRoot().getSpecies();
+            objs = ((Simulation)object).getSpeciesManager().getSpecies();
         }
         else if (obj instanceof DataStreamHeader) {
             objs = ((Simulation)object).getDataStreams();

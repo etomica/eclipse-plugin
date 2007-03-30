@@ -1,13 +1,19 @@
 package etomica.plugin.wrappers;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.ExceptionHandler;
+import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.data.DataSource;
-import etomica.data.meter.Meter;
 import etomica.plugin.editors.MenuItemCascadeWrapper;
 import etomica.plugin.editors.MenuItemWrapper;
 import etomica.plugin.views.DataPlotView;
@@ -66,10 +72,22 @@ public class DataSourceWrapper extends InterfaceWrapper implements OpenerWrapper
         if (superStatus.type == EtomicaStatus.ERROR) {
             return superStatus;
         }
-        if (object instanceof Meter) {
-            if (((Meter)object).getPhase() == null) {
+        try {
+            Method phaseGetter = object.getClass().getMethod("getPhase", null);
+            if (phaseGetter.invoke(object, null) == null) {
                 return new EtomicaStatus("The DataSource requires a Phase",EtomicaStatus.ERROR);
             }
+        }
+        catch (NoSuchMethodException e) {
+            // datasource had no getPhase method
+        }
+        catch (IllegalAccessException e) {
+            WorkbenchPlugin.getDefault().getLog().log(
+                    new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID, 0, e.getMessage(), e.getCause()));
+        }
+        catch (InvocationTargetException e) {
+            WorkbenchPlugin.getDefault().getLog().log(
+                    new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID, 0, e.getMessage(), e.getCause()));
         }
         return superStatus;
     }

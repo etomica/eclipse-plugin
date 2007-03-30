@@ -53,7 +53,7 @@ public class PhaseWrapper extends PropertySourceWrapper implements OpenerWrapper
         }
         initializeMolecules.setConfiguration(new ConfigurationLattice(lattice));
         MenuItemCascadeWrapper actionItemWrapper = new ActionListItemWrapper();
-        actionItemWrapper.addSubmenuItem(new ActionItemWrapper(initializeMolecules));
+        actionItemWrapper.addSubmenuItem(new ActionItemWrapper(initializeMolecules, "Initialize"));
         
         return PropertySourceWrapper.combineMenuItemWrappers(
                 new MenuItemWrapper[]{openItemWrapper,actionItemWrapper}, 
@@ -125,9 +125,6 @@ public class PhaseWrapper extends PropertySourceWrapper implements OpenerWrapper
     protected static final String PHASE ="Phase";
 
     private static class InitializeMolecules extends PhaseActionAdapter {
-        public InitializeMolecules() {
-            super("Initialize");
-        }
 
         public void actionPerformed() {
             config.initializeCoordinates(phase);

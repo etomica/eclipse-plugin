@@ -31,7 +31,7 @@ public class IntegratorListenerWrapper extends InterfaceWrapper {
             ActionListItemWrapper actionListItemWrapper = new ActionListItemWrapper();
             for (int i=0; i<integrators.length; i++) {
                 AddToIntegratorAction action = new AddToIntegratorAction(integrators[i], (IntegratorListener)object);
-                ActionItemWrapper itemWrapper = new ActionItemWrapper(action);
+                ActionItemWrapper itemWrapper = new ActionItemWrapper(action, "Add to "+integrators[i].getName());
                 actionListItemWrapper.addSubmenuItem(itemWrapper);
             }
             itemWrappers = new MenuItemWrapper[]{actionListItemWrapper};
@@ -114,10 +114,6 @@ public class IntegratorListenerWrapper extends InterfaceWrapper {
         public AddToIntegratorAction(Integrator integrator, IntegratorListener listener) {
             this.integrator = integrator;
             this.listener = listener;
-        }
-        
-        public String getLabel() {
-            return "Add to "+integrator.getName();
         }
         
         public void actionPerformed() {

@@ -30,13 +30,14 @@ public class ActionListItemWrapper extends MenuItemCascadeWrapper {
      * invokes the Action
      */
     public static class ActionItemWrapper extends MenuItemWrapper {
-        public ActionItemWrapper(Action action) {
+        public ActionItemWrapper(Action action, String label) {
             this.action = action;
+            this.label = label;
         }
         
         public void addItemToMenu(Menu menu, TreeViewer viewer, EtomicaEditor editor) {
             MenuItem addClassItem = new MenuItem(menu, SWT.NONE);
-            addClassItem.setText(action.getLabel());
+            addClassItem.setText(label);
             addClassItem.addSelectionListener(new ActionSelectionListener(editor, viewer, action));
         }
         
@@ -44,15 +45,20 @@ public class ActionListItemWrapper extends MenuItemCascadeWrapper {
             return action;
         }
         
+        public String getLabel() {
+            return label;
+        }
+        
         public boolean equals(Object otherActionItemWrapper) {
             return super.equals(otherActionItemWrapper) && 
-                   (((ActionItemWrapper)otherActionItemWrapper).getAction().getLabel().equals(action.getLabel()));
+                   (((ActionItemWrapper)otherActionItemWrapper).getLabel().equals(label));
         }
         
         public int compareTo(Object otherActionItemWrapper) {
-            return action.getLabel().compareTo((((ActionItemWrapper)otherActionItemWrapper).getAction().getLabel()));
+            return label.compareTo((((ActionItemWrapper)otherActionItemWrapper).getLabel()));
         }
         
         protected final Action action;
+        protected final String label;
     }
 }

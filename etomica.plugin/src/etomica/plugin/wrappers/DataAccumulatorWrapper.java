@@ -21,7 +21,7 @@ public class DataAccumulatorWrapper extends PropertySourceWrapper {
 
         
         MenuItemCascadeWrapper actionItemWrapper = new ActionListItemWrapper();
-        actionItemWrapper.addSubmenuItem(new ActionItemWrapper(new ResetAction((DataAccumulator)object)));
+        actionItemWrapper.addSubmenuItem(new ActionItemWrapper(new ResetAction((DataAccumulator)object), "Restart"));
         
         return PropertySourceWrapper.combineMenuItemWrappers(
                 new MenuItemWrapper[]{actionItemWrapper}, 
