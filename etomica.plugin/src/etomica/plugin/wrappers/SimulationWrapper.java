@@ -46,7 +46,7 @@ public class SimulationWrapper extends PropertySourceWrapper implements RemoverW
             obj = ((PropertySourceWrapper)obj).getObject();
         }
         if (obj instanceof Phase) {
-            ((Phase)obj).getSpeciesMaster().dispose();
+            ((Simulation)object).removePhase((Phase)obj);
             return true;
         }
         if (obj instanceof Species) {
