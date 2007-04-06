@@ -15,6 +15,7 @@ import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.nbr.list.PotentialMasterList;
+import etomica.phase.Phase;
 import etomica.plugin.wizards.NewObjectSimplePage.SimpleClassWizard;
 import etomica.simulation.DataStreamHeader;
 import etomica.simulation.Simulation;
@@ -57,8 +58,11 @@ public class NewIntegratorListenerWizard extends Wizard implements SimpleClassWi
         selector.setExtraParameterClasses(new Class[]{Integrator.class});
         
         if (simulation.getPotentialMaster() instanceof PotentialMasterList) {
-            selector.addExtraObject("Neighbor Manager",
-                    ((PotentialMasterList)simulation.getPotentialMaster()).getNeighborManager());
+            Phase[] phases = simulation.getPhases();
+            for (int i=0; i<phases.length; i++) {
+                selector.addExtraObject("Neighbor Manager",
+                    ((PotentialMasterList)simulation.getPotentialMaster()).getNeighborManager(phases[i]));
+            }
         }
         DataStreamHeader[] dataStreams = simulation.getDataStreams();
         for (int i=0; i<dataStreams.length; i++) {
