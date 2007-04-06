@@ -3,6 +3,7 @@ package etomica.plugin.editors;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 
@@ -33,7 +34,6 @@ import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.progress.WorkbenchJob;
 
 import etomica.simulation.Simulation;
-import etomica.util.EtomicaObjectInputStream;
 
 
 public class EtomicaEditor extends EditorPart {
@@ -134,13 +134,12 @@ public class EtomicaEditor extends EditorPart {
     
     protected Exception readFromFile( String filename ) {
         FileInputStream fis = null;
-        EtomicaObjectInputStream in = null;
+        ObjectInputStream in = null;
         try
         {
             fis = new FileInputStream(filename);
-            in = new EtomicaObjectInputStream(fis);
+            in = new ObjectInputStream(fis);
             simulation = (etomica.simulation.Simulation) in.readObject();
-            in.finalizeRead();
             in.close();
         }
         catch( Exception ex ) {
