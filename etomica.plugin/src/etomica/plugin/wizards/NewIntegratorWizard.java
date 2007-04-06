@@ -65,7 +65,8 @@ public class NewIntegratorWizard extends Wizard implements SimpleClassWizard {
             return false;
 	  	
         if (integrator.getPotential() instanceof PotentialMasterList) {
-            integrator.addListener(((PotentialMasterList)integrator.getPotential()).getNeighborManager());
+            throw new RuntimeException("We need some way to pull this off");
+//            integrator.addListener(((PotentialMasterList)integrator.getPotential()).getNeighborManager());
         }
         if (actionGroup != null) {
             actionGroup.addAction(new ActivityIntegrate(simulation,integrator));
