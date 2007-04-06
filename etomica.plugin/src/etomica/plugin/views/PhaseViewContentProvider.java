@@ -35,7 +35,7 @@ public class PhaseViewContentProvider implements ITreeContentProvider {
     //simulation instances to be the input element in this method
     public Object[] getElements(Object inputElement) {
         Phase phase = (Phase)((PropertySourceWrapper)inputElement).getObject();
-        AtomArrayList agentList = ((AtomGroup)phase.getSpeciesMaster()).getChildList();
+        AtomArrayList agentList = phase.getSpeciesMaster().getAgentList();
         return wrapAtomList(agentList);
     }
     
