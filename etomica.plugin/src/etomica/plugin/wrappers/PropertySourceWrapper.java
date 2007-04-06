@@ -31,6 +31,7 @@ import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 import etomica.atom.AtomAddressManager;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomPositionDefinition;
+import etomica.atom.SpeciesMaster;
 import etomica.atom.iterator.AtomsetIterator;
 import etomica.data.DataSink;
 import etomica.integrator.Integrator;
@@ -925,7 +926,7 @@ public class PropertySourceWrapper implements IPropertySource {
     private static final Class[] excludedChildClasses = new Class[]{
         IVector.class,Tensor.class,Shape.class,
         AtomAddressManager.class,AtomsetIterator.class,
-        Phase.class,Species.class,Simulation.class
+        Phase.class,Species.class,Simulation.class,SpeciesMaster.class
     };
 
     // this fields sole purpose is to allow InterfaceWrappers to return

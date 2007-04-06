@@ -2,6 +2,7 @@ package etomica.plugin.wrappers;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedList;
 
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
@@ -10,6 +11,7 @@ import org.eclipse.ui.internal.ExceptionHandler;
 
 import etomica.action.PDBWriter;
 import etomica.action.PhaseActionAdapter;
+import etomica.atom.AtomArrayList;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.BravaisLattice;
@@ -31,7 +33,19 @@ public class PhaseWrapper extends PropertySourceWrapper implements OpenerWrapper
     public PhaseWrapper(Phase phase, Simulation sim) {
         super(phase,sim);
     }
-
+    
+    public PropertySourceWrapper[] getChildren(LinkedList parentList) {
+        PropertySourceWrapper[] children = super.getChildren(parentList);
+        AtomArrayList agentList = ((Phase)object).getSpeciesMaster().getAgentList();
+        PropertySourceWrapper[] newChildren = new PropertySourceWrapper[children.length+agentList.size()];
+        System.arraycopy(children,0,newChildren,0,children.length);
+        for (int i=children.length; i<newChildren.length; i++) {
+            newChildren[i] = PropertySourceWrapper.makeWrapper(agentList.get(i-children.length),
+                    simulation, etomicaEditor);
+        }
+        return newChildren;
+    }
+    
     public MenuItemWrapper[] getMenuItemWrappers(PropertySourceWrapper parentWrapper) {
         MenuItemCascadeWrapper openItemWrapper = new OpenItemWrapper();
 
