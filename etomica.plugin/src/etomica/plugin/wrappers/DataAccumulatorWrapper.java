@@ -11,6 +11,7 @@ public class DataAccumulatorWrapper extends PropertySourceWrapper {
 
     public DataAccumulatorWrapper(DataAccumulator object, Simulation sim) {
         super(object, sim);
+        addInterfaceWrapper(new DataSourceWrapper(object, sim));
     }
     
     public Action[] getActions() {
@@ -43,5 +44,4 @@ public class DataAccumulatorWrapper extends PropertySourceWrapper {
         
         private final DataAccumulator accumulator;
     }
-
 }
