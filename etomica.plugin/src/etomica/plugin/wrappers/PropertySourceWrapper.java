@@ -209,6 +209,9 @@ public class PropertySourceWrapper implements IPropertySource {
     
     public void setEditor(EtomicaEditor editor) {
         etomicaEditor = editor;
+        for (int i=0; i<interfaceWrappers.length; i++) {
+            interfaceWrappers[i].setEditor(editor);
+        }
     }
     
     public EtomicaEditor getEditor() {
