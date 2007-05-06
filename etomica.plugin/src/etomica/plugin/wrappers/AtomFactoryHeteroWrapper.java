@@ -5,12 +5,12 @@ import org.eclipse.swt.widgets.Shell;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomFactoryHetero;
 import etomica.atom.AtomFactoryMono;
+import etomica.atom.AtomFactoryMonoDynamic;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.plugin.editors.MenuItemWrapper;
 import etomica.plugin.wrappers.AddItemWrapper.AddClassItemWrapper;
 import etomica.simulation.Simulation;
-import etomica.space.CoordinateFactorySphere;
 
 public class AtomFactoryHeteroWrapper extends PropertySourceWrapper implements RemoverWrapper, AdderWrapper {
 
@@ -52,7 +52,13 @@ public class AtomFactoryHeteroWrapper extends PropertySourceWrapper implements R
         if (newObjectClass == AtomFactoryMono.class) {
             AtomTypeSphere leafType = new AtomTypeSphere(sim);
             leafType.setParentType((AtomTypeGroup)((AtomFactory)object).getType());
-            AtomFactoryMono childFactory = new AtomFactoryMono(new CoordinateFactorySphere(sim),leafType);
+            AtomFactoryMono childFactory;
+            if (sim.isDynamic()) {
+                childFactory = new AtomFactoryMonoDynamic(sim.getSpace(),leafType);
+            }
+            else {
+                childFactory = new AtomFactoryMono(sim.getSpace(),leafType);
+            }
             ((AtomFactoryHetero)object).addChildFactory(childFactory);
         }
         return false;
