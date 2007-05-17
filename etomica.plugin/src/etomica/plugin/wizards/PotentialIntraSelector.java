@@ -22,7 +22,6 @@ import org.eclipse.swt.widgets.Text;
 import etomica.EtomicaInfo;
 import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.AtomIterator;
-import etomica.atom.iterator.AtomPairIterator;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.plugin.ClassDiscovery;
 import etomica.plugin.Registry;
@@ -273,8 +272,7 @@ public class PotentialIntraSelector extends Composite {
         {
             Class iteratorClass = (Class) iterator.next();
             if (!(AtomsetIteratorBasisDependent.class.isAssignableFrom(iteratorClass))
-                    || (nBody == 2 && AtomIterator.class.isAssignableFrom(iteratorClass))
-                    || (nBody == 1 && AtomPairIterator.class.isAssignableFrom(iteratorClass))) {
+                    || (nBody == 2 && AtomIterator.class.isAssignableFrom(iteratorClass))) {
                 continue;
             }
             EtomicaInfo info = EtomicaInfo.getInfo(iteratorClass);
