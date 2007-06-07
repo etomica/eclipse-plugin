@@ -2,6 +2,7 @@ package etomica.plugin.wrappers;
 
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
+import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.simulation.Simulation;
@@ -15,7 +16,7 @@ public class IAtomGroupWrapper extends InterfaceWrapper {
     
     public IPropertyDescriptor[] generateDescriptors() {
         IPropertyDescriptor[] newDescriptors = super.generateDescriptors();
-        if (((IAtomGroup)object).getChildList().size() > 0) {
+        if (((IAtomGroup)object).getChildList().getAtomCount() > 0) {
             // add the child list since that's actually a property of the node
             // and we hide the node
             newDescriptors = (IPropertyDescriptor[])Arrays.addObject(newDescriptors,new org.eclipse.ui.views.properties.PropertyDescriptor("children","children"));
@@ -39,7 +40,12 @@ public class IAtomGroupWrapper extends InterfaceWrapper {
         String keyString = (String)key;
         PropertySourceWrapper wrapper = null;
         if (keyString.equals("children")) {
-            IAtom[] childAtoms = ((IAtomGroup)object).getChildList().toArray();
+            AtomSet children = ((IAtomGroup)object).getChildList();
+            int count = children.getAtomCount();
+            IAtom[] childAtoms = new IAtom[count];
+            for (int i=0; i<count; i++) {
+                childAtoms[i] = children.getAtom(i);
+            }
             wrapper = PropertySourceWrapper.makeWrapper(childAtoms, simulation, editor);
             wrapper.setDisplayName("Child Atoms");
         }

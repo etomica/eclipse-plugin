@@ -1,15 +1,11 @@
-/*
- * History
- * Created on Sep 20, 2004 by kofke
- */
 package etomica.plugin.views;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
 import etomica.atom.Atom;
-import etomica.atom.AtomArrayList;
 import etomica.atom.AtomGroup;
+import etomica.atom.AtomSet;
 import etomica.phase.Phase;
 import etomica.plugin.wrappers.PropertySourceWrapper;
 
@@ -35,14 +31,14 @@ public class PhaseViewContentProvider implements ITreeContentProvider {
     //simulation instances to be the input element in this method
     public Object[] getElements(Object inputElement) {
         Phase phase = (Phase)((PropertySourceWrapper)inputElement).getObject();
-        AtomArrayList agentList = phase.getSpeciesMaster().getAgentList();
+        AtomSet agentList = phase.getSpeciesMaster().getAgentList();
         return wrapAtomList(agentList);
     }
     
-    private PropertySourceWrapper[] wrapAtomList(AtomArrayList list) {
-        PropertySourceWrapper[] wrappers = new PropertySourceWrapper[list.size()];
-        for (int i=0; i<list.size(); i++) {
-            wrappers[i] = PropertySourceWrapper.makeWrapper(list.get(i));
+    private PropertySourceWrapper[] wrapAtomList(AtomSet list) {
+        PropertySourceWrapper[] wrappers = new PropertySourceWrapper[list.getAtomCount()];
+        for (int i=0; i<list.getAtomCount(); i++) {
+            wrappers[i] = PropertySourceWrapper.makeWrapper(list.getAtom(i));
         }
         return wrappers;
     }

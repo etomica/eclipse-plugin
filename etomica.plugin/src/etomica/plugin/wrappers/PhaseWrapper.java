@@ -11,7 +11,7 @@ import org.eclipse.ui.internal.ExceptionHandler;
 
 import etomica.action.PDBWriter;
 import etomica.action.PhaseActionAdapter;
-import etomica.atom.AtomArrayList;
+import etomica.atom.AtomSet;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
 import etomica.lattice.BravaisLattice;
@@ -36,11 +36,11 @@ public class PhaseWrapper extends PropertySourceWrapper implements OpenerWrapper
     
     public PropertySourceWrapper[] getChildren(LinkedList parentList) {
         PropertySourceWrapper[] children = super.getChildren(parentList);
-        AtomArrayList agentList = ((Phase)object).getSpeciesMaster().getAgentList();
-        PropertySourceWrapper[] newChildren = new PropertySourceWrapper[children.length+agentList.size()];
+        AtomSet agentList = ((Phase)object).getSpeciesMaster().getAgentList();
+        PropertySourceWrapper[] newChildren = new PropertySourceWrapper[children.length+agentList.getAtomCount()];
         System.arraycopy(children,0,newChildren,0,children.length);
         for (int i=children.length; i<newChildren.length; i++) {
-            newChildren[i] = PropertySourceWrapper.makeWrapper(agentList.get(i-children.length),
+            newChildren[i] = PropertySourceWrapper.makeWrapper(agentList.getAtom(i-children.length),
                     simulation, etomicaEditor);
         }
         return newChildren;
