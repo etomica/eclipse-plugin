@@ -33,7 +33,13 @@ public class EtomicaTreeViewer extends TreeViewer {
     public void refresh(final Object object) {
         // the wrappers cache their status and children.
         if (object != null) {
-            ((PropertySourceWrapper)object).refresh();
+            if (object instanceof TreeItem && ((TreeItem)object).getData() instanceof PropertySourceWrapper) {
+                ((PropertySourceWrapper)((TreeItem)object).getData()).refresh();
+            }
+            else if (object instanceof PropertySourceWrapper) {
+                // might never happen
+                ((PropertySourceWrapper)object).refresh();
+            }
         }
         else {
             // input will be the SimulationWrapper, but might be null during
