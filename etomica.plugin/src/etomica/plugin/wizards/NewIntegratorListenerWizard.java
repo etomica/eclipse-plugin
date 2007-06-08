@@ -13,6 +13,7 @@ import etomica.data.DataSource;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorListener;
+import etomica.integrator.IntegratorPhase;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
@@ -57,11 +58,11 @@ public class NewIntegratorListenerWizard extends Wizard implements SimpleClassWi
         selector.setExcludedClasses(new Class[]{AtomAction.class,Activity.class});
         selector.setExtraParameterClasses(new Class[]{Integrator.class});
         
-        if (simulation.getPotentialMaster() instanceof PotentialMasterList) {
+        if (integrator instanceof IntegratorPhase && ((IntegratorPhase)integrator).getPotential() instanceof PotentialMasterList) {
             Phase[] phases = simulation.getPhases();
             for (int i=0; i<phases.length; i++) {
                 selector.addExtraObject("Neighbor Manager",
-                    ((PotentialMasterList)simulation.getPotentialMaster()).getNeighborManager(phases[i]));
+                    ((PotentialMasterList)((IntegratorPhase)integrator).getPotential()).getNeighborManager(phases[i]));
             }
         }
         DataStreamHeader[] dataStreams = simulation.getDataStreams();
