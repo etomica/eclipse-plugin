@@ -83,6 +83,11 @@ public class NewSimulationPage extends WizardPage {
     
     public ParameterBase getSimulationParam() {
         Method paramGetter = null;
+        Class simulationClass = getSimulationClass();
+        if (simulationClass == null) {
+            // probably selected "custom"
+            return null;
+        }
         try {
             paramGetter = getSimulationClass().getMethod("getParameters", null);
         }
