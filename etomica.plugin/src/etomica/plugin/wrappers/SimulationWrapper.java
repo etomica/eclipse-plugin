@@ -14,30 +14,34 @@ import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.phase.Phase;
 import etomica.plugin.editors.MenuItemWrapper;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wizards.NewDataStreamWizard;
+import etomica.plugin.wizards.NewPotentialMasterWizard;
 import etomica.plugin.wizards.NewSpeciesWizard;
 import etomica.plugin.wrappers.AddItemWrapper.AddClassItemWrapper;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.DataStreamHeader;
 import etomica.simulation.Simulation;
 import etomica.species.Species;
 
 public class SimulationWrapper extends PropertySourceWrapper implements RemoverWrapper, AdderWrapper {
 
-    public SimulationWrapper(Simulation sim) {
-        super(sim,sim);
+    public SimulationWrapper(Simulation sim, SimulationObjects simObjects) {
+        super(sim,simObjects);
     }
 
     public PropertySourceWrapper[] getChildren(LinkedList parentList) {
         // we're not really supposed to override this, but the list we want
         // is so different from the list we get from reflection
         Simulation sim = (Simulation)object;
+        // cheat a bit more and use the explicit Simulation field
         childWrappers = new PropertySourceWrapper[]{
-                makeWrapper(sim.getController(),sim,etomicaEditor),
-                makeWrapper(sim.getPotentialMaster(),sim,etomicaEditor),
-                makeWrapper(sim.getPhases(),sim,etomicaEditor),
-                makeWrapper(sim.getSpeciesManager().getSpecies(),sim,etomicaEditor),
-                makeWrapper(sim.getDataStreams(),sim,etomicaEditor),
-                makeWrapper(sim.getDefaults(),sim,etomicaEditor)};
+                makeWrapper(sim.getController(),simObjects,etomicaEditor),
+                makeWrapper(simObjects.potentialMasters.toArray(new PotentialMaster[0]),simObjects,etomicaEditor),
+                makeWrapper(sim.getPhases(),simObjects,etomicaEditor),
+                makeWrapper(sim.getSpeciesManager().getSpecies(),simObjects,etomicaEditor),
+                makeWrapper(simObjects.dataStreams.toArray(new DataStreamHeader[0]),simObjects,etomicaEditor),
+                makeWrapper(sim.getDefaults(),simObjects,etomicaEditor)};
         return childWrappers;
     }
 
@@ -59,7 +63,11 @@ public class SimulationWrapper extends PropertySourceWrapper implements RemoverW
                 System.out.println("couldn't find "+client+" in "+object);
             }
             ((Simulation)object).unregister(dataSource,client);
+            simObjects.dataStreams.remove(obj);
             return true;
+        }
+        if (obj instanceof PotentialMaster) {
+            simObjects.potentialMasters.remove(obj);
         }
         return false;
     }
@@ -72,8 +80,11 @@ public class SimulationWrapper extends PropertySourceWrapper implements RemoverW
         else if (obj instanceof Species) {
             objs = ((Simulation)object).getSpeciesManager().getSpecies();
         }
-        else if (obj instanceof DataStreamHeader) {
-            objs = ((Simulation)object).getDataStreams();
+        else if (obj instanceof DataStreamHeader && simObjects.dataStreams.contains(obj)) {
+            return true;
+        }
+        else if (obj instanceof PotentialMaster && simObjects.potentialMasters.contains(obj)) {
+            return true;
         }
         for (int i=0; i<objs.length; i++) {
             if (objs[i] == obj) {
@@ -86,6 +97,7 @@ public class SimulationWrapper extends PropertySourceWrapper implements RemoverW
     public MenuItemWrapper[] getMenuItemWrappers(PropertySourceWrapper parentWrapper) {
         AddItemWrapper addItemWrapper = new AddItemWrapper();
 
+        addItemWrapper.addSubmenuItem(new AddClassItemWrapper(PotentialMaster.class, this));
         addItemWrapper.addSubmenuItem(new AddClassItemWrapper(Phase.class, this));
         addItemWrapper.addSubmenuItem(new AddClassItemWrapper(Species.class, this));
         addItemWrapper.addSubmenuItem(new AddClassItemWrapper(DataStreamHeader.class, this));
@@ -94,13 +106,22 @@ public class SimulationWrapper extends PropertySourceWrapper implements RemoverW
                 new MenuItemWrapper[]{addItemWrapper}, super.getMenuItemWrappers(parentWrapper));
     }
     
-    public boolean addObjectClass(Simulation sim, Class newObjectClass, Shell shell) {
+    public boolean addObjectClass(Class newObjectClass, Shell shell) {
         if (newObjectClass == Phase.class) {
-            new Phase((Simulation)object);
+            simObjects.simulation.addPhase(new Phase((Simulation)object));
             return true;
         }
+        if (newObjectClass == PotentialMaster.class) {
+            NewPotentialMasterWizard wizard = new NewPotentialMasterWizard(simObjects);
+
+            WizardDialog dialog = new WizardDialog(shell, wizard);
+            dialog.create();
+            dialog.getShell().setSize(500,400);
+            dialog.open();
+            return wizard.getSuccess();
+        }
         if (newObjectClass == Species.class) {
-            NewSpeciesWizard wizard = new NewSpeciesWizard((Simulation)object);
+            NewSpeciesWizard wizard = new NewSpeciesWizard(simObjects);
 
             WizardDialog dialog = new WizardDialog(shell, wizard);
             dialog.create();
@@ -109,7 +130,7 @@ public class SimulationWrapper extends PropertySourceWrapper implements RemoverW
             return wizard.getSuccess();
         }
         if (newObjectClass == DataStreamHeader.class) {
-            NewDataStreamWizard wizard = new NewDataStreamWizard((Simulation)object);
+            NewDataStreamWizard wizard = new NewDataStreamWizard(simObjects);
 
             WizardDialog dialog = new WizardDialog(shell, wizard);
             dialog.create();
@@ -154,4 +175,5 @@ public class SimulationWrapper extends PropertySourceWrapper implements RemoverW
         return false;
     }
 
+    protected PotentialMaster[] potentialMasters;
 }

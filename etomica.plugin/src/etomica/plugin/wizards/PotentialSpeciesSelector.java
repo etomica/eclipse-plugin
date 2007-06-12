@@ -21,12 +21,13 @@ import org.eclipse.ui.internal.ExceptionHandler;
 import etomica.EtomicaInfo;
 import etomica.plugin.ClassDiscovery;
 import etomica.plugin.Registry;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.potential.P2SoftSphericalTruncated;
 import etomica.potential.Potential;
 import etomica.potential.Potential2SoftSpherical;
 import etomica.potential.PotentialHard;
+import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialSoft;
-import etomica.simulation.Simulation;
 import etomica.species.Species;
 
 /**
@@ -44,7 +45,8 @@ public class PotentialSpeciesSelector extends Composite {
     protected Label potentialDescription;
 	protected HashMap potentialsMap = new HashMap();
 	private HashMap speciesMap = new HashMap();
-    private Simulation simulation;
+    private final SimulationObjects simObjects;
+    private final PotentialMaster potentialMaster;
 	
     /**
      * Returns an instance of the potential the user selected
@@ -55,7 +57,7 @@ public class PotentialSpeciesSelector extends Composite {
 		if ( potentialClass!=null )
 		{
             if (potentialClass == etomica.potential.PotentialGroup.class) {
-                return simulation.getPotentialMaster().makePotentialGroup(getPotenialNumBody());
+                return potentialMaster.makePotentialGroup(getPotenialNumBody());
             }
             Potential potential = null;
             Constructor[] constructors = potentialClass.getDeclaredConstructors();
@@ -65,11 +67,11 @@ public class PotentialSpeciesSelector extends Composite {
                     if (parameterTypes.length != 1) {
                         continue;
                     }
-                    if (parameterTypes[0].isInstance(simulation)) {
-                        potential = (Potential)constructors[i].newInstance(new Object[]{simulation});
+                    if (parameterTypes[0].isInstance(simObjects.simulation)) {
+                        potential = (Potential)constructors[i].newInstance(new Object[]{simObjects.simulation});
                     }
-                    else if (parameterTypes[0].isInstance(simulation.getSpace())) {
-                        potential = (Potential)constructors[i].newInstance(new Object[]{simulation.getSpace()});
+                    else if (parameterTypes[0].isInstance(simObjects.simulation.getSpace())) {
+                        potential = (Potential)constructors[i].newInstance(new Object[]{simObjects.simulation.getSpace()});
                     }
                     else {
                         continue;
@@ -164,10 +166,11 @@ public class PotentialSpeciesSelector extends Composite {
         return truncatedCheckbox.isEnabled() && truncatedCheckbox.getSelection();
     }
     
-	public PotentialSpeciesSelector(Simulation sim, Composite parent, int style) {
+	public PotentialSpeciesSelector(SimulationObjects simObjects, PotentialMaster potentialMaster, Composite parent, int style) {
 		super(parent, style);
 		
-        simulation = sim;
+        this.simObjects = simObjects;
+        this.potentialMaster = potentialMaster;
         
 		initialize();
 		
@@ -207,7 +210,7 @@ public class PotentialSpeciesSelector extends Composite {
         });
         
         //add the Species from the simulation
-        Species[] speciesArray = simulation.getSpeciesManager().getSpecies();
+        Species[] speciesArray = simObjects.simulation.getSpeciesManager().getSpecies();
         for (int i=0; i<speciesArray.length; i++) {
 			Species species = speciesArray[i];
 			speciesCombo.add(species.getName());

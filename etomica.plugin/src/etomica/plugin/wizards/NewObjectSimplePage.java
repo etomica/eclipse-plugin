@@ -12,7 +12,7 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import etomica.simulation.Simulation;
+import etomica.plugin.editors.SimulationObjects;
 
 /**
  * The "New" wizard page allows the user to select a class for a new object
@@ -21,7 +21,7 @@ import etomica.simulation.Simulation;
  * @author Andrew Schultz
  */
 public class NewObjectSimplePage extends WizardPage {
-    private final Simulation simulation;
+    private final SimulationObjects simObjects;
     private Object[] extraParameters = new Object[0];
     public SimpleClassSelector classSelector;
 	
@@ -32,9 +32,9 @@ public class NewObjectSimplePage extends WizardPage {
      * Constructor for SampleNewWizardPage.
      * @param pageName
      */
-    public NewObjectSimplePage(SimpleClassWizard wizard, Simulation sim, String name) {
+    public NewObjectSimplePage(SimpleClassWizard wizard, SimulationObjects simObjects, String name) {
         super("wizardPage");
-        simulation = sim;
+        this.simObjects = simObjects;
         this.name = name;
         this.wizard = wizard;
         setTitle("Etomica "+name+" Wizard");
@@ -89,27 +89,20 @@ public class NewObjectSimplePage extends WizardPage {
 	    master_layout.type = SWT.VERTICAL;
 	    root_container.setLayout( master_layout );
 
-	    classSelector = new SimpleClassSelector(root_container, org.eclipse.swt.SWT.NONE, name, simulation);
+	    classSelector = new SimpleClassSelector(root_container, org.eclipse.swt.SWT.NONE, name, simObjects);
 	    wizard.fixupSelector(classSelector);
+
+        ModifyListener modifyListener = new ModifyListener() {
+            public void modifyText(ModifyEvent e) {
+                dialogChanged();
+            }
+        };
         
-	    classSelector.objectName.addModifyListener(new ModifyListener() {
-	        public void modifyText(ModifyEvent e) {
-	            dialogChanged();
-	        }
-		});
-
-        classSelector.categoryCombo.addModifyListener(new ModifyListener() {
-            public void modifyText(ModifyEvent e) {
-                dialogChanged();
-            }
-        });
-
-        classSelector.classCombo.addModifyListener(new ModifyListener() {
-            public void modifyText(ModifyEvent e) {
-                dialogChanged();
-            }
-        });
-
+	    classSelector.objectName.addModifyListener(modifyListener); 
+        classSelector.categoryCombo.addModifyListener(modifyListener);
+        classSelector.classCombo.addModifyListener(modifyListener);
+        classSelector.potentialMasterCombo.addModifyListener(modifyListener);
+        
         setPageComplete(false);
 		dialogChanged();
 		setControl(root_container);
@@ -127,6 +120,9 @@ public class NewObjectSimplePage extends WizardPage {
             return;
         }
         if (!checkClass()) {
+            return;
+        }
+        if (!checkPotentialMaster()) {
             return;
         }
 		// Everything went ok, just clean up the error bar
@@ -154,6 +150,14 @@ public class NewObjectSimplePage extends WizardPage {
     private boolean checkClass() {
         if (classSelector.getSelection() == null) {
             updateStatus("You must select a "+name);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean checkPotentialMaster() {
+        if (classSelector.potentialMasterCombo.isVisible() && classSelector.getPotentialMasterSelection() == null) {
+            updateStatus("You must select a PotentialMaster");
             return false;
         }
         return true;

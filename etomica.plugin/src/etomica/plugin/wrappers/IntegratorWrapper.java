@@ -19,6 +19,7 @@ import etomica.nbr.site.PotentialMasterSite;
 import etomica.phase.Phase;
 import etomica.plugin.editors.MenuItemCascadeWrapper;
 import etomica.plugin.editors.MenuItemWrapper;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wizards.NewIntegratorListenerWizard;
 import etomica.plugin.wrappers.AddItemWrapper.AddClassItemWrapper;
 import etomica.potential.Potential;
@@ -26,12 +27,11 @@ import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialHard;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialSoft;
-import etomica.simulation.Simulation;
 
 public class IntegratorWrapper extends PropertySourceWrapper implements RemoverWrapper, AdderWrapper {
 
-    public IntegratorWrapper(Integrator object, Simulation sim) {
-        super(object,sim);
+    public IntegratorWrapper(Integrator object, SimulationObjects simObjects) {
+        super(object,simObjects);
     }
 
     protected IPropertyDescriptor makeDescriptor(java.beans.PropertyDescriptor property) {
@@ -90,9 +90,9 @@ public class IntegratorWrapper extends PropertySourceWrapper implements RemoverW
                 new MenuItemWrapper[]{addItemWrapper}, super.getMenuItemWrappers(parentWrapper));
     }
 
-    public boolean addObjectClass(Simulation sim, Class newObjectClass, Shell shell) {
+    public boolean addObjectClass(Class newObjectClass, Shell shell) {
         if (newObjectClass == IntegratorListener.class) {
-            NewIntegratorListenerWizard wizard = new NewIntegratorListenerWizard((Integrator)object,simulation);
+            NewIntegratorListenerWizard wizard = new NewIntegratorListenerWizard((Integrator)object,simObjects);
 
             WizardDialog dialog = new WizardDialog(shell, wizard);
             dialog.create();
@@ -112,13 +112,13 @@ public class IntegratorWrapper extends PropertySourceWrapper implements RemoverW
             }
         }
         if (status.type.severity < EtomicaStatus.WARNING.severity && object instanceof IntegratorMC) {
-            PotentialMaster potentialMaster = ((Integrator)object).getPotential();
+            PotentialMaster potentialMaster = ((IntegratorMC)object).getPotential();
             if (potentialMaster instanceof PotentialMasterList) {
                 status = new EtomicaStatus("MC Integrators don't work well with neighbor-listing "+potentialMaster.getClass(), EtomicaStatus.WARNING);
             }
         }
         if (object instanceof IntegratorMD) {
-            PotentialMaster potentialMaster = ((Integrator)object).getPotential();
+            PotentialMaster potentialMaster = ((IntegratorMD)object).getPotential();
             if (status.type.severity < EtomicaStatus.WARNING.severity && potentialMaster instanceof PotentialMasterSite) {
                 status = new EtomicaStatus("MD Integrators don't work well with cell-listing "+potentialMaster.getClass(), EtomicaStatus.WARNING);
             }

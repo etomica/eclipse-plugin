@@ -2,13 +2,9 @@ package etomica.plugin.wizards;
 
 import org.eclipse.jface.wizard.Wizard;
 
-import etomica.nbr.CriterionSimple;
-import etomica.nbr.CriterionSpecies;
-import etomica.nbr.list.PotentialMasterList;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.potential.Potential;
-import etomica.potential.Potential2;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 import etomica.species.Species;
 
 /**
@@ -25,9 +21,9 @@ public class NewSpeciesPotential extends Wizard {
     /**
      * Constructor for NewEtomicaDocument.
      */
-    public NewSpeciesPotential(PotentialMaster parent, Simulation sim) {
+    public NewSpeciesPotential(PotentialMaster parent, SimulationObjects simObjects) {
         super();
-        simulation = sim;
+        this.simObjects = simObjects;
         potentialMaster = parent;
         setNeedsProgressMonitor(false);
     }
@@ -36,7 +32,7 @@ public class NewSpeciesPotential extends Wizard {
      * Adding the page to the wizard.
      */
     public void addPages() {
-        speciesPotentialPage = new NewSpeciesPotentialPage(simulation);
+        speciesPotentialPage = new NewSpeciesPotentialPage(simObjects, potentialMaster);
         addPage(speciesPotentialPage);
     }
 
@@ -62,7 +58,7 @@ public class NewSpeciesPotential extends Wizard {
         return success;
     }
     
-    private final Simulation simulation;
+    private final SimulationObjects simObjects;
     private final PotentialMaster potentialMaster;
     private NewSpeciesPotentialPage speciesPotentialPage;
     private boolean success = false;

@@ -4,7 +4,7 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.plugin.editors.EtomicaEditor;
 import etomica.plugin.editors.MenuItemWrapper;
-import etomica.simulation.Simulation;
+import etomica.plugin.editors.SimulationObjects;
 
 /**
  * Wraps an object specifically to expose the functionality of an interface.
@@ -17,16 +17,19 @@ import etomica.simulation.Simulation;
 public abstract class InterfaceWrapper {
 
     public InterfaceWrapper(Object object) {
-        this(object,null);
+        this(object,new SimulationObjects());
     }
 
     /**
 	 * Constructs new instance, wrapping the given object.
 	 */
-	public InterfaceWrapper(Object object, Simulation sim) {
+	public InterfaceWrapper(Object object, SimulationObjects simObjects) {
 		super();
 		this.object = object;
-        simulation = sim;
+        if (simObjects == null) {
+            throw new NullPointerException("You can't pass a null SimulationObjects.  Pass an empty one if you must");
+        }
+        this.simObjects = simObjects;
 	}
 	
 	/**
@@ -108,6 +111,6 @@ public abstract class InterfaceWrapper {
     }
 
     protected Object object;
-    protected Simulation simulation;
+    protected SimulationObjects simObjects;
     protected EtomicaEditor editor;
 }

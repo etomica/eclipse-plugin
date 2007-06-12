@@ -5,17 +5,17 @@ import org.eclipse.swt.widgets.Shell;
 
 import etomica.atom.AtomType;
 import etomica.plugin.editors.MenuItemWrapper;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wizards.NewInterPotential;
 import etomica.plugin.wizards.NewIntraPotential;
 import etomica.plugin.wrappers.AddItemWrapper.AddClassItemWrapper;
 import etomica.potential.Potential;
 import etomica.potential.PotentialGroup;
-import etomica.simulation.Simulation;
 
 public class PotentialGroupWrapper extends PotentialWrapper implements RemoverWrapper, AdderWrapper {
 
-    public PotentialGroupWrapper(PotentialGroup object, Simulation sim) {
-        super(object,sim);
+    public PotentialGroupWrapper(PotentialGroup object, SimulationObjects simObjects) {
+        super(object,simObjects);
     }
 
     public boolean removeChild(Object obj) {
@@ -56,10 +56,10 @@ public class PotentialGroupWrapper extends PotentialWrapper implements RemoverWr
                 itemWrappers, super.getMenuItemWrappers(parentWrapper));
     }
 
-    public boolean addObjectClass(Simulation sim, Class newObjectClass, Shell shell) {
+    public boolean addObjectClass(Class newObjectClass, Shell shell) {
         if (newObjectClass == Potential.class) {
             if (((PotentialGroup)object).nBody() == 1) {
-                NewIntraPotential wizard = new NewIntraPotential((PotentialGroup)object, sim);
+                NewIntraPotential wizard = new NewIntraPotential((PotentialGroup)object, simObjects);
 
                 WizardDialog dialog = new WizardDialog(shell, wizard);
                 dialog.create();
@@ -67,12 +67,12 @@ public class PotentialGroupWrapper extends PotentialWrapper implements RemoverWr
                 dialog.open();
                 return wizard.getSuccess();
             }
-            else if (((PotentialGroup)object).nBody() == 2) {
-                AtomType[] types = sim.getPotentialMaster().getAtomTypes((Potential)object);
+            else if (((PotentialGroup)object).nBody() == 2 && myPotentialMaster != null) {
+                AtomType[] types = myPotentialMaster.getAtomTypes((Potential)object);
                 if (types == null) {
                     return false;
                 }
-                NewInterPotential wizard = new NewInterPotential((PotentialGroup)object, sim, types);
+                NewInterPotential wizard = new NewInterPotential((PotentialGroup)object, simObjects, types);
 
                 WizardDialog dialog = new WizardDialog(shell, wizard);
                 dialog.create();

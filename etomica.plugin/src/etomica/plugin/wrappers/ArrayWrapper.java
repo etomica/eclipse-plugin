@@ -5,13 +5,13 @@ import org.eclipse.ui.views.properties.PropertyDescriptor;
 
 import etomica.plugin.editors.MenuItemCascadeWrapper;
 import etomica.plugin.editors.MenuItemWrapper;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wrappers.AddItemWrapper.AddClassItemWrapper;
-import etomica.simulation.Simulation;
 
 public class ArrayWrapper extends PropertySourceWrapper {
 
-    public ArrayWrapper(Object[] obj, Simulation sim) {
-        super(obj,sim);
+    public ArrayWrapper(Object[] obj, SimulationObjects simObjects) {
+        super(obj,simObjects);
         setDisplayName(object.getClass().getComponentType().getName()+" array");
     }
 
@@ -32,7 +32,7 @@ public class ArrayWrapper extends PropertySourceWrapper {
         IPropertyDescriptor[] newDescriptors = new PropertyDescriptor[objArray.length];
         for (int i=0; i<objArray.length; i++) {
             newDescriptors[i] = PropertySourceWrapper.makeDescriptor(new Integer(i),((Object[])object)[i],
-                    object.getClass().getComponentType(),Integer.toString(i), simulation);
+                    object.getClass().getComponentType(),Integer.toString(i), simObjects);
         }
         return newDescriptors;
     }
@@ -41,7 +41,7 @@ public class ArrayWrapper extends PropertySourceWrapper {
         int index = ((Integer)key).intValue();
         Object value = ((Object[])object)[index];
         if (value != null && value.getClass().isArray()) {
-            return PropertySourceWrapper.makeWrapper(value, simulation, etomicaEditor);
+            return PropertySourceWrapper.makeWrapper(value, simObjects, etomicaEditor);
         }
         return value;
     }

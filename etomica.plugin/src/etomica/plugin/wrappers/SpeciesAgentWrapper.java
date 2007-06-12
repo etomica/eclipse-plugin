@@ -3,16 +3,16 @@ package etomica.plugin.wrappers;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
 import etomica.atom.SpeciesAgent;
-import etomica.simulation.Simulation;
+import etomica.plugin.editors.SimulationObjects;
 
 public class SpeciesAgentWrapper extends PropertySourceWrapper implements RemoverWrapper {
 
-    public SpeciesAgentWrapper(SpeciesAgent object, Simulation sim) {
-        super(object,sim);
+    public SpeciesAgentWrapper(SpeciesAgent object, SimulationObjects simObjects) {
+        super(object,simObjects);
         // SpeciesAgent extends AtomGroup, which implements IAtomGroup, so we
         // won't automagically pick up an IAtomGroupWrapper.  So add it
         // explicitly
-        addInterfaceWrapper(new IAtomGroupWrapper(object, sim));
+        addInterfaceWrapper(new IAtomGroupWrapper(object, simObjects));
     }
     
     // allow individual molecules to be removed.  molecules should be added via

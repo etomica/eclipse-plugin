@@ -3,12 +3,12 @@ package etomica.plugin.wrappers;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.atom.AtomSource;
-import etomica.simulation.Simulation;
+import etomica.plugin.editors.SimulationObjects;
 
 public class AtomSourceWrapper extends InterfaceWrapper {
 
-    public AtomSourceWrapper(AtomSource atomSource, Simulation sim) {
-        super(atomSource,sim);
+    public AtomSourceWrapper(AtomSource atomSource, SimulationObjects simObjects) {
+        super(atomSource,simObjects);
     }
 
     protected IPropertyDescriptor makeDescriptor(java.beans.PropertyDescriptor property) {

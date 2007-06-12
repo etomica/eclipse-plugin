@@ -7,17 +7,17 @@ import etomica.action.Action;
 import etomica.nbr.cell.PotentialMasterCell;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.plugin.editors.MenuItemWrapper;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wizards.NewSpeciesPotential;
 import etomica.plugin.wrappers.ActionListItemWrapper.ActionItemWrapper;
 import etomica.plugin.wrappers.AddItemWrapper.AddClassItemWrapper;
 import etomica.potential.Potential;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
 
 public class PotentialMasterWrapper extends PropertySourceWrapper implements RemoverWrapper, AdderWrapper {
 
-    public PotentialMasterWrapper(PotentialMaster object, Simulation sim) {
-        super(object,sim);
+    public PotentialMasterWrapper(PotentialMaster object, SimulationObjects simObjects) {
+        super(object,simObjects);
     }
 
     public boolean removeChild(Object obj) {
@@ -63,9 +63,9 @@ public class PotentialMasterWrapper extends PropertySourceWrapper implements Rem
                 super.getMenuItemWrappers(parentWrapper));
     }
 
-    public boolean addObjectClass(Simulation sim, Class newObjectClass, Shell shell) {
+    public boolean addObjectClass(Class newObjectClass, Shell shell) {
         if (newObjectClass == Potential.class) {
-            NewSpeciesPotential wizard = new NewSpeciesPotential((PotentialMaster)object, sim);
+            NewSpeciesPotential wizard = new NewSpeciesPotential((PotentialMaster)object, simObjects);
 
             WizardDialog dialog = new WizardDialog(shell, wizard);
             dialog.create();

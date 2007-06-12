@@ -10,35 +10,34 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 
 import etomica.atom.AtomType;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.potential.Potential;
-import etomica.simulation.Simulation;
+import etomica.potential.PotentialGroup;
 
 /**
  * The wizard page allows setting the potential name, 
  * class and Species to which it applies.
  */
 public class NewInterPotentialPage extends WizardPage {
-    private final Simulation simulation;
+    private final SimulationObjects simObjects;
     private final AtomType[] parentAtomTypes;
+    private final PotentialGroup parentPotential;
     private PotentialInterSelector potentialInterSelector;
 	
     // These are to follow eclipse UI guidelines - not to present an error message while the user 
     //   did not input anything yet
-    private boolean potentialNameModified = false;
-    private boolean potentialTypeModified = false;
-    private boolean potentialBodyModified = false;
-    private boolean potentialHardSoftModified = false;
-    private boolean iteratorModified = false;
+    protected boolean potentialHardSoftModified = false;
 
     /**
      * Constructor for SampleNewWizardPage.
      * @param pageName
      */
-    public NewInterPotentialPage(Simulation sim, AtomType[] parentTypes) {
+    public NewInterPotentialPage(SimulationObjects simObjects, PotentialGroup parentPotential, AtomType[] parentTypes) {
         super("wizardPage");
-        simulation = sim;
+        this.simObjects = simObjects;
         parentAtomTypes = parentTypes;
-        setTitle("Etomica New Species Wizard");
+        this.parentPotential = parentPotential;
+        setTitle("Etomica New Intermolecular Potential Wizard");
         setDescription("This wizard creates a new Species.");
     }
 
@@ -73,13 +72,12 @@ public class NewInterPotentialPage extends WizardPage {
 	    master_layout.type = SWT.VERTICAL;
 	    root_container.setLayout( master_layout );
 
-	    potentialInterSelector = new PotentialInterSelector(simulation, parentAtomTypes, 
+	    potentialInterSelector = new PotentialInterSelector(simObjects, parentPotential, parentAtomTypes, 
                 root_container, org.eclipse.swt.SWT.NONE );
         System.out.println("and here");
 	    
 	    potentialInterSelector.potentialName.addModifyListener(new ModifyListener() {
 	        public void modifyText(ModifyEvent e) {
-	            potentialNameModified = true;
 	            dialogChanged();
 	        }
 		});
@@ -93,7 +91,6 @@ public class NewInterPotentialPage extends WizardPage {
 
         potentialInterSelector.potentialCombo.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
-                potentialTypeModified = true;
                 dialogChanged();
             }
         });
@@ -118,9 +115,10 @@ public class NewInterPotentialPage extends WizardPage {
 	 * Ensures that the potential class is selected and has a name,
      * and that the species to which it applies are selected.
 	 */
-	private void dialogChanged() {
+	protected void dialogChanged() {
         if (potentialHardSoftModified) {
             potentialHardSoftModified = false;
+            //FIXME the selector should really do this itself!
             potentialInterSelector.rebuildPotentialList();
         }
 		if (!checkPotentialName()) {

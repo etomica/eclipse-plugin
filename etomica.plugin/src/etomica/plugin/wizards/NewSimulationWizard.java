@@ -35,7 +35,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.internal.WorkbenchPlugin;
 
-import etomica.potential.PotentialMaster;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.util.ParameterBase;
@@ -203,7 +203,9 @@ public class NewSimulationWizard extends Wizard implements INewWizard {
 		try
 		{
 		  	out = new ObjectOutputStream(fos);
-		  	out.writeObject( newsim );
+            SimulationObjects simObjects = new SimulationObjects();
+            simObjects.simulation = newsim;
+		  	out.writeObject(simObjects);
 		  	out.close();
 		}
 		catch(IOException ex)
@@ -276,32 +278,32 @@ public class NewSimulationWizard extends Wizard implements INewWizard {
             e.printStackTrace();
             return null;
         }
-        Class potClass = page.getPotentialMasterClass();
-        PotentialMaster pot = null;
-        try {
-            pot = (PotentialMaster)potClass.getConstructor(new Class[]{Space.class}).newInstance(new Space[]{space});
-        }
-        catch (IllegalAccessException e) {
-            System.err.println( "Illegal access while creating PotentialMaster class: " + e.getMessage() );
-            e.printStackTrace();
-            return null;
-        }
-        catch (NoSuchMethodException e) {
-            System.err.println( "No such method exception while creating PotentialMaster class: " + e.getMessage() );
-            e.printStackTrace();
-            return null;
-        }
-        catch (InstantiationException e) {
-            System.err.println( "Instantiation exception while creating PotentialMaster class: " + e.getMessage() );
-            e.printStackTrace();
-            return null;
-        }
-        catch (InvocationTargetException e) {
-            System.err.println( "Invocation exception while creating space class: " + e.getMessage() );
-            e.printStackTrace();
-            return null;
-        }
-        return new Simulation(space, true, pot);
+//        Class potClass = page.getPotentialMasterClass();
+//        PotentialMaster pot = null;
+//        try {
+//            pot = (PotentialMaster)potClass.getConstructor(new Class[]{Space.class}).newInstance(new Space[]{space});
+//        }
+//        catch (IllegalAccessException e) {
+//            System.err.println( "Illegal access while creating PotentialMaster class: " + e.getMessage() );
+//            e.printStackTrace();
+//            return null;
+//        }
+//        catch (NoSuchMethodException e) {
+//            System.err.println( "No such method exception while creating PotentialMaster class: " + e.getMessage() );
+//            e.printStackTrace();
+//            return null;
+//        }
+//        catch (InstantiationException e) {
+//            System.err.println( "Instantiation exception while creating PotentialMaster class: " + e.getMessage() );
+//            e.printStackTrace();
+//            return null;
+//        }
+//        catch (InvocationTargetException e) {
+//            System.err.println( "Invocation exception while creating space class: " + e.getMessage() );
+//            e.printStackTrace();
+//            return null;
+//        }
+        return new Simulation(space, true);
     }
 
     /**

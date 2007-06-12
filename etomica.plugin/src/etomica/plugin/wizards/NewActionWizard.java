@@ -11,6 +11,7 @@ import etomica.action.PhaseAction;
 import etomica.action.SimulationAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wizards.NewObjectSimplePage.SimpleClassWizard;
 
 /**
@@ -21,9 +22,10 @@ public class NewActionWizard extends Wizard implements SimpleClassWizard {
     /**
      * Constructor for NewEtomicaDocument.
      */
-    public NewActionWizard(ActionGroup parent) {
+    public NewActionWizard(ActionGroup parent, SimulationObjects simObjects) {
         super();
         actionGroup = parent;
+        this.simObjects = simObjects;
         setNeedsProgressMonitor(false);
     }
     
@@ -31,7 +33,7 @@ public class NewActionWizard extends Wizard implements SimpleClassWizard {
      * Adding the page to the wizard.
      */
     public void addPages() {
-        actionPage = new NewObjectSimplePage(this,null,"Action");
+        actionPage = new NewObjectSimplePage(this,simObjects,"Action");
         addPage(actionPage);
     }
     
@@ -69,6 +71,7 @@ public class NewActionWizard extends Wizard implements SimpleClassWizard {
     }
     
     private final ActionGroup actionGroup;
+    private final SimulationObjects simObjects;
     private NewObjectSimplePage actionPage;
     private boolean success = false;
 }

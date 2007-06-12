@@ -19,8 +19,8 @@ import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorPhase;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.phase.Phase;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wizards.NewObjectSimplePage.SimpleClassWizard;
-import etomica.simulation.Simulation;
 
 /**
  * This wizard allows the user to create a new DataStream.  The user can choose
@@ -31,9 +31,9 @@ public class NewDataStreamWizard extends Wizard implements SimpleClassWizard {
     /**
      * Constructor for NewEtomicaDocument.
      */
-    public NewDataStreamWizard(Simulation sim) {
+    public NewDataStreamWizard(SimulationObjects simObjects) {
         super();
-        simulation = sim;
+        this.simObjects = simObjects;
         setNeedsProgressMonitor(false);
     }
     
@@ -41,9 +41,9 @@ public class NewDataStreamWizard extends Wizard implements SimpleClassWizard {
      * Adding the page to the wizard.
      */
     public void addPages() {
-        page = new NewObjectSimplePage(this,simulation,"Data Source");
+        page = new NewObjectSimplePage(this,simObjects,"Data Source");
         addPage(page);
-        page2 = new IntegratorSelectionPage(simulation,"Data Source");
+        page2 = new IntegratorSelectionPage(simObjects,"Data Source");
         addPage(page2);
     }
     
@@ -75,7 +75,7 @@ public class NewDataStreamWizard extends Wizard implements SimpleClassWizard {
 	  	
         
         DataPump pump = new DataPump(dataSource,null);
-        simulation.register(dataSource,pump);
+        simObjects.dataStreams.add(pump);
         if (page2.getControl() != null && page2.isPageComplete()) {
             if (integrator != null) {
                 if (dataSource instanceof IntegratorIntervalListener) {
@@ -127,8 +127,8 @@ public class NewDataStreamWizard extends Wizard implements SimpleClassWizard {
             pages[i].createControl(pageContainer);
         }
     }
-    
-    private final Simulation simulation;
+
+    private final SimulationObjects simObjects;
     private NewObjectSimplePage page;
     private IntegratorSelectionPage page2;
     private boolean success = false;

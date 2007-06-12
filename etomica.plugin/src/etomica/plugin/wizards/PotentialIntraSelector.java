@@ -25,8 +25,12 @@ import etomica.atom.iterator.AtomIterator;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.plugin.ClassDiscovery;
 import etomica.plugin.Registry;
+import etomica.plugin.editors.SimulationObjects;
+import etomica.plugin.wrappers.PotentialGroupWrapper;
 import etomica.potential.Potential;
+import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialHard;
+import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialSoft;
 import etomica.simulation.Simulation;
 
@@ -45,7 +49,8 @@ public class PotentialIntraSelector extends Composite {
 	protected HashMap potentialsMap = new HashMap();
 	protected HashMap iteratorMap = new HashMap();
     private LinkedList builderMethodsList = new LinkedList();
-    private Simulation simulation;
+    private final SimulationObjects simObjects;
+    private final PotentialGroup parentPotential;
 	
 	public Potential createPotential()
 	{
@@ -53,12 +58,15 @@ public class PotentialIntraSelector extends Composite {
 		if ( potentialClass!=null )
 		{
             if (potentialClass == etomica.potential.PotentialGroup.class) {
-                return simulation.getPotentialMaster().makePotentialGroup(getPotenialNumBody());
+                PotentialGroupWrapper potentialWrapper = new PotentialGroupWrapper(parentPotential, simObjects);
+                PotentialMaster myPotentialMaster = potentialWrapper.getMyPotentialMaster();
+
+                return myPotentialMaster.makePotentialGroup(getPotenialNumBody());
             }
 			try {
                 Constructor constructor = potentialClass.getDeclaredConstructor(new Class[]{Simulation.class});
                 if (constructor != null) {
-                    return (Potential)constructor.newInstance(new Object[]{simulation});
+                    return (Potential)constructor.newInstance(new Object[]{simObjects.simulation});
                 }
 			} catch (InstantiationException e) {
 				System.err.println( "Could not instantiate Potential: " + e.getMessage() );
@@ -145,10 +153,11 @@ public class PotentialIntraSelector extends Composite {
             
     }
     
-	public PotentialIntraSelector(Simulation sim, Composite parent, int style) {
+	public PotentialIntraSelector(SimulationObjects simObjects, PotentialGroup parentPotential, Composite parent, int style) {
 		super(parent, style);
 		
-        simulation = sim;
+        this.simObjects = simObjects;
+        this.parentPotential = parentPotential;
         
 		initialize();
         

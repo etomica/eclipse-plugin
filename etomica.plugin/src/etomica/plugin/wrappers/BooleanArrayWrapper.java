@@ -15,7 +15,7 @@ public class BooleanArrayWrapper extends PropertySourceWrapper {
         //Introspection to get array of all properties
         IPropertyDescriptor[] newDescriptors = new IPropertyDescriptor[booleanArray.length];
         for (int i=0; i<booleanArray.length; i++) {
-            newDescriptors[i] = makeDescriptor(new Integer(i),new Boolean(((boolean[])object)[i]),boolean.class,Integer.toString(i),simulation);
+            newDescriptors[i] = makeDescriptor(new Integer(i),new Boolean(((boolean[])object)[i]),boolean.class,Integer.toString(i),simObjects);
         }
         return newDescriptors;
     }

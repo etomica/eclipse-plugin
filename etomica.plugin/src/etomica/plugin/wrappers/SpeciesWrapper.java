@@ -2,14 +2,14 @@ package etomica.plugin.wrappers;
 
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
-import etomica.simulation.Simulation;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.species.Species;
 import etomica.species.SpeciesSignature;
 
 public class SpeciesWrapper extends PropertySourceWrapper {
 
-    public SpeciesWrapper(Species species, Simulation sim) {
-        super(species,sim);
+    public SpeciesWrapper(Species species, SimulationObjects simObjects) {
+        super(species,simObjects);
     }
 
     protected IPropertyDescriptor makeDescriptor(java.beans.PropertyDescriptor property) {

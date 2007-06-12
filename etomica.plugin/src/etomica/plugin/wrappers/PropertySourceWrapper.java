@@ -42,6 +42,7 @@ import etomica.plugin.Registry;
 import etomica.plugin.editors.EtomicaEditor;
 import etomica.plugin.editors.MenuItemCascadeWrapper;
 import etomica.plugin.editors.MenuItemWrapper;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.views.CheckboxPropertyDescriptor;
 import etomica.plugin.views.ComboClassPropertyDescriptor;
 import etomica.plugin.views.ComboPropertyDescriptor;
@@ -69,30 +70,30 @@ import etomica.util.EnumeratedType;
 public class PropertySourceWrapper implements IPropertySource {
 
     public PropertySourceWrapper(Object object) {
-        this(object,null);
+        this(object,new SimulationObjects());
     }
 
     /**
 	 * Constructs new instance, wrapping the given object.
 	 */
-	public PropertySourceWrapper(Object object, Simulation sim) {
+	public PropertySourceWrapper(Object object, SimulationObjects simObjects) {
 		super();
 		this.object = object;
-        simulation = sim;
+        this.simObjects = simObjects;
         interfaceWrappers = new InterfaceWrapper[0];
         childWrappers = null;
         status = null;
 	}
 	
     public static PropertySourceWrapper makeWrapper(Object obj) {
-        return makeWrapper(obj,null);
+        return makeWrapper(obj,new SimulationObjects());
     }
     
-    public static PropertySourceWrapper makeWrapper(Object obj, Simulation sim) {
-        return makeWrapper(obj, sim, null);
+    public static PropertySourceWrapper makeWrapper(Object obj, SimulationObjects simObjects) {
+        return makeWrapper(obj, simObjects, null);
     }
     
-    public static PropertySourceWrapper makeWrapper(Object obj, Simulation sim, EtomicaEditor editor) {
+    public static PropertySourceWrapper makeWrapper(Object obj, SimulationObjects simObjects, EtomicaEditor editor) {
         if (wrapperClassHash == null) {
             initWrapperHash();
         }
@@ -103,13 +104,13 @@ public class PropertySourceWrapper implements IPropertySource {
         if (obj instanceof Object[]) {
             wrappedClass = Object[].class;
             // we have to special-case Object[] since Phase[].class != Object[].class
-            wrapper = new ArrayWrapper((Object[])obj, sim);
+            wrapper = new ArrayWrapper((Object[])obj, simObjects);
         }
         while (wrapper == null) {
             Class wrapperClass = (Class)wrapperClassHash.get(objClass);
             if (wrapperClass != null) {
                 wrappedClass = objClass;
-                wrapper = (PropertySourceWrapper)makeWrapperForClass(wrapperClass, obj, objClass, sim);
+                wrapper = (PropertySourceWrapper)makeWrapperForClass(wrapperClass, obj, objClass, simObjects);
             }
             objClass = objClass.getSuperclass();
             // if we make it to Object, we'll fall back to PropertySourceWrapper itself
@@ -126,7 +127,7 @@ public class PropertySourceWrapper implements IPropertySource {
             while (wrappedClass != objClass) {
                 Class[] interfaces = objClass.getInterfaces();
                 for (int i=0; i<interfaces.length; i++) {
-                    addInterfaceWrappersToWrapper(wrapper, interfaces[i], wrappedClass, editor);
+                    addInterfaceWrappersToWrapper(wrapper, interfaces[i], wrappedClass, editor, simObjects);
                 }
                 
                 // now look at the parent class' interfaces.  They weren't returned
@@ -140,12 +141,12 @@ public class PropertySourceWrapper implements IPropertySource {
         return wrapper;
     }
     
-    public static void addInterfaceWrappersToWrapper(PropertySourceWrapper wrapper, Class someInterface, Class wrappedClass, EtomicaEditor editor) {
+    public static void addInterfaceWrappersToWrapper(PropertySourceWrapper wrapper, Class someInterface, Class wrappedClass, EtomicaEditor editor, SimulationObjects simObjects) {
         Class wrapperClass = (Class)wrapperClassHash.get(someInterface);
         if (wrapperClass != null) {
             // we found a wrapper for this specific interface
             Object obj = wrapper.getObject();
-            InterfaceWrapper interfaceWrapper = (InterfaceWrapper)makeWrapperForClass(wrapperClass, obj, someInterface, editor.getSimulation());
+            InterfaceWrapper interfaceWrapper = (InterfaceWrapper)makeWrapperForClass(wrapperClass, obj, someInterface, simObjects);
             interfaceWrapper.setEditor(editor);
             wrapper.addInterfaceWrapper(interfaceWrapper);
         }
@@ -156,7 +157,7 @@ public class PropertySourceWrapper implements IPropertySource {
             // expected to handle any special features of the object related
             // to the interface
             if (!parentInterfaces[i].isAssignableFrom(wrappedClass)) {
-                addInterfaceWrappersToWrapper(wrapper, parentInterfaces[i], wrappedClass, editor);
+                addInterfaceWrappersToWrapper(wrapper, parentInterfaces[i], wrappedClass, editor, simObjects);
             }
         }
     }
@@ -165,13 +166,13 @@ public class PropertySourceWrapper implements IPropertySource {
         return interfaceWrappers;
     }
 
-    public static Object makeWrapperForClass(Class wrapperClass, Object obj, Class objClass, Simulation sim) {
+    public static Object makeWrapperForClass(Class wrapperClass, Object obj, Class objClass, SimulationObjects simObjects) {
         Object wrapper = null;
         try {
             Constructor wrapperConstructor = null;
             try {
                 try {
-                    wrapperConstructor = wrapperClass.getConstructor(new Class[]{objClass, Simulation.class});
+                    wrapperConstructor = wrapperClass.getConstructor(new Class[]{objClass, SimulationObjects.class});
                 }
                 catch (NoSuchMethodException e) {
                     // some wrappers don't have a constructor that takes a simulation
@@ -182,7 +183,7 @@ public class PropertySourceWrapper implements IPropertySource {
                     wrapper = wrapperConstructor.newInstance(new Object[]{obj});
                 }
                 else {
-                    wrapper = wrapperConstructor.newInstance(new Object[]{obj, sim});
+                    wrapper = wrapperConstructor.newInstance(new Object[]{obj, simObjects});
                 }
             }
             catch (NoSuchMethodException e) {
@@ -271,7 +272,7 @@ public class PropertySourceWrapper implements IPropertySource {
         catch(InvocationTargetException ex) {value = null;}
         catch(IllegalAccessException ex) {value = null;}
         if (value != null && (value.getClass().isArray() || value instanceof IVector)) {
-            return PropertySourceWrapper.makeWrapper(value, simulation, etomicaEditor);
+            return PropertySourceWrapper.makeWrapper(value, simObjects, etomicaEditor);
         }
         if (value instanceof Double) {
             value = getDisplayValue((Double)value, pd.getReadMethod().getName());
@@ -339,7 +340,7 @@ public class PropertySourceWrapper implements IPropertySource {
         try {
             Method dimensionGetter = object.getClass().getMethod(getterName+"Dimension",new Class[0]);
             Dimension dimension = (Dimension)dimensionGetter.invoke(object, new Object[0]);
-            UnitSystem unitSystem = simulation.getDefaults().unitSystem;
+            UnitSystem unitSystem = simObjects.simulation.getDefaults().unitSystem;
             return dimension.getUnit(unitSystem);
         }
         catch (NoSuchMethodException ex) {} //likely
@@ -480,7 +481,7 @@ public class PropertySourceWrapper implements IPropertySource {
         // value should be the selected item in the list of choices, so retrieve
         // it now
         boolean getValue = false;
-        if (simulation != null && (AtomPositionDefinition.class.isAssignableFrom(type) ||
+        if (simObjects.simulation != null && (AtomPositionDefinition.class.isAssignableFrom(type) ||
                 Boundary.class.isAssignableFrom(type) || AtomFactory.class.isAssignableFrom(type) ||
                 DataSink.class.isAssignableFrom(type) || NeighborCriterion.class.isAssignableFrom(type) ||
                 UnitSystem.class.isAssignableFrom(type))) {
@@ -514,7 +515,7 @@ public class PropertySourceWrapper implements IPropertySource {
             }
         }
 
-        return makeDescriptor(property,value,type,name,simulation);
+        return makeDescriptor(property,value,type,name,simObjects);
     }
 
     /**
@@ -522,7 +523,7 @@ public class PropertySourceWrapper implements IPropertySource {
      * having name |name|. For properties which have a list of choices, the
      * |value| (if not null) is used as the current choice.
      */
-    protected static IPropertyDescriptor makeDescriptor(Object property, Object value, Class type, String name, Simulation sim) {
+    protected static IPropertyDescriptor makeDescriptor(Object property, Object value, Class type, String name, SimulationObjects simObjects) {
 
         // Do not display dimension specifications as properties
         if(etomica.units.Dimension.class.isAssignableFrom(type)) return null;
@@ -564,8 +565,8 @@ public class PropertySourceWrapper implements IPropertySource {
 		else if(String.class == type) {
 			pd = new TextPropertyDescriptor(property, name);
 		}
-        else if (Phase.class.isAssignableFrom(type) && sim != null) {
-            Phase[] simPhases = sim.getPhases();
+        else if (Phase.class.isAssignableFrom(type) && simObjects.simulation != null) {
+            Phase[] simPhases = simObjects.simulation.getPhases();
             Phase[] phases = new Phase[0];
             for (int i=0; i<simPhases.length; i++) {
                 if (type.isInstance(simPhases[i])) {
@@ -574,18 +575,18 @@ public class PropertySourceWrapper implements IPropertySource {
             }
             pd = new ComboPropertyDescriptor(property, name, phases);
         }
-        else if (Integrator.class.isAssignableFrom(type) && sim != null) {
-            Iterator integratorIterator = sim.getIntegratorList().iterator();
+        else if (Integrator.class.isAssignableFrom(type) && simObjects.integrators != null) {
+            ArrayList integratorsList = simObjects.integrators;
             Object[] integrators = new Object[0];
-            while (integratorIterator.hasNext()) {
-                Integrator integrator = (Integrator)integratorIterator.next();
+            for (int i=0; i<integratorsList.size(); i++) {
+                Integrator integrator = (Integrator)integratorsList.get(i);
                 if (type.isInstance(integrator)) {
                     integrators = Arrays.addObject(integrators, integrator);
                 }
             }
             pd = new ComboPropertyDescriptor(property, name, integrators);
         }
-        else if (sim != null && (AtomPositionDefinition.class.isAssignableFrom(type) ||
+        else if (simObjects.simulation != null && (AtomPositionDefinition.class.isAssignableFrom(type) ||
                 Boundary.class.isAssignableFrom(type) || AtomFactory.class.isAssignableFrom(type) ||
                 DataSink.class.isAssignableFrom(type) || NeighborCriterion.class.isAssignableFrom(type) ||
                 UnitSystem.class.isAssignableFrom(type))) {
@@ -604,7 +605,7 @@ public class PropertySourceWrapper implements IPropertySource {
                     choices = Arrays.addObject(choices,thisClass);
                 }
             }
-            pd = new ComboClassPropertyDescriptor(property, name, choices, new Object[]{sim});
+            pd = new ComboClassPropertyDescriptor(property, name, choices, new Object[]{simObjects.simulation});
         }
 		if (pd == null) {
 			pd = new org.eclipse.ui.views.properties.PropertyDescriptor(property, name);
@@ -624,7 +625,7 @@ public class PropertySourceWrapper implements IPropertySource {
 	 * @param array the input array with elements to be wrapped
 	 * @return the array of wrapped elements
 	 */
-    public static PropertySourceWrapper[] wrapArrayElements(Object[] array, Simulation sim, EtomicaEditor editor) {
+    public static PropertySourceWrapper[] wrapArrayElements(Object[] array, SimulationObjects simObjects, EtomicaEditor editor) {
         int nonNullCount = 0;
         for(int i=0; i<array.length; i++) {
             if (array[i] != null) {
@@ -634,7 +635,7 @@ public class PropertySourceWrapper implements IPropertySource {
         PropertySourceWrapper[] wrappedArray = new PropertySourceWrapper[nonNullCount];
         for(int i=0; i<array.length; i++) {
             if (array[i] != null) {
-                wrappedArray[i] = PropertySourceWrapper.makeWrapper(array[i], sim, editor);
+                wrappedArray[i] = PropertySourceWrapper.makeWrapper(array[i], simObjects, editor);
             }
         }
         return wrappedArray;
@@ -674,7 +675,7 @@ public class PropertySourceWrapper implements IPropertySource {
             }
             else {
                 obj = value;
-                childWrapper = PropertySourceWrapper.makeWrapper(obj,simulation,getEditor());
+                childWrapper = PropertySourceWrapper.makeWrapper(obj,simObjects,getEditor());
             }
             
             Iterator parentIterator = parentList.iterator();
@@ -875,7 +876,7 @@ public class PropertySourceWrapper implements IPropertySource {
     protected Object object;
 	private IPropertyDescriptor[] descriptors;
     protected String displayName;
-    protected Simulation simulation;
+    protected SimulationObjects simObjects;
     protected EtomicaEditor etomicaEditor;
     protected InterfaceWrapper[] interfaceWrappers;
     private static HashMap wrapperClassHash;

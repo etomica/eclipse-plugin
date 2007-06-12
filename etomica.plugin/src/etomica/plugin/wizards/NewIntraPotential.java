@@ -3,10 +3,9 @@ package etomica.plugin.wizards;
 import org.eclipse.jface.wizard.Wizard;
 
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.potential.Potential;
 import etomica.potential.PotentialGroup;
-import etomica.simulation.Simulation;
-import etomica.species.Species;
 
 /**
  * This is a sample new wizard. Its role is to create a new file 
@@ -22,9 +21,9 @@ public class NewIntraPotential extends Wizard {
     /**
      * Constructor for NewEtomicaDocument.
      */
-    public NewIntraPotential(PotentialGroup parent, Simulation sim) {
+    public NewIntraPotential(PotentialGroup parent, SimulationObjects simObjects) {
         super();
-        simulation = sim;
+        this.simObjects = simObjects;
         potentialGroup = parent;
         setNeedsProgressMonitor(false);
     }
@@ -33,7 +32,7 @@ public class NewIntraPotential extends Wizard {
      * Adding the page to the wizard.
      */
     public void addPages() {
-        intraPotentialPage = new NewIntraPotentialPage(simulation);
+        intraPotentialPage = new NewIntraPotentialPage(simObjects, potentialGroup);
         System.out.println("and even here");
         addPage(intraPotentialPage);
     }
@@ -61,7 +60,7 @@ public class NewIntraPotential extends Wizard {
         return success;
     }
     
-    private final Simulation simulation;
+    private final SimulationObjects simObjects;
     private final PotentialGroup potentialGroup;
     private NewIntraPotentialPage intraPotentialPage;
     private boolean success = false;

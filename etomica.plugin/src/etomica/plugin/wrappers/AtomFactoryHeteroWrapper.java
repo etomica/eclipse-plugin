@@ -9,13 +9,13 @@ import etomica.atom.AtomFactoryMonoDynamic;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.AtomTypeSphere;
 import etomica.plugin.editors.MenuItemWrapper;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wrappers.AddItemWrapper.AddClassItemWrapper;
-import etomica.simulation.Simulation;
 
 public class AtomFactoryHeteroWrapper extends PropertySourceWrapper implements RemoverWrapper, AdderWrapper {
 
-    public AtomFactoryHeteroWrapper(AtomFactoryHetero object, Simulation sim) {
-        super(object,sim);
+    public AtomFactoryHeteroWrapper(AtomFactoryHetero object, SimulationObjects simObjects) {
+        super(object,simObjects);
     }
     
     public boolean removeChild(Object child) {
@@ -48,16 +48,16 @@ public class AtomFactoryHeteroWrapper extends PropertySourceWrapper implements R
                 new MenuItemWrapper[]{addItemWrapper}, super.getMenuItemWrappers(parentWrapper));
     }
 
-    public boolean addObjectClass(Simulation sim, Class newObjectClass, Shell shell) {
+    public boolean addObjectClass(Class newObjectClass, Shell shell) {
         if (newObjectClass == AtomFactoryMono.class) {
-            AtomTypeSphere leafType = new AtomTypeSphere(sim);
+            AtomTypeSphere leafType = new AtomTypeSphere(simObjects.simulation);
             leafType.setParentType((AtomTypeGroup)((AtomFactory)object).getType());
             AtomFactoryMono childFactory;
-            if (sim.isDynamic()) {
-                childFactory = new AtomFactoryMonoDynamic(sim.getSpace(),leafType);
+            if (simObjects.simulation.isDynamic()) {
+                childFactory = new AtomFactoryMonoDynamic(simObjects.simulation.getSpace(),leafType);
             }
             else {
-                childFactory = new AtomFactoryMono(sim.getSpace(),leafType);
+                childFactory = new AtomFactoryMono(simObjects.simulation.getSpace(),leafType);
             }
             ((AtomFactoryHetero)object).addChildFactory(childFactory);
         }

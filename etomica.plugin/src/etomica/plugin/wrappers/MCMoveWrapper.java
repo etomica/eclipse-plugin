@@ -3,12 +3,12 @@ package etomica.plugin.wrappers;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.integrator.mcmove.MCMove;
-import etomica.simulation.Simulation;
+import etomica.plugin.editors.SimulationObjects;
 
 public class MCMoveWrapper extends PropertySourceWrapper {
 
-    public MCMoveWrapper(MCMove move, Simulation sim) {
-        super(move,sim);
+    public MCMoveWrapper(MCMove move, SimulationObjects simObjects) {
+        super(move,simObjects);
     }
 
     protected IPropertyDescriptor makeDescriptor(java.beans.PropertyDescriptor property) {

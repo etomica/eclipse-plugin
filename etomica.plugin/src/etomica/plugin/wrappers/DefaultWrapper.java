@@ -5,13 +5,13 @@ import java.util.LinkedList;
 
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
-import etomica.simulation.Simulation;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.util.Default;
 
 public class DefaultWrapper extends PropertySourceWrapper {
 
-    public DefaultWrapper(Default object, Simulation sim) {
-        super(object,sim);
+    public DefaultWrapper(Default object, SimulationObjects simObjects) {
+        super(object,simObjects);
         setDisplayName("Defaults");
     }
     
@@ -21,7 +21,7 @@ public class DefaultWrapper extends PropertySourceWrapper {
         //loop through fields and generate descriptors
         LinkedList list = new LinkedList();
         for (int i = 0; i < fields.length; i++) {
-            IPropertyDescriptor pd = makeDescriptor(fields[i],null,fields[i].getType(),fields[i].getName(),simulation);
+            IPropertyDescriptor pd = makeDescriptor(fields[i],null,fields[i].getType(),fields[i].getName(),simObjects);
             if(pd != null) list.add(pd);
         }
         
@@ -40,7 +40,7 @@ public class DefaultWrapper extends PropertySourceWrapper {
         try {
             Object value = field.get(object);
             if (value != null && value.getClass().isArray()) {
-                return PropertySourceWrapper.makeWrapper(value, simulation, etomicaEditor);
+                return PropertySourceWrapper.makeWrapper(value, simObjects, etomicaEditor);
             }
             if (value instanceof Double) {
                 value = getDisplayValue((Double)value, "get"+field.getName().substring(0,1).toUpperCase()+field.getName().substring(1));

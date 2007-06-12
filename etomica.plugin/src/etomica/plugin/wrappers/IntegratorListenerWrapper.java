@@ -1,13 +1,13 @@
 package etomica.plugin.wrappers;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 
 import etomica.action.Action;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorListener;
 import etomica.plugin.editors.MenuItemWrapper;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wrappers.ActionListItemWrapper.ActionItemWrapper;
-import etomica.simulation.Simulation;
 import etomica.util.Arrays;
 
 /**
@@ -20,8 +20,8 @@ import etomica.util.Arrays;
  */
 public class IntegratorListenerWrapper extends InterfaceWrapper {
 
-    public IntegratorListenerWrapper(IntegratorListener listener, Simulation sim) {
-        super(listener, sim);
+    public IntegratorListenerWrapper(IntegratorListener listener, SimulationObjects simObjects) {
+        super(listener, simObjects);
     }
     
     public MenuItemWrapper[] getMenuItemWrappers(PropertySourceWrapper parentWrapper) {
@@ -56,9 +56,9 @@ public class IntegratorListenerWrapper extends InterfaceWrapper {
      */
     protected boolean isListening() {
         boolean foundListener = false;
-        Iterator integratorIterator = simulation.getIntegratorList().iterator();
-        while (!foundListener && integratorIterator.hasNext()) {
-            Integrator integrator = (Integrator)integratorIterator.next();
+        ArrayList integratorList = simObjects.integrators;
+        for (int j=0; !foundListener && j<integratorList.size(); j++) {
+            Integrator integrator = (Integrator)integratorList.get(j);
             Object[] listeners = integrator.getIntervalListeners();
             for (int i=0; i<listeners.length; i++) {
                 if (listeners[i] == object) {
@@ -82,10 +82,10 @@ public class IntegratorListenerWrapper extends InterfaceWrapper {
      */
     protected Integrator[] notListeningIntegrators() {
         Integrator[] integrators = new Integrator[0];
-        Iterator integratorIterator = simulation.getIntegratorList().iterator();
-        while (integratorIterator.hasNext()) {
+        ArrayList integratorList = simObjects.integrators;
+        for (int j=0; j<integratorList.size(); j++) {
+            Integrator integrator = (Integrator)integratorList.get(j);
             boolean isListening = false;
-            Integrator integrator = (Integrator)integratorIterator.next();
             Object[] listeners = integrator.getIntervalListeners();
             for (int i=0; i<listeners.length; i++) {
                 if (listeners[i] == object) {

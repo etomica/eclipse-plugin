@@ -22,16 +22,16 @@ import etomica.phase.Phase;
 import etomica.plugin.EtomicaPlugin;
 import etomica.plugin.editors.MenuItemCascadeWrapper;
 import etomica.plugin.editors.MenuItemWrapper;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.views.ConfigurationViewDP;
 import etomica.plugin.views.PhaseView;
 import etomica.plugin.wrappers.ActionListItemWrapper.ActionItemWrapper;
 import etomica.plugin.wrappers.OpenItemWrapper.OpenViewItemWrapper;
-import etomica.simulation.Simulation;
 
 public class PhaseWrapper extends PropertySourceWrapper implements OpenerWrapper {
 
-    public PhaseWrapper(Phase phase, Simulation sim) {
-        super(phase,sim);
+    public PhaseWrapper(Phase phase, SimulationObjects simObjects) {
+        super(phase,simObjects);
     }
     
     public PropertySourceWrapper[] getChildren(LinkedList parentList) {
@@ -41,7 +41,7 @@ public class PhaseWrapper extends PropertySourceWrapper implements OpenerWrapper
         System.arraycopy(children,0,newChildren,0,children.length);
         for (int i=children.length; i<newChildren.length; i++) {
             newChildren[i] = PropertySourceWrapper.makeWrapper(agentList.getAtom(i-children.length),
-                    simulation, etomicaEditor);
+                    simObjects, etomicaEditor);
         }
         return newChildren;
     }
@@ -138,7 +138,9 @@ public class PhaseWrapper extends PropertySourceWrapper implements OpenerWrapper
     protected static final String CONFIGURATION_RASMOL = "ConfigurationRasmol";
     protected static final String PHASE ="Phase";
 
-    private static class InitializeMolecules extends PhaseActionAdapter {
+    protected static class InitializeMolecules extends PhaseActionAdapter {
+
+        private static final long serialVersionUID = 1L;
 
         public void actionPerformed() {
             config.initializeCoordinates(phase);

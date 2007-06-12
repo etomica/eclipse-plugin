@@ -16,21 +16,21 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import etomica.data.DataSource;
 import etomica.plugin.editors.MenuItemCascadeWrapper;
 import etomica.plugin.editors.MenuItemWrapper;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.views.DataPlotView;
 import etomica.plugin.views.DataTableView;
 import etomica.plugin.views.DataTableViewContentProvider;
 import etomica.plugin.views.DataTableViewLabelProvider;
 import etomica.plugin.wrappers.OpenItemWrapper.OpenViewItemWrapper;
-import etomica.simulation.Simulation;
 
 public class DataSourceWrapper extends InterfaceWrapper implements OpenerWrapper {
 
-    public DataSourceWrapper(DataSource object, Simulation sim) {
-        super(object,sim);
+    public DataSourceWrapper(DataSource object, SimulationObjects simObjects) {
+        super(object,simObjects);
     }
 
-    protected IPropertyDescriptor makeDescriptor(java.beans.PropertyDescriptor property) {
-        if (property.getName().startsWith("data") && !property.getName().equals("dataInfo")) {
+    protected IPropertyDescriptor makeDescriptor(Object property, Object value, Class type, String name) {
+        if (name.startsWith("data") && !name.equals("dataInfo")) {
             // exclude getData, getDataDouble, getDataAsScalar, maybe others
             return PropertySourceWrapper.PROPERTY_VETO;
         }

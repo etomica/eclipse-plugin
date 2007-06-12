@@ -11,19 +11,19 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
 import etomica.plugin.editors.MenuItemCascadeWrapper;
 import etomica.plugin.editors.MenuItemWrapper;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wizards.NewActionWizard;
 import etomica.plugin.wizards.NewIntegratorWizard;
 import etomica.plugin.wrappers.AddItemWrapper.AddClassItemWrapper;
-import etomica.simulation.Simulation;
 
 public class ActionGroupWrapper extends InterfaceWrapper implements RemoverWrapper, AdderWrapper {
 
-    public ActionGroupWrapper(ActionGroup object, Simulation sim) {
-        super(object,sim);
+    public ActionGroupWrapper(ActionGroup object, SimulationObjects simObjects) {
+        super(object,simObjects);
     }
 
     public PropertySourceWrapper[] getChildren() {
-        return PropertySourceWrapper.wrapArrayElements(((Controller)object).getAllActions(),simulation,editor);
+        return PropertySourceWrapper.wrapArrayElements(((Controller)object).getAllActions(),simObjects,editor);
     }
     
     public boolean isChildExcluded(IPropertyDescriptor descriptor, PropertySourceWrapper childWrapper, Object child) {
@@ -42,7 +42,8 @@ public class ActionGroupWrapper extends InterfaceWrapper implements RemoverWrapp
         }
         boolean success = ((ActionGroup)object).removeAction((Action)obj);
         if (success && obj instanceof ActivityIntegrate) {
-            simulation.unregister(((ActivityIntegrate)obj).getIntegrator());
+            simObjects.simulation.unregister(((ActivityIntegrate)obj).getIntegrator());
+            simObjects.integrators.remove(((ActivityIntegrate)obj).getIntegrator());
         }
         return success;
     }
@@ -57,9 +58,9 @@ public class ActionGroupWrapper extends InterfaceWrapper implements RemoverWrapp
         return new MenuItemWrapper[]{addItemWrapper};
     }
 
-    public boolean addObjectClass(Simulation sim, Class newObjectClass, Shell shell) {
+    public boolean addObjectClass(Class newObjectClass, Shell shell) {
         if (newObjectClass == Action.class) {
-            NewActionWizard wizard = new NewActionWizard((ActionGroup)object);
+            NewActionWizard wizard = new NewActionWizard((ActionGroup)object, simObjects);
 
             WizardDialog dialog = new WizardDialog(shell, wizard);
             dialog.create();
@@ -68,11 +69,11 @@ public class ActionGroupWrapper extends InterfaceWrapper implements RemoverWrapp
             return wizard.getSuccess();
         }
         if (object instanceof ActivityGroup && newObjectClass == ActivityIntegrate.class) {
-            NewIntegratorWizard wizard = new NewIntegratorWizard((ActionGroup)object,sim);
+            NewIntegratorWizard wizard = new NewIntegratorWizard((ActionGroup)object,simObjects);
 
             WizardDialog dialog = new WizardDialog(shell, wizard);
             dialog.create();
-            dialog.getShell().setSize(500,400);
+            dialog.getShell().setSize(500,500);
             dialog.open();
             return wizard.getSuccess();
         }

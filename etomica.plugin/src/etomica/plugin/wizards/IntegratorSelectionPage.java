@@ -11,23 +11,23 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 
 import etomica.integrator.Integrator;
-import etomica.simulation.Simulation;
+import etomica.plugin.editors.SimulationObjects;
 
 /**
  * This wizard page allows the use to select an integrator that a DataStream 
  * would be hooked up to.
  */
 public class IntegratorSelectionPage extends WizardPage implements IPageChangedListener {
-    private final Simulation simulation;
+    private final SimulationObjects simObjects;
     public DataSourceHookupSelector hookupSelector;
 	
     /**
      * Constructor for SampleNewWizardPage.
      * @param pageName
      */
-    public IntegratorSelectionPage(Simulation sim, String name) {
+    public IntegratorSelectionPage(SimulationObjects simObjects, String name) {
         super(name);
-        simulation = sim;
+        this.simObjects = simObjects;
         setTitle("Etomica "+name+" Wizard");
         setDescription("This wizard creates a new "+name+".");
     }
@@ -61,7 +61,7 @@ public class IntegratorSelectionPage extends WizardPage implements IPageChangedL
 	    master_layout.type = SWT.VERTICAL;
 	    root_container.setLayout( master_layout );
 
-	    hookupSelector = new DataSourceHookupSelector(root_container, simulation, org.eclipse.swt.SWT.NONE);
+	    hookupSelector = new DataSourceHookupSelector(root_container, simObjects, org.eclipse.swt.SWT.NONE);
         
         setPageComplete(true);
 		setControl(root_container);

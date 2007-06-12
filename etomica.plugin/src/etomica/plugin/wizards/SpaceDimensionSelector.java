@@ -37,12 +37,10 @@ public class SpaceDimensionSelector extends Composite {
 	private Label label1 = null;
 	public Text file_name = null;
 	private Label label2 = null;
-	public Combo master_potential_list = null;
 	public Combo sim_types = null;
 	private Label label3 = null;
 	private HashMap simtypemap = new HashMap();
 	private HashMap spacemap = new HashMap();
-	private HashMap potmap = new HashMap();
 	
 	private Label label5 = null;
     
@@ -53,10 +51,6 @@ public class SpaceDimensionSelector extends Composite {
     
     public Class getSpaceClass() {
         return (Class)spacemap.get(space_list.getText());
-    }
-    
-    public Class getPotentialMasterClass() {
-        return (Class)potmap.get(master_potential_list.getText());
     }
     
     /**
@@ -80,17 +74,6 @@ public class SpaceDimensionSelector extends Composite {
 		}
 		int default_selection = space_list.indexOf( "etomica.spaces.Space2D");
 		space_list.select( default_selection );
-
-		// Add all master potentials from registry
-		Collection pmaster_from_registry = Registry.queryWhoExtends( etomica.potential.PotentialMaster.class );
-		item = pmaster_from_registry.iterator(); 
-		while( item.hasNext() )
-		{
-			Class pmasterclass = (Class) item.next();
-			EtomicaInfo info = EtomicaInfo.getInfo( pmasterclass );
-			master_potential_list.add( info.getShortDescription() );
-			potmap.put( info.getShortDescription(), pmasterclass );
-		}
 
 		// Add all types of stock simulations from registry
 		Collection stocksims = Registry.queryWhoExtends( Simulation.class );
@@ -122,20 +105,8 @@ public class SpaceDimensionSelector extends Composite {
 		
 		
 	}
-	/**
-	 * This method initializes combo1	
-	 *
-	 */    
-	private void createCombo1() {
-		GridData gridData11 = new org.eclipse.swt.layout.GridData();
-		master_potential_list = new Combo(this, SWT.READ_ONLY);		   
-		gridData11.horizontalSpan = 2;
-		gridData11.horizontalAlignment = org.eclipse.swt.layout.GridData.FILL;
-		gridData11.verticalAlignment = org.eclipse.swt.layout.GridData.CENTER;
-		gridData11.grabExcessHorizontalSpace = true;
-		master_potential_list.setLayoutData(gridData11);
-	}
-	/**
+
+    /**
 	 * This method initializes combo	
 	 *
 	 */    
@@ -167,7 +138,6 @@ public class SpaceDimensionSelector extends Composite {
 		createCombo2();
 		label2 = new Label(this, SWT.NONE);
 		createCombo();
-		createCombo1();
 		this.setLayout(gridLayout2);
 		gridLayout2.numColumns = 3;
 		gridLayout2.makeColumnsEqualWidth = false;

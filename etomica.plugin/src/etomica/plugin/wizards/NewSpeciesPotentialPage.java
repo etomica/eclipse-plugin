@@ -11,8 +11,9 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 
+import etomica.plugin.editors.SimulationObjects;
 import etomica.potential.Potential;
-import etomica.simulation.Simulation;
+import etomica.potential.PotentialMaster;
 import etomica.species.Species;
 
 /**
@@ -20,7 +21,8 @@ import etomica.species.Species;
  * class and Species to which it applies.
  */
 public class NewSpeciesPotentialPage extends WizardPage {
-    private Simulation simulation;
+    private final SimulationObjects simObjects;
+    private final PotentialMaster potentialMaster;
     private PotentialSpeciesSelector potentialSpeciesSelector;
 	
     // These are to follow eclipse UI guidelines - not to present an error message while the user 
@@ -32,9 +34,10 @@ public class NewSpeciesPotentialPage extends WizardPage {
      * Constructor for SampleNewWizardPage.
      * @param pageName
      */
-    public NewSpeciesPotentialPage(Simulation sim) {
+    public NewSpeciesPotentialPage(SimulationObjects simObjects, PotentialMaster potentialMaster) {
         super("wizardPage");
-        simulation = sim;
+        this.simObjects = simObjects;
+        this.potentialMaster = potentialMaster;
         setTitle("Etomica New Potential Wizard");
         setDescription("This wizard creates a new molecular potential.");
     }
@@ -71,7 +74,7 @@ public class NewSpeciesPotentialPage extends WizardPage {
 	    master_layout.type = SWT.VERTICAL;
 	    root_container.setLayout( master_layout );
 
-	    potentialSpeciesSelector = new PotentialSpeciesSelector(simulation, root_container, org.eclipse.swt.SWT.NONE );
+	    potentialSpeciesSelector = new PotentialSpeciesSelector(simObjects, potentialMaster, root_container, org.eclipse.swt.SWT.NONE );
 	    
 	    potentialSpeciesSelector.potentialName.addModifyListener(new ModifyListener() {
 	        public void modifyText(ModifyEvent e) {

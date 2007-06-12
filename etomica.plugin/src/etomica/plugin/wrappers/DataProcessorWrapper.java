@@ -2,12 +2,12 @@ package etomica.plugin.wrappers;
 
 import etomica.data.DataProcessor;
 import etomica.data.DataSink;
-import etomica.simulation.Simulation;
+import etomica.plugin.editors.SimulationObjects;
 
 public class DataProcessorWrapper extends PropertySourceWrapper implements RemoverWrapper {
 
-    public DataProcessorWrapper(DataProcessor object, Simulation sim) {
-        super(object,sim);
+    public DataProcessorWrapper(DataProcessor object, SimulationObjects simObjects) {
+        super(object,simObjects);
     }
     
     // we allow removal of a data sink here.  DataSinks should be set via

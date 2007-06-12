@@ -5,8 +5,8 @@ import org.eclipse.jface.wizard.Wizard;
 import etomica.data.DataPipe;
 import etomica.data.DataPipeForked;
 import etomica.data.DataSink;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wizards.NewObjectSimplePage.SimpleClassWizard;
-import etomica.simulation.Simulation;
 
 /**
  * This wizard allows the user to create a new DataSink.  The user can choose
@@ -16,10 +16,10 @@ public class NewDataSinkWizard extends Wizard implements SimpleClassWizard {
     /**
      * Constructor for NewEtomicaDocument.
      */
-    public NewDataSinkWizard(DataPipe parentPipe, Simulation sim) {
+    public NewDataSinkWizard(DataPipe parentPipe, SimulationObjects simObjects) {
         super();
         parent = parentPipe;
-        simulation = sim;
+        this.simObjects = simObjects;
         setNeedsProgressMonitor(false);
     }
     
@@ -27,7 +27,7 @@ public class NewDataSinkWizard extends Wizard implements SimpleClassWizard {
      * Adding the page to the wizard.
      */
     public void addPages() {
-        wizardPage = new NewObjectSimplePage(this,simulation,"Data Sink");
+        wizardPage = new NewObjectSimplePage(this,simObjects,"Data Sink");
         addPage(wizardPage);
     }
     
@@ -65,7 +65,7 @@ public class NewDataSinkWizard extends Wizard implements SimpleClassWizard {
     }
     
     private final DataPipe parent;
-    private final Simulation simulation;
+    private final SimulationObjects simObjects;
     private NewObjectSimplePage wizardPage;
     private boolean success = false;
 }

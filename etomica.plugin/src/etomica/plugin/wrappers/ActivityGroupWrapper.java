@@ -3,7 +3,7 @@ package etomica.plugin.wrappers;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.action.activity.ActivityGroup;
-import etomica.simulation.Simulation;
+import etomica.plugin.editors.SimulationObjects;
 
 /**
  * Wrapper for ActivityGroups.  The sole purpose is to exclude the specific
@@ -13,8 +13,8 @@ import etomica.simulation.Simulation;
  */
 public class ActivityGroupWrapper extends InterfaceWrapper {
     
-    public ActivityGroupWrapper(ActivityGroup object, Simulation simulation) {
-        super(object, simulation);
+    public ActivityGroupWrapper(ActivityGroup object, SimulationObjects simObjects) {
+        super(object, simObjects);
     }
     
     public boolean isChildExcluded(IPropertyDescriptor descriptor, PropertySourceWrapper childWrapper, Object child) {

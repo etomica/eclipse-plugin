@@ -2,8 +2,8 @@ package etomica.plugin.wizards;
 
 import org.eclipse.jface.wizard.Wizard;
 
+import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wizards.NewObjectSimplePage.SimpleClassWizard;
-import etomica.simulation.Simulation;
 import etomica.species.Species;
 
 /**
@@ -14,9 +14,9 @@ public class NewSpeciesWizard extends Wizard implements SimpleClassWizard {
     /**
      * Constructor for NewEtomicaDocument.
      */
-    public NewSpeciesWizard(Simulation sim) {
+    public NewSpeciesWizard(SimulationObjects simObjects) {
         super();
-        simulation = sim;
+        this.simObjects = simObjects;
         setNeedsProgressMonitor(false);
     }
     
@@ -24,7 +24,7 @@ public class NewSpeciesWizard extends Wizard implements SimpleClassWizard {
      * Adding the page to the wizard.
      */
     public void addPages() {
-        page = new NewObjectSimplePage(this,simulation,"Species");
+        page = new NewObjectSimplePage(this,simObjects,"Species");
         addPage(page);
     }
     
@@ -42,6 +42,7 @@ public class NewSpeciesWizard extends Wizard implements SimpleClassWizard {
         Species species = (Species)page.createObject();
         if ( species==null )
             return false;
+        simObjects.simulation.getSpeciesManager().addSpecies(species);
 	  	
         success = true;
         return true;
@@ -51,7 +52,7 @@ public class NewSpeciesWizard extends Wizard implements SimpleClassWizard {
         return success;
     }
     
-    private final Simulation simulation;
+    private final SimulationObjects simObjects;
     private NewObjectSimplePage page;
     private boolean success = false;
 }

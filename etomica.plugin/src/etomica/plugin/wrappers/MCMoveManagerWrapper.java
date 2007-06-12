@@ -8,14 +8,14 @@ import org.eclipse.swt.widgets.Shell;
 import etomica.integrator.mcmove.MCMove;
 import etomica.integrator.mcmove.MCMoveManager;
 import etomica.plugin.editors.MenuItemWrapper;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wizards.NewMCMoveWizard;
 import etomica.plugin.wrappers.AddItemWrapper.AddClassItemWrapper;
-import etomica.simulation.Simulation;
 
 public class MCMoveManagerWrapper extends PropertySourceWrapper implements RemoverWrapper, AdderWrapper {
 
-    public MCMoveManagerWrapper(MCMoveManager object, Simulation sim) {
-        super(object,sim);
+    public MCMoveManagerWrapper(MCMoveManager object, SimulationObjects simObjects) {
+        super(object,simObjects);
     }
 
     public boolean removeChild(Object obj) {
@@ -50,9 +50,9 @@ public class MCMoveManagerWrapper extends PropertySourceWrapper implements Remov
     }
 
     
-    public boolean addObjectClass(Simulation sim, Class newObjectClass, Shell shell) {
+    public boolean addObjectClass(Class newObjectClass, Shell shell) {
         if (newObjectClass == MCMove.class) {
-            NewMCMoveWizard wizard = new NewMCMoveWizard((MCMoveManager)object,simulation);
+            NewMCMoveWizard wizard = new NewMCMoveWizard((MCMoveManager)object,simObjects);
 
             WizardDialog dialog = new WizardDialog(shell, wizard);
             dialog.create();

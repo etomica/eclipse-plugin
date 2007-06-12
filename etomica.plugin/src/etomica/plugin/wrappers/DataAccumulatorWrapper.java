@@ -4,14 +4,14 @@ import etomica.action.Action;
 import etomica.data.DataAccumulator;
 import etomica.plugin.editors.MenuItemCascadeWrapper;
 import etomica.plugin.editors.MenuItemWrapper;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wrappers.ActionListItemWrapper.ActionItemWrapper;
-import etomica.simulation.Simulation;
 
 public class DataAccumulatorWrapper extends PropertySourceWrapper {
 
-    public DataAccumulatorWrapper(DataAccumulator object, Simulation sim) {
-        super(object, sim);
-        addInterfaceWrapper(new DataSourceWrapper(object, sim));
+    public DataAccumulatorWrapper(DataAccumulator object, SimulationObjects simObjects) {
+        super(object, simObjects);
+        addInterfaceWrapper(new DataSourceWrapper(object, simObjects));
     }
     
     public Action[] getActions() {

@@ -18,7 +18,7 @@ public class DoubleArrayWrapper extends PropertySourceWrapper {
        //Introspection to get array of all properties
         IPropertyDescriptor[] newDescriptors = new IPropertyDescriptor[doubleArray.length];
         for (int i=0; i<doubleArray.length; i++) {
-            newDescriptors[i] = makeDescriptor(new Integer(i),new Double(((double[])object)[i]),double.class,Integer.toString(i),simulation);
+            newDescriptors[i] = makeDescriptor(new Integer(i),new Double(((double[])object)[i]),double.class,Integer.toString(i),simObjects);
         }
         return newDescriptors;
     }

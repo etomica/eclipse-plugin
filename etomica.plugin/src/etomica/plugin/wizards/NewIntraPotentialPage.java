@@ -10,33 +10,32 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.potential.Potential;
-import etomica.simulation.Simulation;
-import etomica.species.Species;
+import etomica.potential.PotentialGroup;
 
 /**
  * The wizard page allows setting the potential name, 
  * class and Species to which it applies.
  */
 public class NewIntraPotentialPage extends WizardPage {
-    private Simulation simulation;
+    private SimulationObjects simObjects;
+    private PotentialGroup parentPotential;
     private PotentialIntraSelector potentialIntraSelector;
 	
     // These are to follow eclipse UI guidelines - not to present an error message while the user 
     //   did not input anything yet
-    private boolean potentialNameModified = false;
-    private boolean potentialTypeModified = false;
-    private boolean potentialBodyModified = false;
-    private boolean potentialHardSoftModified = false;
-    private boolean iteratorModified = false;
+    protected boolean potentialBodyModified = false;
+    protected boolean potentialHardSoftModified = false;
 
     /**
      * Constructor for SampleNewWizardPage.
      * @param pageName
      */
-    public NewIntraPotentialPage(Simulation sim) {
+    public NewIntraPotentialPage(SimulationObjects simObjects, PotentialGroup parentPotential) {
         super("wizardPage");
-        simulation = sim;
+        this.simObjects = simObjects;
+        this.parentPotential = parentPotential;
         setTitle("Etomica New Species Wizard");
         setDescription("This wizard creates a new Species.");
     }
@@ -72,12 +71,11 @@ public class NewIntraPotentialPage extends WizardPage {
 	    master_layout.type = SWT.VERTICAL;
 	    root_container.setLayout( master_layout );
 
-	    potentialIntraSelector = new PotentialIntraSelector(simulation, root_container, org.eclipse.swt.SWT.NONE );
+	    potentialIntraSelector = new PotentialIntraSelector(simObjects, parentPotential, root_container, org.eclipse.swt.SWT.NONE );
         System.out.println("and here");
 	    
 	    potentialIntraSelector.potentialName.addModifyListener(new ModifyListener() {
 	        public void modifyText(ModifyEvent e) {
-	            potentialNameModified = true;
 	            dialogChanged();
 	        }
 		});
@@ -98,14 +96,12 @@ public class NewIntraPotentialPage extends WizardPage {
 
         potentialIntraSelector.potentialCombo.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
-                potentialTypeModified = true;
                 dialogChanged();
             }
         });
 
         potentialIntraSelector.iteratorCombo.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
-                iteratorModified = true;
                 dialogChanged();
             }
         });
@@ -118,8 +114,9 @@ public class NewIntraPotentialPage extends WizardPage {
 	 * Ensures that the potential class is selected and has a name,
      * and that the species to which it applies are selected.
 	 */
-	private void dialogChanged() {
+	protected void dialogChanged() {
         if (potentialBodyModified || potentialHardSoftModified) {
+            //FIXME the selector should really do this itself
             if (potentialBodyModified) {
                 potentialIntraSelector.rebuildIteratorList();
             }

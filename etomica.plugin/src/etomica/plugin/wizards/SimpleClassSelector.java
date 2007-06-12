@@ -2,6 +2,7 @@ package etomica.plugin.wizards;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -25,10 +26,12 @@ import org.eclipse.ui.internal.WorkbenchPlugin;
 import etomica.EtomicaInfo;
 import etomica.plugin.ClassDiscovery;
 import etomica.plugin.Registry;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.util.Arrays;
+import etomica.util.IRandom;
 
 /**
  * Selector for a class of new object to create.  The user is presented with 
@@ -40,10 +43,13 @@ public class SimpleClassSelector extends Composite {
 
 	public Combo classCombo;
     public Combo categoryCombo;
+    public Combo potentialMasterCombo;
+    protected Label potentialMasterLabel;
+    protected HashMap potentialMasterMap;
 	public Text objectName;
     protected Label classDescription;
     private Label categoryLabel;
-	private HashMap classMap = new HashMap();
+	protected HashMap classMap = new HashMap();
     private LinkedHashMap categoryMap = new LinkedHashMap();
     private Object[][] categories = new Object[0][2];
     private Class[] baseClass;
@@ -51,20 +57,29 @@ public class SimpleClassSelector extends Composite {
 	private Class[] excludedClasses = new Class[0];
     private Object[][] extraChoices = new Object[0][2];
     private Class[] extraParameterClasses = new Class[0];
-    private final Simulation sim;
+    private final SimulationObjects simObjects;
     
     /**
      * @param parent
      * @param style
      */
-    public SimpleClassSelector(Composite parent, int style, String name, Simulation sim) {
+    public SimpleClassSelector(Composite parent, int style, String name, final SimulationObjects simObjects) {
         super(parent, style);
+        this.simObjects = simObjects;
         
         baseClass = new Class[0];
         
         initialize(name);
         
         setExcludedClasses(new Class[0]);
+        
+        potentialMasterMap = new HashMap();
+        ArrayList potentialMasters = simObjects.potentialMasters;
+        for (int i=0; i<potentialMasters.size(); i++) {
+            String potentialMasterName = potentialMasters.get(i).getClass().getName()+""+i;
+            potentialMasterMap.put(potentialMasterName, potentialMasters.get(i));
+            potentialMasterCombo.add(potentialMasterName);
+        }
         
         categoryCombo.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
@@ -94,11 +109,27 @@ public class SimpleClassSelector extends Composite {
                     str += ": \n"+longDesc;
                 }
                 classDescription.setText(str);
+
+                Class objectClass = (Class)classMap.get(classCombo.getItem(item));
+
+                Constructor[] constructors = objectClass.getConstructors();
+                boolean potentialMasterNeeded = false;
+                for (int i=0; !potentialMasterNeeded && i<constructors.length; i++) {
+                    Class[] parameterClasses = constructors[i].getParameterTypes();
+                    Object[] parameters = new Object[parameterClasses.length];
+                    for (int j=0; j<parameters.length; j++) {
+                        if (parameterClasses[j] == PotentialMaster.class && simObjects.potentialMasters.size() > 0) {
+                            potentialMasterNeeded = true;
+                        }
+                    }
+                }
+
+                potentialMasterCombo.setVisible(potentialMasterNeeded);
+                potentialMasterLabel.setVisible(potentialMasterNeeded);
+                
                 SimpleClassSelector.this.layout();
             }
         });
-        
-        this.sim = sim;
     }
     
     public void setExtraParameterClasses(Class[] newExtraParameterClasses) {
@@ -112,20 +143,17 @@ public class SimpleClassSelector extends Composite {
                     new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID, 0, "Extra parameters passed that do not match expectations", null));
             return null;
         }
-        int item = classCombo.getSelectionIndex();
-        Object selection = getSelection();
-        if (selection == null) {
+        Object objectClass = getSelection();
+        if (objectClass == null) {
             return null;
         }
         
-        if (!(selection instanceof Class)) {
+        if (!(objectClass instanceof Class)) {
             // an existing object was selected
-            return selection;
+            return objectClass;
         }
 
-        Class objectClass = (Class)classMap.get(classCombo.getItem(item));
-
-        Constructor[] constructors = objectClass.getConstructors();
+        Constructor[] constructors = ((Class)objectClass).getConstructors();
         if (constructors.length == 0) {
             WorkbenchPlugin.getDefault().getLog().log(
                     new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID, 0, "Selected class had no constructor", null));
@@ -136,15 +164,25 @@ public class SimpleClassSelector extends Composite {
             Class[] parameterClasses = constructors[i].getParameterTypes();
             Object[] parameters = new Object[parameterClasses.length];
             for (int j=0; j<parameters.length; j++) {
-                if (sim != null) {
+                if (simObjects.simulation != null) {
                     if (parameterClasses[j] == Simulation.class) {
-                        parameters[j] = sim;
+                        parameters[j] = simObjects.simulation;
                     }
                     else if (parameterClasses[j] == PotentialMaster.class) {
-                        parameters[j] = sim.getPotentialMaster();
+                        PotentialMaster selectedPotentialMaster = getPotentialMasterSelection();
+                        if (selectedPotentialMaster != null) {
+                            parameters[j] = selectedPotentialMaster;
+                        }
+                        else {
+                            found = false;
+                            break;
+                        }
+                    }
+                    else if (parameterClasses[j] == IRandom.class) {
+                        parameters[j] = simObjects.simulation.getRandom();
                     }
                     else if (parameterClasses[j] == Space.class) {
-                        parameters[j] = sim.getSpace();
+                        parameters[j] = simObjects.simulation.getSpace();
                     }
                     else {
                         found = false;
@@ -198,9 +236,10 @@ public class SimpleClassSelector extends Composite {
             Class[] parameterClasses = constructors[i].getParameterTypes();
             Object[] parameters = new Object[parameterClasses.length];
             for (int j=0; j<parameters.length; j++) {
-                if (sim != null) {
+                if (simObjects.simulation != null) {
                     if (parameterClasses[j] != Simulation.class && 
                         parameterClasses[j] != PotentialMaster.class &&
+                        parameterClasses[j] != IRandom.class &&
                         parameterClasses[j] != Space.class) {
                         found = false;
                         break;
@@ -234,6 +273,14 @@ public class SimpleClassSelector extends Composite {
             return null;
         }
         return classMap.get(classCombo.getItem(item));
+    }        
+    
+    public PotentialMaster getPotentialMasterSelection() {
+        int item = potentialMasterCombo.getSelectionIndex();
+        if (item == -1) {
+            return null;
+        }
+        return (PotentialMaster)potentialMasterMap.get(potentialMasterCombo.getItem(item));
     }        
     
     public Class getCategory() {
@@ -418,7 +465,7 @@ public class SimpleClassSelector extends Composite {
     }
 
     /**
-     * This method initializes the combo box for the Potential classes  
+     * This method initializes the combo box for the Class categories  
      */
     private void createCategoryCombo() {
         GridData gridData = new org.eclipse.swt.layout.GridData();
@@ -431,7 +478,7 @@ public class SimpleClassSelector extends Composite {
     }
 
 	/**
-	 * This method initializes the combo box for the Potential classes	
+	 * This method initializes the combo box for the Object classes	
 	 */
 	private void createClassCombo() {
 		GridData gridData9 = new org.eclipse.swt.layout.GridData();
@@ -442,6 +489,20 @@ public class SimpleClassSelector extends Composite {
 		gridData9.grabExcessHorizontalSpace = true;
 		classCombo.setLayoutData(gridData9);
 	}
+
+    /**
+     * This method initializes the combo box for the PotentialMaster classes  
+     */
+    private void createPotentialMasterCombo() {
+        GridData gridData = new org.eclipse.swt.layout.GridData();
+        potentialMasterCombo = new Combo(this, SWT.READ_ONLY | SWT.DROP_DOWN);
+        potentialMasterCombo.setVisible(false);
+        gridData.horizontalSpan = 2;
+        gridData.horizontalAlignment = org.eclipse.swt.layout.GridData.FILL;
+        gridData.verticalAlignment = org.eclipse.swt.layout.GridData.CENTER;
+        gridData.grabExcessHorizontalSpace = true;
+        classCombo.setLayoutData(gridData);
+    }
 
 	private void initialize(String name) {
 		GridData gridData8 = new org.eclipse.swt.layout.GridData();
@@ -482,6 +543,11 @@ public class SimpleClassSelector extends Composite {
         classDescription.setLayoutData(gridData1);
         classDescription.setText("");
 
-//        setSize(new org.eclipse.swt.graphics.Point(364,462));
+        potentialMasterLabel = new Label(this, SWT.NONE);
+        potentialMasterLabel.setVisible(false);
+        potentialMasterLabel.setText("Select a PotentialMaster");
+        potentialMasterLabel.setLayoutData(gridData8);
+
+        createPotentialMasterCombo();
 	}
 }

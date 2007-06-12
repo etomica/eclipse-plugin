@@ -43,11 +43,11 @@ public class NewSimulationPage extends WizardPage {
 
     // These are to follow eclipse UI guidelines - not to present an error message while the user 
     //   did not input anything yet
-    private boolean containerNameModified = false;
-    private boolean fileNameModified = false;
-    private boolean simTypeModified = false;
-    private boolean spaceTypeModified = false;
-    private boolean pMasterTypeModified = false;
+    protected boolean containerNameModified = false;
+    protected boolean fileNameModified = false;
+    protected boolean simTypeModified = false;
+    protected boolean spaceTypeModified = false;
+    protected boolean pMasterTypeModified = false;
     /**
      * Constructor for SampleNewWizardPage.
      * @param pageName
@@ -76,11 +76,7 @@ public class NewSimulationPage extends WizardPage {
     public Class getSpaceClass() {
         return sds.getSpaceClass();
     }
-    
-    public Class getPotentialMasterClass() {
-        return sds.getPotentialMasterClass();
-    }
-    
+
     public ParameterBase getSimulationParam() {
         Method paramGetter = null;
         Class simulationClass = getSimulationClass();
@@ -166,25 +162,13 @@ public class NewSimulationPage extends WizardPage {
 				
 			}} );
 		
-		sds.master_potential_list.addSelectionListener( new SelectionListener() {
-
-			public void widgetSelected(SelectionEvent e) {
-				pMasterTypeModified = true;
-				dialogChanged();
-			}
-
-			public void widgetDefaultSelected(SelectionEvent e) {
-				updateCustomSimulationControls();
-				
-			}} );
-		
 		initialize();
 		dialogChanged();
 		updateCustomSimulationControls();
 		setControl(root_container);
 	}
 
-	private void updateCustomSimulationControls()
+	protected void updateCustomSimulationControls()
 	{
 		// TODO Auto-generated method stub
 		int index = sds.sim_types.getSelectionIndex();
@@ -192,7 +176,6 @@ public class NewSimulationPage extends WizardPage {
 		if ( sds.sim_types.getItem(index).compareToIgnoreCase( "Custom...")==0 )
 			custom = true;
 		sds.space_list.setEnabled( custom );
-		sds.master_potential_list.setEnabled( custom );
 	}
 	/**
 	 * Tests if the current workbench selection is a suitable
@@ -221,7 +204,7 @@ public class NewSimulationPage extends WizardPage {
 	 * choose the new value for the container field.
 	 */
 
-	private void handleBrowse() {
+	protected void handleBrowse() {
 		
 		IWorkspaceRoot myroot = ResourcesPlugin.getWorkspace().getRoot();
 		Shell shell = getShell();
@@ -240,7 +223,7 @@ public class NewSimulationPage extends WizardPage {
 	 * Ensures that both text fields are set.
 	 */
 
-	private void dialogChanged() {
+	protected void dialogChanged() {
 		if ( (containerNameModified || fileNameModified) && (!checkContainerName() || !checkFileName())) return;
 		if ( (simTypeModified || spaceTypeModified || pMasterTypeModified) && !checkCustomControls() ) return;
 		// Everything went ok, just clean up the error bar
@@ -279,11 +262,6 @@ public class NewSimulationPage extends WizardPage {
 			if ( sds.space_list.getSelectionIndex()==-1 )
 			{
 				updateStatus( "A space type is required for custom simulations but none selected");
-				return false;
-			}
-			if ( sds.master_potential_list.getSelectionIndex()==-1 )
-			{
-				updateStatus( "A master potential is required for custom simulations but none selected");
 				return false;
 			}
 		}

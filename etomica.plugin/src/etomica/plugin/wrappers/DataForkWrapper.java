@@ -6,14 +6,14 @@ import org.eclipse.swt.widgets.Shell;
 import etomica.data.DataPipeForked;
 import etomica.data.DataSink;
 import etomica.plugin.editors.MenuItemWrapper;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wizards.NewDataSinkWizard;
 import etomica.plugin.wrappers.AddItemWrapper.AddClassItemWrapper;
-import etomica.simulation.Simulation;
 
 public class DataForkWrapper extends InterfaceWrapper implements RemoverWrapper, AdderWrapper {
 
-    public DataForkWrapper(DataPipeForked object, Simulation sim) {
-        super(object,sim);
+    public DataForkWrapper(DataPipeForked object, SimulationObjects simObjects) {
+        super(object,simObjects);
     }
 
     public boolean removeChild(Object child) {
@@ -46,9 +46,9 @@ public class DataForkWrapper extends InterfaceWrapper implements RemoverWrapper,
                 new MenuItemWrapper[]{addItemWrapper}, super.getMenuItemWrappers(parentWrapper));
     }
 
-    public boolean addObjectClass(Simulation sim, Class newObjectClass, Shell shell) {
+    public boolean addObjectClass(Class newObjectClass, Shell shell) {
         if (newObjectClass == DataSink.class) {
-            NewDataSinkWizard wizard = new NewDataSinkWizard((DataPipeForked)object,simulation);
+            NewDataSinkWizard wizard = new NewDataSinkWizard((DataPipeForked)object,simObjects);
 
             WizardDialog dialog = new WizardDialog(shell, wizard);
             dialog.create();

@@ -2,14 +2,14 @@ package etomica.plugin.wrappers;
 
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
+import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.views.DecimalPropertyDescriptor;
-import etomica.simulation.Simulation;
 import etomica.space.IVector;
 
 public class VectorWrapper extends InterfaceWrapper {
 
-    public VectorWrapper(IVector obj, Simulation sim) {
-        super(obj, sim);
+    public VectorWrapper(IVector obj, SimulationObjects simObjects) {
+        super(obj, simObjects);
     }
 
     public IPropertyDescriptor[] generateDescriptors() {

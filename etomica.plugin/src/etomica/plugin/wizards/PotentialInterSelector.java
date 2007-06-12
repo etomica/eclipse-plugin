@@ -26,8 +26,12 @@ import etomica.atom.iterator.ApiBuilder;
 import etomica.atom.iterator.AtomsetIteratorBasisDependent;
 import etomica.plugin.ClassDiscovery;
 import etomica.plugin.Registry;
+import etomica.plugin.editors.SimulationObjects;
+import etomica.plugin.wrappers.PotentialGroupWrapper;
 import etomica.potential.Potential;
+import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialHard;
+import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialSoft;
 import etomica.simulation.Simulation;
 
@@ -45,7 +49,8 @@ public class PotentialInterSelector extends Composite {
 	protected HashMap potentialsMap = new HashMap();
     private HashMap typeMap = new HashMap();
     private LinkedList builderMethodsList = new LinkedList();
-    private final Simulation simulation;
+    private final SimulationObjects simObjects;
+    private final PotentialGroup parentPotential;
     private final AtomType[] parentAtomTypes;
 	
 	public Potential createPotential()
@@ -54,12 +59,15 @@ public class PotentialInterSelector extends Composite {
 		if ( potentialClass!=null )
 		{
             if (potentialClass == etomica.potential.PotentialGroup.class) {
-                return simulation.getPotentialMaster().makePotentialGroup(2);
+                PotentialGroupWrapper potentialWrapper = new PotentialGroupWrapper(parentPotential, simObjects);
+                PotentialMaster myPotentialMaster = potentialWrapper.getMyPotentialMaster();
+
+                return myPotentialMaster.makePotentialGroup(2);
             }
 			try {
                 Constructor constructor = potentialClass.getDeclaredConstructor(new Class[]{Simulation.class});
                 if (constructor != null) {
-                    return (Potential)constructor.newInstance(new Object[]{simulation});
+                    return (Potential)constructor.newInstance(new Object[]{simObjects.simulation});
                 }
 			} catch (InstantiationException e) {
 				System.err.println( "Could not instantiate Potential: " + e.getMessage() );
@@ -107,10 +115,11 @@ public class PotentialInterSelector extends Composite {
         return types;
     }
     
-	public PotentialInterSelector(Simulation sim, AtomType[] parentTypes, Composite parent, int style) {
+	public PotentialInterSelector(SimulationObjects simObjects, PotentialGroup parentPotential, AtomType[] parentTypes, Composite parent, int style) {
 		super(parent, style);
 		
-        simulation = sim;
+        this.simObjects = simObjects;
+        this.parentPotential = parentPotential;
         parentAtomTypes = parentTypes;
         
 		initialize();

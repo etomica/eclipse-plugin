@@ -9,13 +9,13 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.plugin.editors.EtomicaEditor;
 import etomica.plugin.editors.MenuItemWrapper;
-import etomica.simulation.Simulation;
+import etomica.plugin.editors.SimulationObjects;
 
 public class ActivityIntegrateWrapper extends PropertySourceWrapper implements RemoverWrapper, AdderWrapper {
 
-    public ActivityIntegrateWrapper(ActivityIntegrate object, Simulation sim) {
-        super(object,sim);
-        integratorWrapper = (IntegratorWrapper)PropertySourceWrapper.makeWrapper(object.getIntegrator(),sim);
+    public ActivityIntegrateWrapper(ActivityIntegrate object, SimulationObjects simObjects) {
+        super(object,simObjects);
+        integratorWrapper = (IntegratorWrapper)PropertySourceWrapper.makeWrapper(object.getIntegrator(),simObjects);
         setDisplayName(integratorWrapper.toString());
         descriptorHash = new HashMap();
     }
@@ -76,8 +76,8 @@ public class ActivityIntegrateWrapper extends PropertySourceWrapper implements R
                 integratorWrappers, super.getMenuItemWrappers(parentWrapper));
     }
 
-    public boolean addObjectClass(Simulation sim, Class newObjectClass, Shell shell) {
-        return integratorWrapper.addObjectClass(sim,newObjectClass,shell);
+    public boolean addObjectClass(Class newObjectClass, Shell shell) {
+        return integratorWrapper.addObjectClass(newObjectClass,shell);
     }
     
     public boolean canRemoveChild(Object obj) {

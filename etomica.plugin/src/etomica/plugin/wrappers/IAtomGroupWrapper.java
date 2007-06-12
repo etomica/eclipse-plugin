@@ -5,13 +5,13 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import etomica.atom.AtomSet;
 import etomica.atom.IAtom;
 import etomica.atom.IAtomGroup;
-import etomica.simulation.Simulation;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.util.Arrays;
 
 public class IAtomGroupWrapper extends InterfaceWrapper {
 
-    public IAtomGroupWrapper(IAtomGroup object, Simulation sim) {
-        super(object,sim);
+    public IAtomGroupWrapper(IAtomGroup object, SimulationObjects simObjects) {
+        super(object,simObjects);
     }
     
     public IPropertyDescriptor[] generateDescriptors() {
@@ -46,7 +46,7 @@ public class IAtomGroupWrapper extends InterfaceWrapper {
             for (int i=0; i<count; i++) {
                 childAtoms[i] = children.getAtom(i);
             }
-            wrapper = PropertySourceWrapper.makeWrapper(childAtoms, simulation, editor);
+            wrapper = PropertySourceWrapper.makeWrapper(childAtoms, simObjects, editor);
             wrapper.setDisplayName("Child Atoms");
         }
         return wrapper;

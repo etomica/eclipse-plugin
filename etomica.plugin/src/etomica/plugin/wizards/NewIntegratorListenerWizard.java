@@ -17,9 +17,9 @@ import etomica.integrator.IntegratorPhase;
 import etomica.integrator.IntervalActionAdapter;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wizards.NewObjectSimplePage.SimpleClassWizard;
 import etomica.simulation.DataStreamHeader;
-import etomica.simulation.Simulation;
 
 /**
  * This wizard allows the user to create a new IntegratorIntervalListener.  
@@ -32,10 +32,10 @@ public class NewIntegratorListenerWizard extends Wizard implements SimpleClassWi
     /**
      * Constructor for NewEtomicaDocument.
      */
-    public NewIntegratorListenerWizard(Integrator integrator, Simulation sim) {
+    public NewIntegratorListenerWizard(Integrator integrator, SimulationObjects simObjects) {
         super();
         this.integrator = integrator;
-        simulation = sim;
+        this.simObjects = simObjects;
         setNeedsProgressMonitor(false);
     }
     
@@ -43,7 +43,7 @@ public class NewIntegratorListenerWizard extends Wizard implements SimpleClassWi
      * Adding the page to the wizard.
      */
     public void addPages() {
-        intervalListenerPage = new NewObjectSimplePage(this,simulation,"Integrator Listener");
+        intervalListenerPage = new NewObjectSimplePage(this,simObjects,"Integrator Listener");
         addPage(intervalListenerPage);
     }
     
@@ -59,15 +59,16 @@ public class NewIntegratorListenerWizard extends Wizard implements SimpleClassWi
         selector.setExtraParameterClasses(new Class[]{Integrator.class});
         
         if (integrator instanceof IntegratorPhase && ((IntegratorPhase)integrator).getPotential() instanceof PotentialMasterList) {
-            Phase[] phases = simulation.getPhases();
+            Phase[] phases = simObjects.simulation.getPhases();
             for (int i=0; i<phases.length; i++) {
                 selector.addExtraObject("Neighbor Manager",
                     ((PotentialMasterList)((IntegratorPhase)integrator).getPotential()).getNeighborManager(phases[i]));
             }
         }
-        DataStreamHeader[] dataStreams = simulation.getDataStreams();
-        for (int i=0; i<dataStreams.length; i++) {
-            if (!(dataStreams[i].getClient() instanceof DataPump)) {
+        
+        for (int i=0; i<simObjects.dataStreams.size(); i++) {
+            DataStreamHeader dataStream = (DataStreamHeader)simObjects.dataStreams.get(i);
+            if (!(dataStream.getClient() instanceof DataPump)) {
                 continue;
             }
             boolean streamAlreadyAdded = false;
@@ -75,22 +76,22 @@ public class NewIntegratorListenerWizard extends Wizard implements SimpleClassWi
             IntegratorIntervalListener[] listeners = integrator.getIntervalListeners();
             for (int j=0; j<listeners.length; j++) {
                 if (listeners[j] instanceof IntervalActionAdapter) {
-                    if (((IntervalActionAdapter)listeners[j]).getAction() == dataStreams[i].getClient()) {
+                    if (((IntervalActionAdapter)listeners[j]).getAction() == dataStream.getClient()) {
                         streamAlreadyAdded = true;
                     }
                 }
-                else if (listeners[j] == dataStreams[i].getDataSource()) {
+                else if (listeners[j] == dataStream.getDataSource()) {
                     listenerAlreadyAdded = true;
                 }
             }
             
             if (!streamAlreadyAdded) {
-                DataSource dataSource = dataStreams[i].getDataSource();
+                DataSource dataSource = dataStream.getDataSource();
                 String string = dataSource.getDataInfo().getLabel();
-                selector.addExtraObject(string+" stream",new IntervalActionAdapter((DataPump)dataStreams[i].getClient()));
+                selector.addExtraObject(string+" stream",new IntervalActionAdapter((DataPump)dataStream.getClient()));
             }
-            if (!listenerAlreadyAdded && dataStreams[i].getDataSource() instanceof IntegratorIntervalListener) {
-                selector.addExtraObject(null,dataStreams[i].getDataSource());
+            if (!listenerAlreadyAdded && dataStream.getDataSource() instanceof IntegratorIntervalListener) {
+                selector.addExtraObject(null,dataStream.getDataSource());
             }
         }
     }
@@ -115,13 +116,6 @@ public class NewIntegratorListenerWizard extends Wizard implements SimpleClassWi
         }
         else {
             listener = (IntegratorIntervalListener)obj;
-            if (obj instanceof DataSource) {
-                // we don't need the pump here, but it will probably be 
-                // needed somewhere, and it's required in order for us 
-                // to consider this a data stream
-                DataPump pump = new DataPump((DataSource)obj,null);
-                simulation.register((DataSource)obj,pump);
-            }
         }
         
         if (integrator != null) {
@@ -137,7 +131,7 @@ public class NewIntegratorListenerWizard extends Wizard implements SimpleClassWi
     }
     
     private final Integrator integrator;
-    private final Simulation simulation;
+    private final SimulationObjects simObjects;
     private NewObjectSimplePage intervalListenerPage;
     private boolean success = false;
 }

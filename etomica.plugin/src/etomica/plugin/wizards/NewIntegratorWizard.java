@@ -8,10 +8,8 @@ import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorManagerMC;
-import etomica.nbr.list.PotentialMasterList;
-import etomica.nbr.site.PotentialMasterSite;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wizards.NewObjectSimplePage.SimpleClassWizard;
-import etomica.simulation.Simulation;
 
 /**
  * This wizard allows the user to create a new Integrator.  The user can choose
@@ -20,10 +18,10 @@ import etomica.simulation.Simulation;
  */
 public class NewIntegratorWizard extends Wizard implements SimpleClassWizard {
 
-    public NewIntegratorWizard(ActionGroup parent, Simulation sim) {
+    public NewIntegratorWizard(ActionGroup parent, SimulationObjects simObjects) {
         super();
         actionGroup = parent;
-        simulation = sim;
+        this.simObjects = simObjects;
         setNeedsProgressMonitor(false);
     }
     
@@ -31,7 +29,7 @@ public class NewIntegratorWizard extends Wizard implements SimpleClassWizard {
      * Adding the page to the wizard.
      */
     public void addPages() {
-        integratorPage = new NewObjectSimplePage(this,simulation,"Integrator");
+        integratorPage = new NewObjectSimplePage(this,simObjects,"Integrator");
         addPage(integratorPage);
     }
     
@@ -39,18 +37,8 @@ public class NewIntegratorWizard extends Wizard implements SimpleClassWizard {
         selector.setBaseClass(Integrator.class);
         selector.addCategory("Integrator",Integrator.class);
         selector.addCategory("Integrator Manager",IntegratorManagerMC.class);
-        if (!(simulation.getPotentialMaster() instanceof PotentialMasterSite)) {
-            selector.addCategory("IntegratorMD",IntegratorMD.class);
-        }
-        else {
-            selector.addExcludedClass(IntegratorMD.class);
-        }
-        if (!(simulation.getPotentialMaster() instanceof PotentialMasterList)) {
-            selector.addCategory("IntegratorMC",IntegratorMC.class);
-        }
-        else {
-            selector.addExcludedClass(IntegratorMC.class);
-        }
+        selector.addCategory("IntegratorMD",IntegratorMD.class);
+        selector.addCategory("IntegratorMC",IntegratorMC.class);
     }
 
     /**
@@ -64,14 +52,10 @@ public class NewIntegratorWizard extends Wizard implements SimpleClassWizard {
         if (integrator==null)
             return false;
 	  	
-        if (integrator.getPotential() instanceof PotentialMasterList) {
-            throw new RuntimeException("We need some way to pull this off");
-//            integrator.addListener(((PotentialMasterList)integrator.getPotential()).getNeighborManager());
-        }
         if (actionGroup != null) {
-            actionGroup.addAction(new ActivityIntegrate(simulation,integrator));
+            actionGroup.addAction(new ActivityIntegrate(simObjects.simulation,integrator));
         }
-        simulation.register(integrator);
+        simObjects.integrators.add(integrator);
         success = true;
         
         return true;
@@ -82,7 +66,7 @@ public class NewIntegratorWizard extends Wizard implements SimpleClassWizard {
     }
     
     private final ActionGroup actionGroup;
-    private final Simulation simulation;
+    private final SimulationObjects simObjects;
     private NewObjectSimplePage integratorPage;
     private Integrator integrator;
     private boolean success = false;

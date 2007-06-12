@@ -2,36 +2,34 @@ package etomica.plugin.wizards;
 
 import org.eclipse.jface.wizard.Wizard;
 
-import etomica.integrator.mcmove.MCMove;
-import etomica.integrator.mcmove.MCMoveManager;
 import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wizards.NewObjectSimplePage.SimpleClassWizard;
+import etomica.potential.PotentialMaster;
 
 /**
  * This wizard allows the user to create a new Species.  The user can choose
  * the Species class and it is added to the Simulation.
  */
-public class NewMCMoveWizard extends Wizard implements SimpleClassWizard {
+public class NewPotentialMasterWizard extends Wizard implements SimpleClassWizard {
     /**
      * Constructor for NewEtomicaDocument.
      */
-    public NewMCMoveWizard(MCMoveManager manager, SimulationObjects simObjects) {
+    public NewPotentialMasterWizard(SimulationObjects simObjects) {
         super();
         this.simObjects = simObjects;
         setNeedsProgressMonitor(false);
-        moveManager = manager;
     }
     
     /**
      * Adding the page to the wizard.
      */
     public void addPages() {
-        page = new NewObjectSimplePage(this, simObjects, "MC Move");
+        page = new NewObjectSimplePage(this,simObjects,"PotentialMaster");
         addPage(page);
     }
     
     public void fixupSelector(SimpleClassSelector selector) {
-        selector.setBaseClass(MCMove.class);
+        selector.setBaseClass(PotentialMaster.class);
     }
 
     /**
@@ -41,13 +39,11 @@ public class NewMCMoveWizard extends Wizard implements SimpleClassWizard {
      */
     public boolean performFinish() {
         // Create simulation based on user's choices
-        MCMove move = (MCMove)page.createObject();
-        if (move==null)
+        PotentialMaster potentialMaster = (PotentialMaster)page.createObject();
+        if (potentialMaster == null)
             return false;
+        simObjects.potentialMasters.add(potentialMaster);
 	  	
-        if (moveManager != null) {
-            moveManager.addMCMove(move);
-        }
         success = true;
         return true;
     }
@@ -57,7 +53,6 @@ public class NewMCMoveWizard extends Wizard implements SimpleClassWizard {
     }
     
     private final SimulationObjects simObjects;
-    private final MCMoveManager moveManager;
     private NewObjectSimplePage page;
     private boolean success = false;
 }

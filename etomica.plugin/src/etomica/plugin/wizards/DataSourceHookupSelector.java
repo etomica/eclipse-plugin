@@ -12,7 +12,7 @@ import org.eclipse.swt.widgets.Label;
 import etomica.action.Action;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.integrator.Integrator;
-import etomica.simulation.Simulation;
+import etomica.plugin.editors.SimulationObjects;
 
 /**
  * Selector that allows the user to pick an Integrator from the simulation.
@@ -35,13 +35,13 @@ public class DataSourceHookupSelector extends Composite {
 	 * @param parent
 	 * @param style
 	 */
-	public DataSourceHookupSelector(Composite parent, Simulation sim, int style) {
+	public DataSourceHookupSelector(Composite parent, SimulationObjects simObjects, int style) {
 		super(parent, style);
 		
 		initialize();
 
         String none = "(none)";
-        Action[] controllerActions = sim.getController().getAllActions();
+        Action[] controllerActions = simObjects.simulation.getController().getAllActions();
         integratorCombo.add(none);
         integratorMap.put(none,null);
         for (int i=0; i<controllerActions.length; i++) {
