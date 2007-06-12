@@ -6,8 +6,6 @@ import org.eclipse.swt.events.SelectionListener;
 
 import etomica.plugin.editors.EtomicaEditor;
 import etomica.plugin.wrappers.AdderWrapper;
-import etomica.plugin.wrappers.SimulationWrapper;
-import etomica.simulation.Simulation;
 
 /**
  * Listener that fires when an "add" MenuItem is selected.  It finds the
@@ -24,10 +22,7 @@ public class AddItemSelectionListener implements SelectionListener {
     }
     
     public void widgetSelected(SelectionEvent e){
-        SimulationWrapper simWrapper = (SimulationWrapper)simViewer.getInput();
-
-        if (parentWrapper.addObjectClass((Simulation)simWrapper.getObject(),
-                addClass,simViewer.getControl().getShell())) {
+        if (parentWrapper.addObjectClass(addClass,simViewer.getControl().getShell())) {
             simViewer.refresh(null);
             etomicaEditor.markDirty();
         }

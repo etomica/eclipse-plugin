@@ -6,22 +6,37 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.data.DataPump;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorIntervalListener;
+import etomica.integrator.IntegratorPhase;
 import etomica.integrator.IntervalActionAdapter;
+import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 
+/**
+ * The purpose of this class is to probe the Simulation, looking for data
+ * streams, integrators and PotentialMasters.  If we are loading a Simulation
+ * we created in the IDE, those will already be in simObjects, but we might
+ * be loading a Simulation we didn't create ourselves.
+ * 
+ * @author Andrew Schultz
+ */
 public class SimulationRegister {
 
-    public SimulationRegister(Simulation sim) {
-        simulation = sim;
+    public SimulationRegister(SimulationObjects simObjects) {
+        this.simObjects = simObjects;
     }
 
     public void registerElements() {
-        registerElements(simulation);
+        registerElements(simObjects.simulation);
     }
 
     public void registerElements(Object obj) {
         if (obj instanceof Simulation) {
             registerElements(((Simulation)obj).getController());
+        }
+        if (obj instanceof PotentialMaster) {
+            if (!simObjects.potentialMasters.contains(obj)) {
+                simObjects.potentialMasters.add(obj);
+            }
         }
         if (obj instanceof ActivityGroup) {
             Action[] actions = ((ActivityGroup)obj).getAllActions();
@@ -33,21 +48,26 @@ public class SimulationRegister {
             registerElements(((ActivityIntegrate)obj).getIntegrator());
         }
         if (obj instanceof Integrator) {
-            simulation.register((Integrator)obj);
+            if (!simObjects.integrators.contains(obj)) {
+                simObjects.integrators.add(obj);
+            }
             IntegratorIntervalListener[] listeners = ((Integrator)obj).getIntervalListeners();
             for (int i=0; i<listeners.length; i++) {
                 registerElements(listeners[i]);
+            }
+            if (obj instanceof IntegratorPhase) {
+                registerElements(((IntegratorPhase)obj).getPotential());
             }
         }
         if (obj instanceof IntervalActionAdapter) {
             registerElements(((IntervalActionAdapter)obj).getAction());
         }
         if (obj instanceof DataPump) {
-            if (((DataPump)obj).getDataSource() != null) {
-                simulation.register(((DataPump)obj).getDataSource(),obj);
+            if (!simObjects.dataStreams.contains(obj)) {
+                simObjects.dataStreams.add(obj);
             }
         }
     }
     
-    private final Simulation simulation;
+    private final SimulationObjects simObjects;
 }

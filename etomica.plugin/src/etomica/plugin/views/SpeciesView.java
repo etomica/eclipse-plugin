@@ -17,8 +17,8 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
 
 import etomica.plugin.editors.EtomicaEditor;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wrappers.PropertySourceWrapper;
-import etomica.simulation.Simulation;
 import etomica.species.Species;
 
 /**
@@ -69,9 +69,9 @@ public class SpeciesView extends ViewPart {
     protected void pageSelectionChanged(IWorkbenchPart part, ISelection selection) {
         if(part == this) return;
         if (part instanceof EtomicaEditor) {
-            Simulation sim = ((EtomicaEditor)part).getSimulation();
-            if (sim != null) {
-                vcp.setSimulation(sim);
+            SimulationObjects simObjects = ((EtomicaEditor)part).getSimulationObjects();
+            if (simObjects != null) {
+                vcp.setSimulationObjects(simObjects);
             }
         }
         if(!(selection instanceof IStructuredSelection)) return;

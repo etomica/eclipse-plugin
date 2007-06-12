@@ -15,9 +15,9 @@ import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.SpeciesAgent;
 import etomica.phase.Phase;
+import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wrappers.ArrayWrapper;
 import etomica.plugin.wrappers.PropertySourceWrapper;
-import etomica.simulation.Simulation;
 import etomica.species.Species;
 import etomica.util.Arrays;
 
@@ -44,7 +44,7 @@ public class SpeciesViewContentProvider implements ITreeContentProvider {
             //we just want to return the child atom types, if they exist
             if (element instanceof AtomTypeGroup) {
                 return PropertySourceWrapper.wrapArrayElements(((AtomTypeGroup)element).getChildTypes(), 
-                        simulation, null);
+                        simObjects, null);
             }
             return new Object[0];
         }
@@ -91,7 +91,7 @@ public class SpeciesViewContentProvider implements ITreeContentProvider {
                 childWrappers[count-1] = (PropertySourceWrapper)value;
             }
             else {
-                childWrappers[count-1] = PropertySourceWrapper.makeWrapper(value,simulation);
+                childWrappers[count-1] = PropertySourceWrapper.makeWrapper(value,simObjects);
             }
         }
         return childWrappers;
@@ -104,19 +104,19 @@ public class SpeciesViewContentProvider implements ITreeContentProvider {
     //the call to viewer.setInput in createPartControl causes the list of
     //simulation instances to be the input element in this method
     public Object[] getElements(Object inputElement) {
-        if (simulation == null) {
+        if (simObjects == null) {
             return getChildren(inputElement);
         }
         Species species = (Species)((PropertySourceWrapper)inputElement).getObject();
-        Phase[] phases = simulation.getPhases();
+        Phase[] phases = simObjects.simulation.getPhases();
         SpeciesAgent[] agents = new SpeciesAgent[phases.length];
         for (int i=0; i<phases.length; i++) {
             agents[i] = phases[i].getAgent(species);
         }
         PropertySourceWrapper[] wrappers = new PropertySourceWrapper[3];
-        wrappers[0] = PropertySourceWrapper.makeWrapper(agents,simulation);
-        wrappers[1] = PropertySourceWrapper.makeWrapper(species.getFactory(),simulation);
-        wrappers[2] = PropertySourceWrapper.makeWrapper(species.getFactory().getType(),simulation);
+        wrappers[0] = PropertySourceWrapper.makeWrapper(agents,simObjects);
+        wrappers[1] = PropertySourceWrapper.makeWrapper(species.getFactory(),simObjects);
+        wrappers[2] = PropertySourceWrapper.makeWrapper(species.getFactory().getType(),simObjects);
         return wrappers;
     }
 
@@ -133,8 +133,8 @@ public class SpeciesViewContentProvider implements ITreeContentProvider {
     public void dispose() {
     }
 
-    public void setSimulation(Simulation sim) {
-        simulation = sim;
+    public void setSimulationObjects(SimulationObjects newSimulationObjects) {
+        simObjects = newSimulationObjects;
     }
     
     public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
@@ -143,5 +143,5 @@ public class SpeciesViewContentProvider implements ITreeContentProvider {
     
     Object currentSelection;
 
-    private Simulation simulation;
+    private SimulationObjects simObjects;
 }

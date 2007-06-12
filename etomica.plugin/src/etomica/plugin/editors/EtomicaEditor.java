@@ -72,7 +72,7 @@ public class EtomicaEditor extends EditorPart {
         try {
             fos = new FileOutputStream( filename);
             out = new ObjectOutputStream(fos);
-            out.writeObject( simulation );
+            out.writeObject(simObjects);
             out.close();
             dirty_flag = false;
             firePropertyChange(PROP_DIRTY);
@@ -139,19 +139,26 @@ public class EtomicaEditor extends EditorPart {
         {
             fis = new FileInputStream(filename);
             in = new ObjectInputStream(fis);
-            simulation = (etomica.simulation.Simulation) in.readObject();
+            Object obj = in.readObject();
             in.close();
+            if (obj instanceof Simulation) {
+                // we are perhaps loading a simulation we didn't create ourselves
+                simObjects = new SimulationObjects();
+                simObjects.simulation = (Simulation)obj;
+            }
+            else {
+                simObjects = (SimulationObjects)obj;
+            }
         }
         catch( Exception ex ) {
             WorkbenchPlugin.getDefault().getLog().log(
                     new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID, 0, "Could not read simulation from file " + filename, ex));
-            simulation = null;
+            simObjects = null;
             return ex;
         }
-        if (simulation != null) {
-            simulation.clearDataStreams();
-            simulation.clearIntegrators();
-            SimulationRegister register = new SimulationRegister(simulation);
+        if (simObjects != null) {
+            //poke through the Simulation looking for stuff (PotentialMasters, DataStreams, etc)
+            SimulationRegister register = new SimulationRegister(simObjects);
             register.registerElements();
         }
         return null;
@@ -227,15 +234,15 @@ public class EtomicaEditor extends EditorPart {
         // Update inner panel 
         if ( innerPanel != null )
         {
-            innerPanel.setSimulation( simulation );
+            innerPanel.setSimulation(simObjects);
             getSite().setSelectionProvider(innerPanel.getViewer());
         }
     }
 
     public void createPartControl(Composite parent) {
-        if (simulation != null) {
+        if (simObjects.simulation != null) {
             innerPanel = new EtomicaEditorInnerPanel(parent, this, SWT.NONE);
-            innerPanel.setSimulation( simulation );
+            innerPanel.setSimulation(simObjects);
             getSite().setSelectionProvider(innerPanel.getViewer());
         }
     }
@@ -245,7 +252,11 @@ public class EtomicaEditor extends EditorPart {
     }
 	
     public Simulation getSimulation() {
-        return simulation;
+        return simObjects.simulation;
+    }
+    
+    public SimulationObjects getSimulationObjects() {
+        return simObjects;
     }
 
     public void setFocus() {
@@ -253,7 +264,7 @@ public class EtomicaEditor extends EditorPart {
 
     private EtomicaEditorInnerPanel innerPanel;
     private IPath path = null;
-    private Simulation simulation = null;
+    private SimulationObjects simObjects = null;
     private ISelectionListener pageSelectionListener;
     private boolean dirty_flag = false;
     private boolean isBusy = false;

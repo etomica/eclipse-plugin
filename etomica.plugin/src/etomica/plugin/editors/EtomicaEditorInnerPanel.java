@@ -13,7 +13,6 @@ import etomica.plugin.editors.listeners.OpenActionListener;
 import etomica.plugin.views.ActionsViewContentProvider;
 import etomica.plugin.views.SimulationViewContentProvider;
 import etomica.plugin.wrappers.SimulationWrapper;
-import etomica.simulation.Simulation;
 
 
 /**
@@ -69,12 +68,12 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
         
 	}
 
-	public void setSimulation( Simulation simulation ) {
-        SimulationWrapper simWrapper = new SimulationWrapper(simulation);
+	public void setSimulation(SimulationObjects simObjects) {
+        SimulationWrapper simWrapper = new SimulationWrapper(simObjects.simulation, simObjects);
         simWrapper.setEditor(etomicaEditor);
 		viewer.setInput(simWrapper);
-        actionsViewer.setInput(simulation.getController());
-        ((DecoratingLabelProvider)actionsViewer.getLabelProvider()).setLabelDecorator(new ActionColorDecorator(simulation.getController()));
+        actionsViewer.setInput(simObjects.simulation.getController());
+        ((DecoratingLabelProvider)actionsViewer.getLabelProvider()).setLabelDecorator(new ActionColorDecorator(simObjects.simulation.getController()));
 	}
 	
 	static {
