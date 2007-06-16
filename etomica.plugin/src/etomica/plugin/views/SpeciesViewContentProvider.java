@@ -13,6 +13,7 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import etomica.atom.AtomFactory;
 import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
+import etomica.atom.ISpeciesAgent;
 import etomica.atom.SpeciesAgent;
 import etomica.phase.Phase;
 import etomica.plugin.editors.SimulationObjects;
@@ -109,7 +110,7 @@ public class SpeciesViewContentProvider implements ITreeContentProvider {
         }
         Species species = (Species)((PropertySourceWrapper)inputElement).getObject();
         Phase[] phases = simObjects.simulation.getPhases();
-        SpeciesAgent[] agents = new SpeciesAgent[phases.length];
+        ISpeciesAgent[] agents = new SpeciesAgent[phases.length];
         for (int i=0; i<phases.length; i++) {
             agents[i] = phases[i].getAgent(species);
         }
