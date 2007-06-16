@@ -40,8 +40,7 @@ public class SimulationWrapper extends PropertySourceWrapper implements RemoverW
                 makeWrapper(simObjects.potentialMasters.toArray(new PotentialMaster[0]),simObjects,etomicaEditor),
                 makeWrapper(sim.getPhases(),simObjects,etomicaEditor),
                 makeWrapper(sim.getSpeciesManager().getSpecies(),simObjects,etomicaEditor),
-                makeWrapper(simObjects.dataStreams.toArray(new DataStreamHeader[0]),simObjects,etomicaEditor),
-                makeWrapper(sim.getDefaults(),simObjects,etomicaEditor)};
+                makeWrapper(simObjects.dataStreams.toArray(new DataStreamHeader[0]),simObjects,etomicaEditor)};
         return childWrappers;
     }
 
