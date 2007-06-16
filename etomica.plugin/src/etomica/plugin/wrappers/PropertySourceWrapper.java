@@ -271,7 +271,7 @@ public class PropertySourceWrapper implements IPropertySource {
         catch(NullPointerException ex) {value = null;}
         catch(InvocationTargetException ex) {value = null;}
         catch(IllegalAccessException ex) {value = null;}
-        if (value != null && (value.getClass().isArray() || value instanceof IVector)) {
+        if (value != null && (value instanceof IVector)) {
             return PropertySourceWrapper.makeWrapper(value, simObjects, etomicaEditor);
         }
         if (value instanceof Double) {
@@ -340,8 +340,10 @@ public class PropertySourceWrapper implements IPropertySource {
         try {
             Method dimensionGetter = object.getClass().getMethod(getterName+"Dimension",new Class[0]);
             Dimension dimension = (Dimension)dimensionGetter.invoke(object, new Object[0]);
-            UnitSystem unitSystem = simObjects.simulation.getDefaults().unitSystem;
-            return dimension.getUnit(unitSystem);
+            return null;
+            //XXX need to get the unit system somehow
+//            UnitSystem unitSystem = simObjects.simulation.getDefaults().unitSystem;
+//            return dimension.getUnit(unitSystem);
         }
         catch (NoSuchMethodException ex) {} //likely
         catch (InvocationTargetException ex) {} //unlikely
