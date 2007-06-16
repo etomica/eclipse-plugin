@@ -11,15 +11,11 @@ import etomica.action.SimulationAction;
 import etomica.data.DataPump;
 import etomica.data.DataSource;
 import etomica.integrator.Integrator;
-import etomica.integrator.IntegratorIntervalListener;
-import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorPhase;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.phase.Phase;
 import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wizards.NewObjectSimplePage.SimpleClassWizard;
-import etomica.simulation.DataStreamHeader;
 
 /**
  * This wizard allows the user to create a new IntegratorIntervalListener.  
@@ -48,8 +44,6 @@ public class NewIntegratorListenerWizard extends Wizard implements SimpleClassWi
     }
     
     public void fixupSelector(SimpleClassSelector selector) {
-        selector.addBaseClass(IntegratorListener.class);
-        selector.addCategory("Integrator Listener",IntegratorListener.class);
         selector.addBaseClass(Action.class);
         selector.addCategory("Action",Action.class);
         selector.addCategory("Phase Action",PhaseAction.class);
@@ -67,31 +61,20 @@ public class NewIntegratorListenerWizard extends Wizard implements SimpleClassWi
         }
         
         for (int i=0; i<simObjects.dataStreams.size(); i++) {
-            DataStreamHeader dataStream = (DataStreamHeader)simObjects.dataStreams.get(i);
-            if (!(dataStream.getClient() instanceof DataPump)) {
-                continue;
-            }
+            DataPump dataStreamPump = (DataPump)simObjects.dataStreams.get(i);
             boolean streamAlreadyAdded = false;
             boolean listenerAlreadyAdded = false;
-            IntegratorIntervalListener[] listeners = integrator.getIntervalListeners();
+            Action[] listeners = integrator.getIntervalActions();
             for (int j=0; j<listeners.length; j++) {
-                if (listeners[j] instanceof IntervalActionAdapter) {
-                    if (((IntervalActionAdapter)listeners[j]).getAction() == dataStream.getClient()) {
-                        streamAlreadyAdded = true;
-                    }
-                }
-                else if (listeners[j] == dataStream.getDataSource()) {
-                    listenerAlreadyAdded = true;
+                if (listeners[j] == dataStreamPump) {
+                    streamAlreadyAdded = true;
                 }
             }
             
             if (!streamAlreadyAdded) {
-                DataSource dataSource = dataStream.getDataSource();
+                DataSource dataSource = dataStreamPump.getDataSource();
                 String string = dataSource.getDataInfo().getLabel();
-                selector.addExtraObject(string+" stream",new IntervalActionAdapter((DataPump)dataStream.getClient()));
-            }
-            if (!listenerAlreadyAdded && dataStream.getDataSource() instanceof IntegratorIntervalListener) {
-                selector.addExtraObject(null,dataStream.getDataSource());
+                selector.addExtraObject(string+" stream",dataStreamPump);
             }
         }
     }
@@ -102,24 +85,16 @@ public class NewIntegratorListenerWizard extends Wizard implements SimpleClassWi
      * using wizard as execution context.
      */
     public boolean performFinish() {
-        IntegratorIntervalListener listener = null;
+        Action listener = null;
         Object obj = intervalListenerPage.createObject();
         
-        if (obj==null)
+        if (obj==null || !(obj instanceof Action))
             return false;
-        
-        if (obj instanceof Action) {
-            listener = new IntervalActionAdapter((Action)obj);
-        }
-        else if (!(obj instanceof IntegratorIntervalListener)) {
-            return false;
-        }
-        else {
-            listener = (IntegratorIntervalListener)obj;
-        }
+
+        listener = (Action)obj;
         
         if (integrator != null) {
-            integrator.addListener(listener);
+            integrator.addIntervalAction(listener);
         }
         success = true;
         

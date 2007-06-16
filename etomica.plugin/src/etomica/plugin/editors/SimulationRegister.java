@@ -5,9 +5,7 @@ import etomica.action.activity.ActivityGroup;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.data.DataPump;
 import etomica.integrator.Integrator;
-import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorPhase;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.Simulation;
 
@@ -51,16 +49,13 @@ public class SimulationRegister {
             if (!simObjects.integrators.contains(obj)) {
                 simObjects.integrators.add(obj);
             }
-            IntegratorIntervalListener[] listeners = ((Integrator)obj).getIntervalListeners();
-            for (int i=0; i<listeners.length; i++) {
-                registerElements(listeners[i]);
+            Action[] intervalActions = ((Integrator)obj).getIntervalActions();
+            for (int i=0; i<intervalActions.length; i++) {
+                registerElements(intervalActions[i]);
             }
             if (obj instanceof IntegratorPhase) {
                 registerElements(((IntegratorPhase)obj).getPotential());
             }
-        }
-        if (obj instanceof IntervalActionAdapter) {
-            registerElements(((IntervalActionAdapter)obj).getAction());
         }
         if (obj instanceof DataPump) {
             if (!simObjects.dataStreams.contains(obj)) {

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import etomica.action.Action;
 import etomica.integrator.Integrator;
-import etomica.integrator.IntegratorListener;
+import etomica.integrator.IntegratorNonintervalListener;
 import etomica.plugin.editors.MenuItemWrapper;
 import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wrappers.ActionListItemWrapper.ActionItemWrapper;
@@ -20,7 +20,7 @@ import etomica.util.Arrays;
  */
 public class IntegratorListenerWrapper extends InterfaceWrapper {
 
-    public IntegratorListenerWrapper(IntegratorListener listener, SimulationObjects simObjects) {
+    public IntegratorListenerWrapper(IntegratorNonintervalListener listener, SimulationObjects simObjects) {
         super(listener, simObjects);
     }
     
@@ -30,7 +30,7 @@ public class IntegratorListenerWrapper extends InterfaceWrapper {
         if (integrators.length > 0) {
             ActionListItemWrapper actionListItemWrapper = new ActionListItemWrapper();
             for (int i=0; i<integrators.length; i++) {
-                AddToIntegratorAction action = new AddToIntegratorAction(integrators[i], (IntegratorListener)object);
+                AddToIntegratorAction action = new AddToIntegratorAction(integrators[i], (IntegratorNonintervalListener)object);
                 ActionItemWrapper itemWrapper = new ActionItemWrapper(action, "Add to "+integrators[i]);
                 actionListItemWrapper.addSubmenuItem(itemWrapper);
             }
@@ -59,14 +59,7 @@ public class IntegratorListenerWrapper extends InterfaceWrapper {
         ArrayList integratorList = simObjects.integrators;
         for (int j=0; !foundListener && j<integratorList.size(); j++) {
             Integrator integrator = (Integrator)integratorList.get(j);
-            Object[] listeners = integrator.getIntervalListeners();
-            for (int i=0; i<listeners.length; i++) {
-                if (listeners[i] == object) {
-                    return true;
-                }
-            }
-
-            listeners = integrator.getNonintervalListeners();
+            IntegratorNonintervalListener[] listeners = integrator.getNonintervalListeners();
             for (int i=0; i<listeners.length; i++) {
                 if (listeners[i] == object) {
                     return true;
@@ -86,14 +79,7 @@ public class IntegratorListenerWrapper extends InterfaceWrapper {
         for (int j=0; j<integratorList.size(); j++) {
             Integrator integrator = (Integrator)integratorList.get(j);
             boolean isListening = false;
-            Object[] listeners = integrator.getIntervalListeners();
-            for (int i=0; i<listeners.length; i++) {
-                if (listeners[i] == object) {
-                    isListening = true;
-                }
-            }
-
-            listeners = integrator.getNonintervalListeners();
+            IntegratorNonintervalListener[] listeners = integrator.getNonintervalListeners();
             for (int i=0; i<listeners.length; i++) {
                 if (listeners[i] == object) {
                     isListening = true;
@@ -111,16 +97,16 @@ public class IntegratorListenerWrapper extends InterfaceWrapper {
      * Action that adds an IntegratorListener to an Integrator
      */
     public static class AddToIntegratorAction implements Action {
-        public AddToIntegratorAction(Integrator integrator, IntegratorListener listener) {
+        public AddToIntegratorAction(Integrator integrator, IntegratorNonintervalListener listener) {
             this.integrator = integrator;
             this.listener = listener;
         }
         
         public void actionPerformed() {
-            integrator.addListener(listener);
+            integrator.addNonintervalListener(listener);
         }
         
         protected final Integrator integrator;
-        protected final IntegratorListener listener;
+        protected final IntegratorNonintervalListener listener;
     }
 }

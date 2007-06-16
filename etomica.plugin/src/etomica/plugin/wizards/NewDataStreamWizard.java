@@ -15,9 +15,7 @@ import etomica.data.DataPump;
 import etomica.data.DataSink;
 import etomica.data.DataSource;
 import etomica.integrator.Integrator;
-import etomica.integrator.IntegratorIntervalListener;
 import etomica.integrator.IntegratorPhase;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.phase.Phase;
 import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wizards.NewObjectSimplePage.SimpleClassWizard;
@@ -78,13 +76,7 @@ public class NewDataStreamWizard extends Wizard implements SimpleClassWizard {
         simObjects.dataStreams.add(pump);
         if (page2.getControl() != null && page2.isPageComplete()) {
             if (integrator != null) {
-                if (dataSource instanceof IntegratorIntervalListener) {
-                    integrator.addListener((IntegratorIntervalListener)dataSource);
-                    // we still need the pump so a Data stream exists
-                }
-                else {
-                    integrator.addListener(new IntervalActionAdapter(pump));
-                }
+                integrator.addIntervalAction(pump);
                 if (integrator instanceof IntegratorPhase) {
                     Phase phase = ((IntegratorPhase)integrator).getPhase();
                     if (phase != null) {

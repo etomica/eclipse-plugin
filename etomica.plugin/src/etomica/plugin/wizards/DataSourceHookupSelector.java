@@ -11,6 +11,7 @@ import org.eclipse.swt.widgets.Label;
 
 import etomica.action.Action;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.integrator.IIntegrator;
 import etomica.integrator.Integrator;
 import etomica.plugin.editors.SimulationObjects;
 
@@ -46,7 +47,7 @@ public class DataSourceHookupSelector extends Composite {
         integratorMap.put(none,null);
         for (int i=0; i<controllerActions.length; i++) {
             if (controllerActions[i] instanceof ActivityIntegrate) {
-                Integrator integrator = ((ActivityIntegrate)controllerActions[i]).getIntegrator();
+                IIntegrator integrator = ((ActivityIntegrate)controllerActions[i]).getIntegrator();
                 String str = integrator.toString();
                 integratorCombo.add(str);
                 integratorMap.put(str,integrator);

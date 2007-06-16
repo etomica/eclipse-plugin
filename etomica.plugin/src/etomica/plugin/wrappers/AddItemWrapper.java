@@ -33,6 +33,11 @@ public class AddItemWrapper extends MenuItemCascadeWrapper {
         public AddClassItemWrapper(Class addClass, AdderWrapper parentWrapper) {
             this.addClass = addClass;
             this.parentWrapper = parentWrapper;
+            displayText = addClass.getName();
+        }
+        
+        public void setDisplayText(String newText) {
+            displayText = newText;
         }
         
         public void addItemToMenu(Menu menu, TreeViewer viewer, EtomicaEditor editor) {
@@ -56,5 +61,6 @@ public class AddItemWrapper extends MenuItemCascadeWrapper {
         
         protected final Class addClass;
         protected final AdderWrapper parentWrapper;
+        protected String displayText;
     }
 }

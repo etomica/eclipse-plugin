@@ -6,10 +6,9 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
+import etomica.action.Action;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorHard;
-import etomica.integrator.IntegratorIntervalListener;
-import etomica.integrator.IntegratorListener;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorNonintervalListener;
@@ -45,8 +44,12 @@ public class IntegratorWrapper extends PropertySourceWrapper implements RemoverW
         if (obj instanceof PropertySourceWrapper) {
             obj = ((PropertySourceWrapper)obj).getObject();
         }
-        if (obj instanceof IntegratorListener) {
-            ((Integrator)object).removeListener((IntegratorListener)obj);
+        if (obj instanceof Action) {
+            ((Integrator)object).removeIntervalAction((Action)obj);
+            return true;
+        }
+        if (obj instanceof IntegratorNonintervalListener) {
+            ((Integrator)object).removeNonintervalListener((IntegratorNonintervalListener)obj);
             return true;
         }
         if (obj instanceof Phase && object instanceof IntegratorPhase) {
@@ -59,8 +62,8 @@ public class IntegratorWrapper extends PropertySourceWrapper implements RemoverW
     }
     
     public boolean canRemoveChild(Object obj) {
-        if (obj instanceof IntegratorIntervalListener) {
-            IntegratorIntervalListener[] listeners = ((Integrator)object).getIntervalListeners();
+        if (obj instanceof Action) {
+            Action[] listeners = ((Integrator)object).getIntervalActions();
             for (int i=0; i<listeners.length; i++) {
                 if (listeners[i] == obj) {
                     return true;
@@ -84,14 +87,16 @@ public class IntegratorWrapper extends PropertySourceWrapper implements RemoverW
     public MenuItemWrapper[] getMenuItemWrappers(PropertySourceWrapper parentWrapper) {
         MenuItemCascadeWrapper addItemWrapper = new AddItemWrapper();
 
-        addItemWrapper.addSubmenuItem(new AddClassItemWrapper(IntegratorListener.class, this));
+        AddClassItemWrapper addWrapper = new AddClassItemWrapper(Action.class, this);
+        addWrapper.setDisplayText("Interval Action");
+        addItemWrapper.addSubmenuItem(addWrapper);
 
         return PropertySourceWrapper.combineMenuItemWrappers(
                 new MenuItemWrapper[]{addItemWrapper}, super.getMenuItemWrappers(parentWrapper));
     }
 
     public boolean addObjectClass(Class newObjectClass, Shell shell) {
-        if (newObjectClass == IntegratorListener.class) {
+        if (newObjectClass == Action.class) {
             NewIntegratorListenerWizard wizard = new NewIntegratorListenerWizard((Integrator)object,simObjects);
 
             WizardDialog dialog = new WizardDialog(shell, wizard);

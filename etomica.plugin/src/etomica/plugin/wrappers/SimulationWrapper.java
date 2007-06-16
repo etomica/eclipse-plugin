@@ -8,10 +8,9 @@ import org.eclipse.swt.widgets.Shell;
 import etomica.action.Action;
 import etomica.action.activity.ActivityGroup;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.data.DataPump;
 import etomica.data.DataSource;
 import etomica.integrator.Integrator;
-import etomica.integrator.IntegratorIntervalListener;
-import etomica.integrator.IntervalActionAdapter;
 import etomica.phase.Phase;
 import etomica.plugin.editors.MenuItemWrapper;
 import etomica.plugin.editors.SimulationObjects;
@@ -55,13 +54,12 @@ public class SimulationWrapper extends PropertySourceWrapper implements RemoverW
         if (obj instanceof Species) {
             return ((Simulation)object).getSpeciesManager().removeSpecies((Species)obj);
         }
-        if (obj instanceof DataStreamHeader) {
-            Object client = ((DataStreamHeader)obj).getClient();
-            DataSource dataSource = ((DataStreamHeader)obj).getDataSource();
-            if (!removeDataStream(object, client, dataSource)) {
-                System.out.println("couldn't find "+client+" in "+object);
+        if (obj instanceof DataPump) {
+            DataPump pump = (DataPump)obj;
+            DataSource dataSource = pump.getDataSource();
+            if (!removeDataStream(object, pump, dataSource)) {
+                System.out.println("couldn't find "+pump+" in "+object);
             }
-            ((Simulation)object).unregister(dataSource,client);
             simObjects.dataStreams.remove(obj);
             return true;
         }
@@ -140,34 +138,31 @@ public class SimulationWrapper extends PropertySourceWrapper implements RemoverW
         return false;
     }
     
-    protected boolean removeDataStream(Object obj, Object client, DataSource dataSource) {
+    protected boolean removeDataStream(Object obj, DataPump pump, DataSource dataSource) {
         if (obj instanceof Simulation) {
-            return removeDataStream(((Simulation)obj).getController(), client, dataSource);
+            return removeDataStream(((Simulation)obj).getController(), pump, dataSource);
         }
         if (obj instanceof ActivityGroup) {
             Action[] actions = ((ActivityGroup)obj).getAllActions();
             for (int i=0; i<actions.length; i++) {
-                if (removeDataStream(actions[i], client, dataSource)) {
+                if (removeDataStream(actions[i], pump, dataSource)) {
                     return true;
                 }
             }
         }
         else if (obj instanceof ActivityIntegrate) {
-            return removeDataStream(((ActivityIntegrate)obj).getIntegrator(), client, dataSource);
+            return removeDataStream(((ActivityIntegrate)obj).getIntegrator(), pump, dataSource);
         }
         else if (obj instanceof Integrator) {
-            IntegratorIntervalListener[] listeners = ((Integrator)obj).getIntervalListeners();
+            Action[] listeners = ((Integrator)obj).getIntervalActions();
             for (int i=0; i<listeners.length; i++) {
                 if (listeners[i] == dataSource) {
-                    ((Integrator)obj).removeListener(listeners[i]);
+                    ((Integrator)obj).removeIntervalAction(listeners[i]);
                     return true;
                 }
-                else if (listeners[i] instanceof IntervalActionAdapter) {
-                    Action action = ((IntervalActionAdapter)listeners[i]).getAction();
-                    if (action == client) {
-                        ((Integrator)obj).removeListener(listeners[i]);
-                        return true;
-                    }
+                else if (listeners[i] == pump) {
+                    ((Integrator)obj).removeIntervalAction(pump);
+                    return true;
                 }
             }
         }

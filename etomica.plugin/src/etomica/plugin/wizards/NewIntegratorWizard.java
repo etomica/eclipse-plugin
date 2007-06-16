@@ -53,7 +53,7 @@ public class NewIntegratorWizard extends Wizard implements SimpleClassWizard {
             return false;
 	  	
         if (actionGroup != null) {
-            actionGroup.addAction(new ActivityIntegrate(simObjects.simulation,integrator));
+            actionGroup.addAction(new ActivityIntegrate(integrator));
         }
         simObjects.integrators.add(integrator);
         success = true;
