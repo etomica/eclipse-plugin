@@ -37,8 +37,8 @@ public class Registry {
 		class_discovery.addClass( etomica.potential.Potential1.class );
 		class_discovery.addClass( etomica.potential.Potential2.class );
         class_discovery.addClass( etomica.nbr.NeighborCriterion.class );
-		class_discovery.addClass( etomica.integrator.Integrator.class );
-        class_discovery.addClass( etomica.integrator.IntegratorListener.class );
+		class_discovery.addClass( etomica.integrator.IIntegrator.class );
+        class_discovery.addClass( etomica.integrator.IntegratorNonintervalListener.class );
         class_discovery.addClass( etomica.integrator.mcmove.MCMove.class );
 		class_discovery.addClass( etomica.phase.Phase.class );
         class_discovery.addClass( etomica.space.Boundary.class );
@@ -48,7 +48,7 @@ public class Registry {
 		class_discovery.addClass( etomica.graphics.Display.class );
 		class_discovery.addClass( etomica.action.Action.class );
 		class_discovery.addClass( etomica.action.Activity.class );
-		class_discovery.addClass( etomica.simulation.Simulation.class );
+		class_discovery.addClass( etomica.simulation.ISimulation.class );
 		class_discovery.addClass( etomica.potential.PotentialMaster.class );
 		class_discovery.addClass( etomica.graphics.Device.class );
         class_discovery.addClass( etomica.units.systems.UnitSystem.class );
