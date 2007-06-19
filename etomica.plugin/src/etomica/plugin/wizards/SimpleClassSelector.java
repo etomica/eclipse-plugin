@@ -28,7 +28,7 @@ import etomica.plugin.ClassDiscovery;
 import etomica.plugin.Registry;
 import etomica.plugin.editors.SimulationObjects;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.Space;
 import etomica.util.Arrays;
 import etomica.util.IRandom;
@@ -165,7 +165,7 @@ public class SimpleClassSelector extends Composite {
             Object[] parameters = new Object[parameterClasses.length];
             for (int j=0; j<parameters.length; j++) {
                 if (simObjects.simulation != null) {
-                    if (parameterClasses[j] == Simulation.class) {
+                    if (parameterClasses[j] == ISimulation.class) {
                         parameters[j] = simObjects.simulation;
                     }
                     else if (parameterClasses[j] == PotentialMaster.class) {
@@ -237,7 +237,7 @@ public class SimpleClassSelector extends Composite {
             Object[] parameters = new Object[parameterClasses.length];
             for (int j=0; j<parameters.length; j++) {
                 if (simObjects.simulation != null) {
-                    if (parameterClasses[j] != Simulation.class && 
+                    if (parameterClasses[j] != ISimulation.class && 
                         parameterClasses[j] != PotentialMaster.class &&
                         parameterClasses[j] != IRandom.class &&
                         parameterClasses[j] != Space.class) {

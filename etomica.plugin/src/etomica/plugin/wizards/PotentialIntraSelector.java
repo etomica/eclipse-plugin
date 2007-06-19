@@ -32,7 +32,7 @@ import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialHard;
 import etomica.potential.PotentialMaster;
 import etomica.potential.PotentialSoft;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 
 /**
  * Selector for Potential class and the Species it will be act on.
@@ -64,7 +64,7 @@ public class PotentialIntraSelector extends Composite {
                 return myPotentialMaster.makePotentialGroup(getPotenialNumBody());
             }
 			try {
-                Constructor constructor = potentialClass.getDeclaredConstructor(new Class[]{Simulation.class});
+                Constructor constructor = potentialClass.getDeclaredConstructor(new Class[]{ISimulation.class});
                 if (constructor != null) {
                     return (Potential)constructor.newInstance(new Object[]{simObjects.simulation});
                 }

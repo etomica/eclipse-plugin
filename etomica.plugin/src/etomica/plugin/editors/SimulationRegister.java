@@ -7,7 +7,7 @@ import etomica.data.DataPump;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorPhase;
 import etomica.potential.PotentialMaster;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 
 /**
  * The purpose of this class is to probe the Simulation, looking for data
@@ -28,8 +28,8 @@ public class SimulationRegister {
     }
 
     public void registerElements(Object obj) {
-        if (obj instanceof Simulation) {
-            registerElements(((Simulation)obj).getController());
+        if (obj instanceof ISimulation) {
+            registerElements(((ISimulation)obj).getController());
         }
         if (obj instanceof PotentialMaster) {
             if (!simObjects.potentialMasters.contains(obj)) {

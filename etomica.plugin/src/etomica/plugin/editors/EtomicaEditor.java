@@ -33,7 +33,7 @@ import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.progress.WorkbenchJob;
 
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 
 
 public class EtomicaEditor extends EditorPart {
@@ -141,10 +141,10 @@ public class EtomicaEditor extends EditorPart {
             in = new ObjectInputStream(fis);
             Object obj = in.readObject();
             in.close();
-            if (obj instanceof Simulation) {
+            if (obj instanceof ISimulation) {
                 // we are perhaps loading a simulation we didn't create ourselves
                 simObjects = new SimulationObjects();
-                simObjects.simulation = (Simulation)obj;
+                simObjects.simulation = (ISimulation)obj;
             }
             else {
                 simObjects = (SimulationObjects)obj;
@@ -251,7 +251,7 @@ public class EtomicaEditor extends EditorPart {
         return innerPanel;
     }
 	
-    public Simulation getSimulation() {
+    public ISimulation getSimulation() {
         return simObjects.simulation;
     }
     

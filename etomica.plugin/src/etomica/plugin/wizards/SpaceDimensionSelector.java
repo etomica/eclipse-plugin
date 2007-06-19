@@ -1,9 +1,3 @@
-/*
- * Created on May 10, 2005
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Style - Code Templates
- */
 package etomica.plugin.wizards;
 
 import java.util.Collection;
@@ -21,7 +15,7 @@ import org.eclipse.swt.widgets.Text;
 
 import etomica.EtomicaInfo;
 import etomica.plugin.Registry;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 /**
  * @author Henrique
  *
@@ -76,7 +70,7 @@ public class SpaceDimensionSelector extends Composite {
 		space_list.select( default_selection );
 
 		// Add all types of stock simulations from registry
-		Collection stocksims = Registry.queryWhoExtends( Simulation.class );
+		Collection stocksims = Registry.queryWhoExtends( ISimulation.class );
 		item = stocksims.iterator();
 		while ( item.hasNext() )
 		{

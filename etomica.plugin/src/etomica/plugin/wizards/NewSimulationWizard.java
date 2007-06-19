@@ -36,6 +36,7 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.internal.WorkbenchPlugin;
 
 import etomica.plugin.editors.SimulationObjects;
+import etomica.simulation.ISimulation;
 import etomica.simulation.Simulation;
 import etomica.space.Space;
 import etomica.util.ParameterBase;
@@ -81,7 +82,7 @@ public class NewSimulationWizard extends Wizard implements INewWizard {
 	 */
 	public boolean performFinish() {
 	  	// Create simulation based on user's choices
-	  	Simulation sim = createSimulation();
+	  	ISimulation sim = createSimulation();
 	  	if ( sim==null )
 			return false;
 	  	
@@ -216,7 +217,7 @@ public class NewSimulationWizard extends Wizard implements INewWizard {
 		return new ByteArrayInputStream( fos.toByteArray() );
 	}
 
-    public Simulation createSimulation() {
+    public ISimulation createSimulation() {
         Class simclass = page.getSimulationClass();
         if ( simclass!=null )
         {
@@ -231,7 +232,7 @@ public class NewSimulationWizard extends Wizard implements INewWizard {
                         throw new RuntimeException(e);
                     }
                     try {
-                        return (Simulation)simConstructor.newInstance(new Object[]{simParams});
+                        return (ISimulation)simConstructor.newInstance(new Object[]{simParams});
                     }
                     catch (IllegalAccessException e) {
                         throw new RuntimeException(e);
@@ -244,7 +245,7 @@ public class NewSimulationWizard extends Wizard implements INewWizard {
                     }
                 }
                 try {
-                    return (Simulation) simclass.newInstance();
+                    return (ISimulation) simclass.newInstance();
                 } catch (InstantiationException e) {
                     throw new RuntimeException(e);
                 } catch (IllegalAccessException e) {
@@ -323,5 +324,5 @@ public class NewSimulationWizard extends Wizard implements INewWizard {
         }
     }
     
-	private Simulation newsim = null;
+	private ISimulation newsim = null;
 }

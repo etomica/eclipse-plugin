@@ -12,7 +12,7 @@ import org.eclipse.ui.IEditorPart;
 import etomica.action.activity.Controller;
 import etomica.action.activity.ControllerListener;
 import etomica.plugin.editors.EtomicaEditor;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 
 /**
  * @author Henrique
@@ -60,6 +60,6 @@ public abstract class BaseSimulationActionDelegate implements IEditorActionDeleg
 		
 	protected EtomicaEditor current_editor;
 	protected IAction current_action;
-	protected Simulation simulation;
+	protected ISimulation simulation;
 	protected Controller controller;
 }
