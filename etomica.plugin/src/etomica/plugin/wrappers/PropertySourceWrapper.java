@@ -48,7 +48,7 @@ import etomica.plugin.views.ComboClassPropertyDescriptor;
 import etomica.plugin.views.ComboPropertyDescriptor;
 import etomica.plugin.views.DecimalPropertyDescriptor;
 import etomica.plugin.views.IntegerPropertyDescriptor;
-import etomica.simulation.Simulation;
+import etomica.simulation.ISimulation;
 import etomica.space.Boundary;
 import etomica.space.IVector;
 import etomica.space.Tensor;
@@ -932,7 +932,7 @@ public class PropertySourceWrapper implements IPropertySource {
     private static final Class[] excludedChildClasses = new Class[]{
         IVector.class,Tensor.class,Shape.class,
         AtomAddressManager.class,AtomsetIterator.class,
-        Phase.class,Species.class,Simulation.class,AtomManager.class
+        Phase.class,Species.class,ISimulation.class,AtomManager.class
     };
 
     // this fields sole purpose is to allow InterfaceWrappers to return
