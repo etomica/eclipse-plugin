@@ -42,7 +42,6 @@ public class ActionGroupWrapper extends InterfaceWrapper implements RemoverWrapp
         }
         boolean success = ((ActionGroup)object).removeAction((Action)obj);
         if (success && obj instanceof ActivityIntegrate) {
-            simObjects.simulation.unregister(((ActivityIntegrate)obj).getIntegrator());
             simObjects.integrators.remove(((ActivityIntegrate)obj).getIntegrator());
         }
         return success;
