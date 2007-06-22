@@ -37,14 +37,12 @@ public class UnitPackage {
 		// Cut off Filter can go on the top
 		ModiferCheckBox CutOffModifier = new ModiferCheckBox(true);
 		DeviceCheckBox CutOff = new DeviceCheckBox(CutOffModifier);
-		CutOff.setName("Cut off filter");
 		panelTop.add(CutOff.graphic());
 		panelTop.setBounds(0,0,1200,400);
 		
 		// Cut off Filter can go on the middle
 		ModiferCheckBox Coefficentmodifier = new ModiferCheckBox(false);
 		DeviceCheckBox Coefficent = new DeviceCheckBox(Coefficentmodifier);
-		Coefficent.setName("Coefficent Filter");
 		panelCenter.add(Coefficent.graphic());
 		panelCenter.setBounds(400,0,1200,400);
 		
@@ -88,11 +86,9 @@ public class UnitPackage {
 		JFrame f = new JFrame();
 		ModiferCheckBox CutOffModifier = new ModiferCheckBox(true);
 		DeviceCheckBox CutOff = new DeviceCheckBox(CutOffModifier);
-		CutOff.setName("Cut off filter");
 		
 		ModiferCheckBox Coefficentmodifier = new ModiferCheckBox(false);
 		DeviceCheckBox Coefficent = new DeviceCheckBox(Coefficentmodifier);
-		Coefficent.setName("Coefficent Filter");
 		
 		f.setSize(700,500);
 		panel.add(Coefficent.graphic());
@@ -115,11 +111,9 @@ public class UnitPackage {
 		JFrame f = new JFrame();
 		ModiferCheckBox CutOffModifier = new ModiferCheckBox(true);
 		DeviceCheckBox CutOff = new DeviceCheckBox(CutOffModifier);
-		CutOff.setName("Cut off filter");
 		
 		ModiferCheckBox Coefficentmodifier = new ModiferCheckBox(false);
 		DeviceCheckBox Coefficent = new DeviceCheckBox(Coefficentmodifier);
-		Coefficent.setName("Coefficent Filter");
 		
 		f.setSize(700,500);
 		panel.add(Coefficent.graphic());

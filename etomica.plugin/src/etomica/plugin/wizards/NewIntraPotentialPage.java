@@ -52,7 +52,6 @@ public class NewIntraPotentialPage extends WizardPage {
      */
     public Potential createPotential() {
         Potential newPotential = potentialIntraSelector.createPotential();
-        newPotential.setName(getPotentialName());
         return newPotential;
     }
     

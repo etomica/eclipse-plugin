@@ -53,7 +53,6 @@ public class NewInterPotentialPage extends WizardPage {
      */
     public Potential createPotential() {
         Potential newPotential = potentialInterSelector.createPotential();
-        newPotential.setName(getPotentialName());
         return newPotential;
     }
     
