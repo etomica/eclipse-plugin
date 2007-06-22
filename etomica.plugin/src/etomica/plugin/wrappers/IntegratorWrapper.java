@@ -21,7 +21,7 @@ import etomica.plugin.editors.MenuItemWrapper;
 import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wizards.NewIntegratorListenerWizard;
 import etomica.plugin.wrappers.AddItemWrapper.AddClassItemWrapper;
-import etomica.potential.Potential;
+import etomica.potential.IPotential;
 import etomica.potential.PotentialGroup;
 import etomica.potential.PotentialHard;
 import etomica.potential.PotentialMaster;
@@ -127,7 +127,7 @@ public class IntegratorWrapper extends PropertySourceWrapper implements RemoverW
             if (status.type.severity < EtomicaStatus.WARNING.severity && potentialMaster instanceof PotentialMasterSite) {
                 status = new EtomicaStatus("MD Integrators don't work well with cell-listing "+potentialMaster.getClass(), EtomicaStatus.WARNING);
             }
-            Potential[] potentials = potentialMaster.getPotentials();
+            IPotential[] potentials = potentialMaster.getPotentials();
             // must all hard integrators extend IntegratorHard?  Are the not-soft-not-hard Integrators?
             // need to use etomica.compatibility
             boolean hardIntegrator = object instanceof IntegratorHard;
@@ -139,7 +139,7 @@ public class IntegratorWrapper extends PropertySourceWrapper implements RemoverW
         return status;
     }
     
-    protected EtomicaStatus checkPotentialStatus(Potential[] potentials, boolean hardIntegrator) {
+    protected EtomicaStatus checkPotentialStatus(IPotential[] potentials, boolean hardIntegrator) {
         EtomicaStatus potentialStatus = EtomicaStatus.PEACHY;
         for (int i=0; i<potentials.length; i++) {
             if (potentials[i] instanceof PotentialGroup) {
