@@ -12,6 +12,7 @@ import etomica.plugin.editors.listeners.EtomicaStatusBarUpdater;
 import etomica.plugin.editors.listeners.OpenActionListener;
 import etomica.plugin.views.ActionsViewContentProvider;
 import etomica.plugin.views.SimulationViewContentProvider;
+import etomica.plugin.wrappers.PropertySourceWrapper;
 import etomica.plugin.wrappers.SimulationWrapper;
 
 
@@ -69,8 +70,7 @@ public class EtomicaEditorInnerPanel extends EtomicaEditorInnerPanel_visualonly 
 	}
 
 	public void setSimulation(SimulationObjects simObjects) {
-        SimulationWrapper simWrapper = new SimulationWrapper(simObjects.simulation, simObjects);
-        simWrapper.setEditor(etomicaEditor);
+        PropertySourceWrapper simWrapper = PropertySourceWrapper.makeWrapper(simObjects.simulation, simObjects, etomicaEditor);
 		viewer.setInput(simWrapper);
         actionsViewer.setInput(simObjects.simulation.getController());
         ((DecoratingLabelProvider)actionsViewer.getLabelProvider()).setLabelDecorator(new ActionColorDecorator(simObjects.simulation.getController()));
