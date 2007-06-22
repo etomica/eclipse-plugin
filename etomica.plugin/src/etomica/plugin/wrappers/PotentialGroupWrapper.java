@@ -9,7 +9,7 @@ import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wizards.NewInterPotential;
 import etomica.plugin.wizards.NewIntraPotential;
 import etomica.plugin.wrappers.AddItemWrapper.AddClassItemWrapper;
-import etomica.potential.Potential;
+import etomica.potential.IPotential;
 import etomica.potential.PotentialGroup;
 
 public class PotentialGroupWrapper extends PotentialWrapper implements RemoverWrapper, AdderWrapper {
@@ -22,16 +22,16 @@ public class PotentialGroupWrapper extends PotentialWrapper implements RemoverWr
         if (obj instanceof PropertySourceWrapper) {
             obj = ((PropertySourceWrapper)obj).getObject();
         }
-        if (obj instanceof Potential) {
-            ((PotentialGroup)object).removePotential((Potential)obj);
+        if (obj instanceof IPotential) {
+            ((PotentialGroup)object).removePotential((IPotential)obj);
             return true;
         }
         return false;
     }
     
     public boolean canRemoveChild(Object obj) {
-        if (obj instanceof Potential) {
-            Potential[] potentials = ((PotentialGroup)object).getPotentials();
+        if (obj instanceof IPotential) {
+            IPotential[] potentials = ((PotentialGroup)object).getPotentials();
             for (int i=0; i<potentials.length; i++) {
                 if (potentials[i] == obj) {
                     return true;
@@ -48,7 +48,7 @@ public class PotentialGroupWrapper extends PotentialWrapper implements RemoverWr
         if (((PotentialGroup)object).nBody() == 1 || ((PotentialGroup)object).nBody() == 2) {
             AddItemWrapper addItemWrapper = new AddItemWrapper();
 
-            addItemWrapper.addSubmenuItem(new AddClassItemWrapper(Potential.class, this));
+            addItemWrapper.addSubmenuItem(new AddClassItemWrapper(IPotential.class, this));
             itemWrappers = new MenuItemWrapper[]{addItemWrapper};
         }
         
@@ -57,7 +57,7 @@ public class PotentialGroupWrapper extends PotentialWrapper implements RemoverWr
     }
 
     public boolean addObjectClass(Class newObjectClass, Shell shell) {
-        if (newObjectClass == Potential.class) {
+        if (newObjectClass == IPotential.class) {
             if (((PotentialGroup)object).nBody() == 1) {
                 NewIntraPotential wizard = new NewIntraPotential((PotentialGroup)object, simObjects);
 
@@ -68,7 +68,7 @@ public class PotentialGroupWrapper extends PotentialWrapper implements RemoverWr
                 return wizard.getSuccess();
             }
             else if (((PotentialGroup)object).nBody() == 2 && myPotentialMaster != null) {
-                AtomType[] types = myPotentialMaster.getAtomTypes((Potential)object);
+                AtomType[] types = myPotentialMaster.getAtomTypes((IPotential)object);
                 if (types == null) {
                     return false;
                 }

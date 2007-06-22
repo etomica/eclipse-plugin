@@ -11,7 +11,7 @@ import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wizards.NewSpeciesPotential;
 import etomica.plugin.wrappers.ActionListItemWrapper.ActionItemWrapper;
 import etomica.plugin.wrappers.AddItemWrapper.AddClassItemWrapper;
-import etomica.potential.Potential;
+import etomica.potential.IPotential;
 import etomica.potential.PotentialMaster;
 
 public class PotentialMasterWrapper extends PropertySourceWrapper implements RemoverWrapper, AdderWrapper {
@@ -24,16 +24,16 @@ public class PotentialMasterWrapper extends PropertySourceWrapper implements Rem
         if (obj instanceof PropertySourceWrapper) {
             obj = ((PropertySourceWrapper)obj).getObject();
         }
-        if (obj instanceof Potential) {
-            ((PotentialMaster)object).removePotential((Potential)obj);
+        if (obj instanceof IPotential) {
+            ((PotentialMaster)object).removePotential((IPotential)obj);
             return true;
         }
         return false;
     }
     
     public boolean canRemoveChild(Object obj) {
-        if (obj instanceof Potential) {
-            Potential[] potentials = ((PotentialMaster)object).getPotentials();
+        if (obj instanceof IPotential) {
+            IPotential[] potentials = ((PotentialMaster)object).getPotentials();
             for (int i=0; i<potentials.length; i++) {
                 if (potentials[i] == obj) {
                     return true;
@@ -46,7 +46,7 @@ public class PotentialMasterWrapper extends PropertySourceWrapper implements Rem
     public MenuItemWrapper[] getMenuItemWrappers(PropertySourceWrapper parentWrapper) {
         AddItemWrapper addItemWrapper = new AddItemWrapper();
 
-        addItemWrapper.addSubmenuItem(new AddClassItemWrapper(Potential.class, this));
+        addItemWrapper.addSubmenuItem(new AddClassItemWrapper(IPotential.class, this));
 
         MenuItemWrapper[] itemWrappers = null;
         if (object instanceof PotentialMasterCell || object instanceof PotentialMasterList) {
@@ -64,7 +64,7 @@ public class PotentialMasterWrapper extends PropertySourceWrapper implements Rem
     }
 
     public boolean addObjectClass(Class newObjectClass, Shell shell) {
-        if (newObjectClass == Potential.class) {
+        if (newObjectClass == IPotential.class) {
             NewSpeciesPotential wizard = new NewSpeciesPotential((PotentialMaster)object, simObjects);
 
             WizardDialog dialog = new WizardDialog(shell, wizard);
