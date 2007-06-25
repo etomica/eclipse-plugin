@@ -90,11 +90,10 @@ public class SimpleClassSelector extends Composite {
         
         classCombo.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
-                int item = classCombo.getSelectionIndex();
-                if (item == -1) {
+                Object obj = getSelection();
+                if (obj == null) {
                     return;
                 }
-                Object obj = getSelection();
                 Class selectedClass;
                 if (obj instanceof Class) {
                     selectedClass = (Class)obj;
@@ -110,9 +109,11 @@ public class SimpleClassSelector extends Composite {
                 }
                 classDescription.setText(str);
 
-                Class objectClass = (Class)classMap.get(classCombo.getItem(item));
+                if (!(getSelection() instanceof Class)) {
+                    return;
+                }
 
-                Constructor[] constructors = objectClass.getConstructors();
+                Constructor[] constructors = selectedClass.getConstructors();
                 boolean potentialMasterNeeded = false;
                 for (int i=0; !potentialMasterNeeded && i<constructors.length; i++) {
                     Class[] parameterClasses = constructors[i].getParameterTypes();
@@ -408,7 +409,7 @@ public class SimpleClassSelector extends Composite {
             classesFromRegistry.addAll(Registry.queryWhoExtends(baseClass[i]));
         }
     
-        Iterator iterator = classesFromRegistry.iterator(); 
+        Iterator iterator = classesFromRegistry.iterator();
         while(iterator.hasNext())
         {
             Class objectClass = (Class)iterator.next();
