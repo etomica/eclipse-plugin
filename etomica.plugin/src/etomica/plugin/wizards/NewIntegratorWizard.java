@@ -4,6 +4,7 @@ import org.eclipse.jface.wizard.Wizard;
 
 import etomica.action.ActionGroup;
 import etomica.action.activity.ActivityIntegrate;
+import etomica.integrator.IIntegrator;
 import etomica.integrator.Integrator;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
@@ -34,7 +35,7 @@ public class NewIntegratorWizard extends Wizard implements SimpleClassWizard {
     }
     
     public void fixupSelector(SimpleClassSelector selector) {
-        selector.setBaseClass(Integrator.class);
+        selector.setBaseClass(IIntegrator.class);
         selector.addCategory("Integrator",Integrator.class);
         selector.addCategory("Integrator Manager",IntegratorManagerMC.class);
         selector.addCategory("IntegratorMD",IntegratorMD.class);
