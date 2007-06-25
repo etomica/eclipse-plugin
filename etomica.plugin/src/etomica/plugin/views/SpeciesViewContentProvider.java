@@ -116,8 +116,8 @@ public class SpeciesViewContentProvider implements ITreeContentProvider {
         }
         PropertySourceWrapper[] wrappers = new PropertySourceWrapper[3];
         wrappers[0] = PropertySourceWrapper.makeWrapper(agents,simObjects);
-        wrappers[1] = PropertySourceWrapper.makeWrapper(species.getFactory(),simObjects);
-        wrappers[2] = PropertySourceWrapper.makeWrapper(species.getFactory().getType(),simObjects);
+        wrappers[1] = PropertySourceWrapper.makeWrapper(species.getMoleculeFactory(),simObjects);
+        wrappers[2] = PropertySourceWrapper.makeWrapper(species.getMoleculeType(),simObjects);
         return wrappers;
     }
 
