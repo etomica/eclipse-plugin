@@ -662,7 +662,7 @@ public class PropertySourceWrapper implements IPropertySource {
 
         // this assigns the descriptors to the |descriptors| field
         getPropertyDescriptors();
-        int count = 0;
+        int count = childWrappers.length;
         for (int i=0; i<descriptors.length; i++) {
             Object pd = descriptors[i].getId();
             Object value = getPropertyValue(pd);
@@ -714,38 +714,34 @@ public class PropertySourceWrapper implements IPropertySource {
 
         Class objClass = child.getClass();
         if (objClass.isArray()) {
-            if (!(child instanceof Object[])) {
-                // arrays of natives aren't children
-                return true;
-            }
-            if (((Object[])child).length == 0) {
-                // just omit empty arrays
-                return true;
-            }
             objClass = objClass.getComponentType();
         }
 
-        for (int j=0; j<excludedChildClasses.length; j++) {
-            if (childWrapper.getClass() == PropertySourceWrapper.class) {
-                // don't auto-exclude objects with PropertySourceWrapper subclasses
-                // since they might have open/remove functionality
-                if ((objClass.getModifiers() & Modifier.NATIVE) != 0) {
-                    // no native types
-                    return true;
-                }
-                String canonicalName = objClass.getCanonicalName();
-                String firstPackage = canonicalName.substring(0, canonicalName.indexOf("."));
-                if (firstPackage.equals("java")) {
-                    // no LinkedList, Class, etc
-                    // this might be better off as !equals("etomica")
-                    return true;
-                }
-                IPropertyDescriptor[] childDescriptors = childWrapper.getPropertyDescriptors();
-                if (childDescriptors.length == 0) {
-                    return true;
-                }
+        if ((objClass.getModifiers() & Modifier.NATIVE) != 0) {
+            // no native types
+            return true;
+        }
+        // don't auto-exclude objects with PropertySourceWrapper subclasses
+        // since they might have open/remove functionality
+        if (childWrapper.getClass() == PropertySourceWrapper.class) {
+            String canonicalName = objClass.getCanonicalName();
+            String firstPackage = canonicalName.substring(0, canonicalName.indexOf("."));
+            if (firstPackage.equals("java")) {
+                // no LinkedList, Class, etc
+                // this might be better off as !equals("etomica")
+                return true;
             }
-                
+            IPropertyDescriptor[] childDescriptors = childWrapper.getPropertyDescriptors();
+            if (childDescriptors.length == 0) {
+                return true;
+            }
+        }
+        
+        if (object instanceof ISimulation) {
+            return false;
+        }
+            
+        for (int j=0; j<excludedChildClasses.length; j++) {
             if (excludedChildClasses[j].isAssignableFrom(objClass)) {
                 return true;
             }
