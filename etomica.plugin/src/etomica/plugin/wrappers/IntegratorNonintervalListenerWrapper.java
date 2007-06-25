@@ -18,9 +18,9 @@ import etomica.util.Arrays;
  * 
  * @author Andrew Schultz
  */
-public class IntegratorListenerWrapper extends InterfaceWrapper {
+public class IntegratorNonintervalListenerWrapper extends InterfaceWrapper {
 
-    public IntegratorListenerWrapper(IntegratorNonintervalListener listener, SimulationObjects simObjects) {
+    public IntegratorNonintervalListenerWrapper(IntegratorNonintervalListener listener, SimulationObjects simObjects) {
         super(listener, simObjects);
     }
     
