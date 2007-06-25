@@ -1,5 +1,7 @@
 package etomica.plugin.wrappers;
 
+import java.util.LinkedList;
+
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.nbr.list.NeighborListManager;
@@ -36,6 +38,17 @@ public class PotentialMasterListWrapper extends PotentialMasterWrapper {
             return neighborListManagers; //PropertySourceWrapper.wrapArrayElements(neighborListManagers, simObjects, etomicaEditor);
         }
         return super.getPropertyValue(key);
+    }
+
+    public EtomicaStatus getStatus(LinkedList parentList) {
+        double range = ((PotentialMasterList)object).getRange();
+        if (range == 0) {
+            return new EtomicaStatus("Range must be positive", EtomicaStatus.ERROR);
+        }
+        if (range < ((PotentialMasterList)object).getMaxPotentialRange()) {
+            return new EtomicaStatus("Range must be greater than longest-range potential", EtomicaStatus.ERROR);
+        }
+        return super.getStatus(parentList);
     }
 
 }

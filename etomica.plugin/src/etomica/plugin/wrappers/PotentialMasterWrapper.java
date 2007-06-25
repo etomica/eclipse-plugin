@@ -76,28 +76,6 @@ public class PotentialMasterWrapper extends PropertySourceWrapper implements Rem
         return false;
     }
 
-    public EtomicaStatus getStatus() {
-        if (object instanceof PotentialMasterList) {
-            double range = ((PotentialMasterList)object).getRange();
-            if (range == 0) {
-                return new EtomicaStatus("Range must be positive", EtomicaStatus.ERROR);
-            }
-            if (range < ((PotentialMasterList)object).getMaxPotentialRange()) {
-                return new EtomicaStatus("Range must be greater than longest-range potential", EtomicaStatus.ERROR);
-            }
-        }
-        else if (object instanceof PotentialMasterCell) {
-            double range = ((PotentialMasterCell)object).getRange();
-            if (range == 0) {
-                return new EtomicaStatus("Range must be positive", EtomicaStatus.ERROR);
-            }
-            if (range < ((PotentialMasterCell)object).getMaxPotentialRange()) {
-                return new EtomicaStatus("Range must be greater than longest-range potential", EtomicaStatus.ERROR);
-            }
-        }
-        return EtomicaStatus.PEACHY;
-    }
-
     private static class PotentialMasterReset implements Action {
         public PotentialMasterReset(PotentialMaster potentialMaster) {
             super();
