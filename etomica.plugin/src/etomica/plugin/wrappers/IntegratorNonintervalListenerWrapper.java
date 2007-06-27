@@ -31,7 +31,7 @@ public class IntegratorNonintervalListenerWrapper extends InterfaceWrapper {
             ActionListItemWrapper actionListItemWrapper = new ActionListItemWrapper();
             for (int i=0; i<integrators.length; i++) {
                 AddToIntegratorAction action = new AddToIntegratorAction(integrators[i], (IntegratorNonintervalListener)object);
-                ActionItemWrapper itemWrapper = new ActionItemWrapper(action, "Add to "+integrators[i]);
+                ActionItemWrapper itemWrapper = new ActionItemWrapper(action, "Add to "+integrators[i]+" as non-interval listener");
                 actionListItemWrapper.addSubmenuItem(itemWrapper);
             }
             itemWrappers = new MenuItemWrapper[]{actionListItemWrapper};
@@ -48,7 +48,7 @@ public class IntegratorNonintervalListenerWrapper extends InterfaceWrapper {
      */
     public EtomicaStatus getStatus() {
         return isListening() ? EtomicaStatus.PEACHY : 
-            new EtomicaStatus(object+" is an Integrator listener, but is not listening to any Integrator", EtomicaStatus.WARNING);
+            new EtomicaStatus(object+" is an Integrator non-interval listener, but is not listening to non-interval events from an Integrator", EtomicaStatus.WARNING);
     }
 
     /**
