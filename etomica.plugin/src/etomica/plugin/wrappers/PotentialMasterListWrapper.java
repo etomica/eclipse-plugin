@@ -6,7 +6,7 @@ import org.eclipse.ui.views.properties.IPropertyDescriptor;
 
 import etomica.nbr.list.NeighborListManager;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.plugin.editors.SimulationObjects;
 
 public class PotentialMasterListWrapper extends PotentialMasterWrapper {
@@ -30,10 +30,10 @@ public class PotentialMasterListWrapper extends PotentialMasterWrapper {
 
     public Object getPropertyValue(Object key) {
         if (key instanceof String && ((String)key).equals("neighborListManagers")) {
-            Phase[] phases = simObjects.simulation.getPhases();
-            NeighborListManager[] neighborListManagers = new NeighborListManager[phases.length];
-            for (int i=0; i<phases.length; i++) {
-                neighborListManagers[i] = ((PotentialMasterList)object).getNeighborManager(phases[i]);
+            Box[] boxes = simObjects.simulation.getBoxs();
+            NeighborListManager[] neighborListManagers = new NeighborListManager[boxes.length];
+            for (int i=0; i<boxes.length; i++) {
+                neighborListManagers[i] = ((PotentialMasterList)object).getNeighborManager(boxes[i]);
             }
             return neighborListManagers; //PropertySourceWrapper.wrapArrayElements(neighborListManagers, simObjects, etomicaEditor);
         }

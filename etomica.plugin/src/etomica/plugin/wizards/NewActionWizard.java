@@ -7,7 +7,7 @@ import etomica.action.ActionGroup;
 import etomica.action.Activity;
 import etomica.action.AtomAction;
 import etomica.action.IntegratorAction;
-import etomica.action.PhaseAction;
+import etomica.action.BoxAction;
 import etomica.action.SimulationAction;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.action.activity.Controller;
@@ -42,7 +42,7 @@ public class NewActionWizard extends Wizard implements SimpleClassWizard {
         selector.setExcludedClasses(new Class[]{AtomAction.class,Controller.class,ActivityIntegrate.class});
         selector.addCategory("Action",Action.class);
         selector.addCategory("Activity",Activity.class);
-        selector.addCategory("Phase Action",PhaseAction.class);
+        selector.addCategory("Box Action",BoxAction.class);
         selector.addCategory("Integrator Action",IntegratorAction.class);
         selector.addCategory("Simulation Action",SimulationAction.class);
     }

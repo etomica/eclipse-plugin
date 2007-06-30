@@ -15,8 +15,8 @@ import etomica.data.DataPump;
 import etomica.data.DataSink;
 import etomica.data.DataSource;
 import etomica.integrator.Integrator;
-import etomica.integrator.IntegratorPhase;
-import etomica.phase.Phase;
+import etomica.integrator.IntegratorBox;
+import etomica.box.Box;
 import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wizards.NewObjectSimplePage.SimpleClassWizard;
 
@@ -77,12 +77,12 @@ public class NewDataStreamWizard extends Wizard implements SimpleClassWizard {
         if (page2.getControl() != null && page2.isPageComplete()) {
             if (integrator != null) {
                 integrator.addIntervalAction(pump);
-                if (integrator instanceof IntegratorPhase) {
-                    Phase phase = ((IntegratorPhase)integrator).getPhase();
-                    if (phase != null) {
+                if (integrator instanceof IntegratorBox) {
+                    Box box = ((IntegratorBox)integrator).getBox();
+                    if (box != null) {
                         try {
-                            Method phaseSetter = dataSource.getClass().getMethod("setPhase", new Class[]{Phase.class});
-                            phaseSetter.invoke(dataSource, new Object[]{phase});
+                            Method phaseSetter = dataSource.getClass().getMethod("setPhase", new Class[]{Box.class});
+                            phaseSetter.invoke(dataSource, new Object[]{box});
                         }
                         catch (NoSuchMethodException e) {
                             // datasource had no setPhase method

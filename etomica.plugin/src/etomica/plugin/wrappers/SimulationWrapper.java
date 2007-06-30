@@ -10,7 +10,7 @@ import etomica.action.activity.ActivityIntegrate;
 import etomica.data.DataPump;
 import etomica.data.DataSource;
 import etomica.integrator.Integrator;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.plugin.editors.MenuItemWrapper;
 import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wizards.NewDataStreamWizard;
@@ -51,8 +51,8 @@ public class SimulationWrapper extends InterfaceWrapper implements RemoverWrappe
         if (obj instanceof PropertySourceWrapper) {
             obj = ((PropertySourceWrapper)obj).getObject();
         }
-        if (obj instanceof Phase) {
-            ((ISimulation)object).removePhase((Phase)obj);
+        if (obj instanceof Box) {
+            ((ISimulation)object).removeBox((Box)obj);
             return true;
         }
         if (obj instanceof Species) {
@@ -75,8 +75,8 @@ public class SimulationWrapper extends InterfaceWrapper implements RemoverWrappe
 
     public boolean canRemoveChild(Object obj) {
         Object[] objs = new Object[0];
-        if (obj instanceof Phase) {
-            objs = ((ISimulation)object).getPhases();
+        if (obj instanceof Box) {
+            objs = ((ISimulation)object).getBoxs();
         }
         else if (obj instanceof Species) {
             objs = ((ISimulation)object).getSpeciesManager().getSpecies();
@@ -99,7 +99,7 @@ public class SimulationWrapper extends InterfaceWrapper implements RemoverWrappe
         AddItemWrapper addItemWrapper = new AddItemWrapper();
 
         addItemWrapper.addSubmenuItem(new AddClassItemWrapper(PotentialMaster.class, this));
-        addItemWrapper.addSubmenuItem(new AddClassItemWrapper(Phase.class, this));
+        addItemWrapper.addSubmenuItem(new AddClassItemWrapper(Box.class, this));
         addItemWrapper.addSubmenuItem(new AddClassItemWrapper(Species.class, this));
         addItemWrapper.addSubmenuItem(new AddClassItemWrapper(DataStreamHeader.class, this));
 
@@ -108,8 +108,8 @@ public class SimulationWrapper extends InterfaceWrapper implements RemoverWrappe
     }
     
     public boolean addObjectClass(Class newObjectClass, Shell shell) {
-        if (newObjectClass == Phase.class) {
-            simObjects.simulation.addPhase(new Phase((ISimulation)object));
+        if (newObjectClass == Box.class) {
+            simObjects.simulation.addBox(new Box((ISimulation)object));
             return true;
         }
         if (newObjectClass == PotentialMaster.class) {

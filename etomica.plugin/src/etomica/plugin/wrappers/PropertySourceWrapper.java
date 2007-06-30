@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Oct 10, 2004 by kofke
- */
 package etomica.plugin.wrappers;
 
 import java.beans.BeanInfo;
@@ -37,7 +33,7 @@ import etomica.data.DataSink;
 import etomica.integrator.Integrator;
 import etomica.math.geometry.Shape;
 import etomica.nbr.NeighborCriterion;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.plugin.Registry;
 import etomica.plugin.editors.EtomicaEditor;
 import etomica.plugin.editors.MenuItemCascadeWrapper;
@@ -567,15 +563,15 @@ public class PropertySourceWrapper implements IPropertySource {
 		else if(String.class == type) {
 			pd = new TextPropertyDescriptor(property, name);
 		}
-        else if (Phase.class.isAssignableFrom(type) && simObjects.simulation != null) {
-            Phase[] simPhases = simObjects.simulation.getPhases();
-            Phase[] phases = new Phase[0];
-            for (int i=0; i<simPhases.length; i++) {
-                if (type.isInstance(simPhases[i])) {
-                    phases = (Phase[])Arrays.addObject(phases, simPhases[i]);
+        else if (Box.class.isAssignableFrom(type) && simObjects.simulation != null) {
+            Box[] simBoxes = simObjects.simulation.getBoxs();
+            Box[] boxes = new Box[0];
+            for (int i=0; i<simBoxes.length; i++) {
+                if (type.isInstance(simBoxes[i])) {
+                    boxes = (Box[])Arrays.addObject(boxes, simBoxes[i]);
                 }
             }
-            pd = new ComboPropertyDescriptor(property, name, phases);
+            pd = new ComboPropertyDescriptor(property, name, boxes);
         }
         else if (Integrator.class.isAssignableFrom(type) && simObjects.integrators != null) {
             ArrayList integratorsList = simObjects.integrators;
@@ -928,7 +924,7 @@ public class PropertySourceWrapper implements IPropertySource {
     private static final Class[] excludedChildClasses = new Class[]{
         IVector.class,Tensor.class,Shape.class,
         AtomAddressManager.class,AtomsetIterator.class,
-        Phase.class,Species.class,ISimulation.class,AtomManager.class
+        Box.class,Species.class,ISimulation.class,AtomManager.class
     };
 
     // this fields sole purpose is to allow InterfaceWrappers to return

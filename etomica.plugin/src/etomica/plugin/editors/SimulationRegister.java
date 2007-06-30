@@ -5,7 +5,7 @@ import etomica.action.activity.ActivityGroup;
 import etomica.action.activity.ActivityIntegrate;
 import etomica.data.DataPump;
 import etomica.integrator.Integrator;
-import etomica.integrator.IntegratorPhase;
+import etomica.integrator.IntegratorBox;
 import etomica.potential.PotentialMaster;
 import etomica.simulation.ISimulation;
 
@@ -53,8 +53,8 @@ public class SimulationRegister {
             for (int i=0; i<intervalActions.length; i++) {
                 registerElements(intervalActions[i]);
             }
-            if (obj instanceof IntegratorPhase) {
-                registerElements(((IntegratorPhase)obj).getPotential());
+            if (obj instanceof IntegratorBox) {
+                registerElements(((IntegratorBox)obj).getPotential());
             }
         }
         if (obj instanceof DataPump) {

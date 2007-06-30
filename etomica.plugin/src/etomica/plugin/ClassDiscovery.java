@@ -248,7 +248,7 @@ public class ClassDiscovery {
 		cd.addClass(etomica.potential.Potential1.class);
 		cd.addClass(etomica.potential.Potential2.class);
 		cd.addClass(etomica.integrator.Integrator.class);
-		cd.addClass(etomica.phase.Phase.class);
+		cd.addClass(etomica.box.Box.class);
 		cd.addClass(etomica.action.activity.Controller.class);
 		cd.addClass(etomica.data.DataSource.class);
 		cd.addClass(etomica.graphics.Display.class);

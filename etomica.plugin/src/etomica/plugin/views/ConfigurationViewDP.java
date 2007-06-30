@@ -16,8 +16,8 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
 
 import etomica.atom.Atom;
-import etomica.graphics.DisplayPhase;
-import etomica.phase.Phase;
+import etomica.graphics.DisplayBox;
+import etomica.box.Box;
 import etomica.plugin.editors.EtomicaEditor;
 import etomica.plugin.wrappers.PropertySourceWrapper;
 
@@ -38,15 +38,15 @@ public class ConfigurationViewDP extends ViewPart {
 
         frame = SWT_AWT.new_Frame(control);
 
-        displayPhase = new DisplayPhase(phase);
-        if (phase != null) {
-            frame.add(displayPhase.graphic());
-//            refresher = new Refresher(Thread.currentThread(), displayPhase.graphic());
+        displayBox = new DisplayBox(box);
+        if (box != null) {
+            frame.add(displayBox.graphic());
+//            refresher = new Refresher(Thread.currentThread(), displayBox.graphic());
         }
         
-        updater = new SceneUpdater(control,displayPhase);
+        updater = new SceneUpdater(control,displayBox);
         updater.setFPS( 10 );
-        if (phase != null) {
+        if (box != null) {
             updater.run();
         }
         
@@ -79,22 +79,22 @@ public class ConfigurationViewDP extends ViewPart {
             return;
         }
         Object obj = ((PropertySourceWrapper)firstElement).getObject();
-        if (obj instanceof Phase && obj != phase) {
-            setPhase((Phase)obj);
+        if (obj instanceof Box && obj != box) {
+            setBox((Box)obj);
         }
 	}
     
-    public void setPhase(Phase p) {
-        if (phase != null) {
-            frame.remove(displayPhase.graphic());
+    public void setBox(Box p) {
+        if (box != null) {
+            frame.remove(displayBox.graphic());
         }
-        phase = p;
-        displayPhase.setPhase(phase);
-        if (updater != null && phase != null && !updater.isActive()) {
+        box = p;
+        displayBox.setBox(box);
+        if (updater != null && box != null && !updater.isActive()) {
             updater.run();
         }
-        if (phase != null) {
-            frame.add(displayPhase.graphic());
+        if (box != null) {
+            frame.add(displayBox.graphic());
         }
     }
     
@@ -112,17 +112,17 @@ public class ConfigurationViewDP extends ViewPart {
             updater.dispose();
             updater = null;
         }
-        displayPhase = null;
-        phase = null;
+        displayBox = null;
+        box = null;
 		super.dispose();
 	}
 	
     public static class SceneUpdater implements Runnable {
         private int DELAY = 100;
         
-        public SceneUpdater(Composite parent, DisplayPhase displayPhase) {
+        public SceneUpdater(Composite parent, DisplayBox displayBox) {
             parentWidget = parent;
-            this.displayPhase = displayPhase;
+            this.displayBox = displayBox;
         }
         
         public void setFPS( double fps )
@@ -134,15 +134,15 @@ public class ConfigurationViewDP extends ViewPart {
                 return;
             }
             isActive = true;
-            if ( displayPhase!=null &&  parentWidget.isVisible() ) {
-                displayPhase.repaint();
+            if ( displayBox!=null &&  parentWidget.isVisible() ) {
+                displayBox.repaint();
             }
             parentWidget.getDisplay().timerExec(DELAY, this);
         }
         
         public void dispose() {
             parentWidget = null;
-            displayPhase = null;
+            displayBox = null;
             isActive = false;
         }
         
@@ -151,19 +151,19 @@ public class ConfigurationViewDP extends ViewPart {
         }
         
         private Composite parentWidget;
-        private DisplayPhase displayPhase;
+        private DisplayBox displayBox;
         private boolean isActive;
     }
 
     public void setSelectedAtoms( Atom[] atoms )
     {
-//        displayPhase.setSelectedAtoms( atoms );
+//        displayBox.setSelectedAtoms( atoms );
     }
 
     protected Frame frame;
-    protected DisplayPhase displayPhase;
+    protected DisplayBox displayBox;
     protected SceneUpdater updater;
     private EtomicaEditor etomicaEditor;
 	private ISelectionListener pageSelectionListener;
-	private Phase phase;
+	private Box box;
 }

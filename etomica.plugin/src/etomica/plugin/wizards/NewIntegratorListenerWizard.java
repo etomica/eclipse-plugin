@@ -6,14 +6,14 @@ import etomica.action.Action;
 import etomica.action.Activity;
 import etomica.action.AtomAction;
 import etomica.action.IntegratorAction;
-import etomica.action.PhaseAction;
+import etomica.action.BoxAction;
 import etomica.action.SimulationAction;
 import etomica.data.DataPump;
 import etomica.data.DataSource;
 import etomica.integrator.Integrator;
-import etomica.integrator.IntegratorPhase;
+import etomica.integrator.IntegratorBox;
 import etomica.nbr.list.PotentialMasterList;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wizards.NewObjectSimplePage.SimpleClassWizard;
 
@@ -46,17 +46,17 @@ public class NewIntegratorListenerWizard extends Wizard implements SimpleClassWi
     public void fixupSelector(SimpleClassSelector selector) {
         selector.addBaseClass(Action.class);
         selector.addCategory("Action",Action.class);
-        selector.addCategory("Phase Action",PhaseAction.class);
+        selector.addCategory("Phase Action",BoxAction.class);
         selector.addCategory("Integrator Action",IntegratorAction.class);
         selector.addCategory("Simulation Action",SimulationAction.class);
         selector.setExcludedClasses(new Class[]{AtomAction.class,Activity.class});
         selector.setExtraParameterClasses(new Class[]{Integrator.class});
         
-        if (integrator instanceof IntegratorPhase && ((IntegratorPhase)integrator).getPotential() instanceof PotentialMasterList) {
-            Phase[] phases = simObjects.simulation.getPhases();
-            for (int i=0; i<phases.length; i++) {
+        if (integrator instanceof IntegratorBox && ((IntegratorBox)integrator).getPotential() instanceof PotentialMasterList) {
+            Box[] boxes = simObjects.simulation.getBoxs();
+            for (int i=0; i<boxes.length; i++) {
                 selector.addExtraObject("Neighbor Manager",
-                    ((PotentialMasterList)((IntegratorPhase)integrator).getPotential()).getNeighborManager(phases[i]));
+                    ((PotentialMasterList)((IntegratorBox)integrator).getPotential()).getNeighborManager(boxes[i]));
             }
         }
         

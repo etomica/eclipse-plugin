@@ -40,7 +40,7 @@ public class Registry {
 		class_discovery.addClass( etomica.integrator.IIntegrator.class );
         class_discovery.addClass( etomica.integrator.IntegratorNonintervalListener.class );
         class_discovery.addClass( etomica.integrator.mcmove.MCMove.class );
-		class_discovery.addClass( etomica.phase.Phase.class );
+		class_discovery.addClass( etomica.box.Box.class );
         class_discovery.addClass( etomica.space.Boundary.class );
 		class_discovery.addClass( etomica.action.activity.Controller.class );
 		class_discovery.addClass( etomica.data.DataSource.class );

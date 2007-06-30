@@ -12,10 +12,10 @@ import etomica.integrator.IntegratorHard;
 import etomica.integrator.IntegratorMC;
 import etomica.integrator.IntegratorMD;
 import etomica.integrator.IntegratorNonintervalListener;
-import etomica.integrator.IntegratorPhase;
+import etomica.integrator.IntegratorBox;
 import etomica.nbr.list.PotentialMasterList;
 import etomica.nbr.site.PotentialMasterSite;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.plugin.editors.MenuItemCascadeWrapper;
 import etomica.plugin.editors.MenuItemWrapper;
 import etomica.plugin.editors.SimulationObjects;
@@ -35,7 +35,7 @@ public class IntegratorWrapper extends PropertySourceWrapper implements RemoverW
 
     protected IPropertyDescriptor makeDescriptor(java.beans.PropertyDescriptor property) {
         String name = property.getDisplayName();
-        if(name.equals("potential")) return null;//skip the PotentialMaster
+        if (name.equals("potential")) return null;//skip the PotentialMaster
         
         return super.makeDescriptor(property);
     }
@@ -52,9 +52,9 @@ public class IntegratorWrapper extends PropertySourceWrapper implements RemoverW
             ((Integrator)object).removeNonintervalListener((IntegratorNonintervalListener)obj);
             return true;
         }
-        if (obj instanceof Phase && object instanceof IntegratorPhase) {
-            if (((IntegratorPhase)object).getPhase() == obj) {
-                ((IntegratorPhase)object).setPhase(null);
+        if (obj instanceof Box && object instanceof IntegratorBox) {
+            if (((IntegratorBox)object).getBox() == obj) {
+                ((IntegratorBox)object).setBox(null);
                 return true;
             }
         }
@@ -78,8 +78,8 @@ public class IntegratorWrapper extends PropertySourceWrapper implements RemoverW
                 }
             }
         }
-        else if (obj instanceof Phase && object instanceof IntegratorPhase) {
-            return obj == ((IntegratorPhase)object).getPhase();
+        else if (obj instanceof Box && object instanceof IntegratorBox) {
+            return obj == ((IntegratorBox)object).getBox();
         }
         return false;
     }
@@ -111,8 +111,8 @@ public class IntegratorWrapper extends PropertySourceWrapper implements RemoverW
     public EtomicaStatus getStatus(LinkedList parentList) {
         // super.getStatus assigns the status to our |status| field
         super.getStatus(parentList);
-        if (object instanceof IntegratorPhase) {
-            if (((IntegratorPhase)object).getPhase() == null && status.type.severity < EtomicaStatus.ERROR.severity) {
+        if (object instanceof IntegratorBox) {
+            if (((IntegratorBox)object).getBox() == null && status.type.severity < EtomicaStatus.ERROR.severity) {
                 status = new EtomicaStatus("Integrator must have a Phase", EtomicaStatus.ERROR);
             }
         }

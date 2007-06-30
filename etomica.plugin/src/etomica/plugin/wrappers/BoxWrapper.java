@@ -10,7 +10,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.internal.ExceptionHandler;
 
 import etomica.action.PDBWriter;
-import etomica.action.PhaseActionAdapter;
+import etomica.action.BoxActionAdapter;
 import etomica.atom.AtomSet;
 import etomica.config.Configuration;
 import etomica.config.ConfigurationLattice;
@@ -18,25 +18,25 @@ import etomica.lattice.BravaisLattice;
 import etomica.lattice.LatticeCubicFcc;
 import etomica.lattice.LatticeCubicSimple;
 import etomica.lattice.LatticeOrthorhombicHexagonal;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.plugin.EtomicaPlugin;
 import etomica.plugin.editors.MenuItemCascadeWrapper;
 import etomica.plugin.editors.MenuItemWrapper;
 import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.views.ConfigurationViewDP;
-import etomica.plugin.views.PhaseView;
+import etomica.plugin.views.BoxView;
 import etomica.plugin.wrappers.ActionListItemWrapper.ActionItemWrapper;
 import etomica.plugin.wrappers.OpenItemWrapper.OpenViewItemWrapper;
 
-public class PhaseWrapper extends PropertySourceWrapper implements OpenerWrapper {
+public class BoxWrapper extends PropertySourceWrapper implements OpenerWrapper {
 
-    public PhaseWrapper(Phase phase, SimulationObjects simObjects) {
-        super(phase,simObjects);
+    public BoxWrapper(Box box, SimulationObjects simObjects) {
+        super(box,simObjects);
     }
     
     public PropertySourceWrapper[] getChildren(LinkedList parentList) {
         PropertySourceWrapper[] children = super.getChildren(parentList);
-        AtomSet agentList = ((Phase)object).getSpeciesMaster().getAgentList();
+        AtomSet agentList = ((Box)object).getSpeciesMaster().getAgentList();
         PropertySourceWrapper[] newChildren = new PropertySourceWrapper[children.length+agentList.getAtomCount()];
         System.arraycopy(children,0,newChildren,0,children.length);
         for (int i=children.length; i<newChildren.length; i++) {
@@ -54,12 +54,12 @@ public class PhaseWrapper extends PropertySourceWrapper implements OpenerWrapper
         openItemWrapper.addSubmenuItem(new OpenViewItemWrapper(PHASE, this));
 
         InitializeMolecules initializeMolecules = new InitializeMolecules();
-        initializeMolecules.setPhase((Phase)object);
+        initializeMolecules.setBox((Box)object);
         BravaisLattice lattice = null;
-        if (((Phase)object).getSpace().D() == 3) {
+        if (((Box)object).getSpace().D() == 3) {
             lattice = new LatticeCubicFcc();
         }
-        else if (((Phase)object).getSpace().D() == 2) {
+        else if (((Box)object).getSpace().D() == 2) {
             lattice = new LatticeOrthorhombicHexagonal();
         }
         else {
@@ -78,14 +78,14 @@ public class PhaseWrapper extends PropertySourceWrapper implements OpenerWrapper
         try {
             if (viewName == CONFIGURATION_DP) {
                 ConfigurationViewDP view = (ConfigurationViewDP)page.showView("etomica.plugin.views.ConfigurationViewDP",null,IWorkbenchPage.VIEW_VISIBLE);
-                view.setPhase((Phase)object);
+                view.setBox((Box)object);
                 return true;
             }
             else if (viewName == CONFIGURATION_RASMOL) {
                 try {
                     
                     final String rasmolPath = EtomicaPlugin.getDefault().getPreferenceStore().getString("rasmolPath");
-                    PDBWriter pdbWriter = new PDBWriter((Phase)object);
+                    PDBWriter pdbWriter = new PDBWriter((Box)object);
                     final File pdbFile = File.createTempFile("etomica",".pdb");
                     pdbWriter.setFile(pdbFile);
                     pdbWriter.actionPerformed();
@@ -122,8 +122,8 @@ public class PhaseWrapper extends PropertySourceWrapper implements OpenerWrapper
                 }
             }
             else if (viewName == PHASE) {
-                PhaseView view = (PhaseView)page.showView("etomica.plugin.views.PhaseView",null,IWorkbenchPage.VIEW_VISIBLE);
-                view.setPhase((Phase)object);
+                BoxView view = (BoxView)page.showView("etomica.plugin.views.BoxView",null,IWorkbenchPage.VIEW_VISIBLE);
+                view.setBox((Box)object);
                 return true;
             }
         }
@@ -134,16 +134,16 @@ public class PhaseWrapper extends PropertySourceWrapper implements OpenerWrapper
     }
     
     protected static final String CONFIGURATION_OSG = "ConfigurationOSG";
-    protected static final String CONFIGURATION_DP = "ConfigurationDisplayPhase";
+    protected static final String CONFIGURATION_DP = "ConfigurationDisplayBox";
     protected static final String CONFIGURATION_RASMOL = "ConfigurationRasmol";
-    protected static final String PHASE ="Phase";
+    protected static final String PHASE ="Box";
 
-    protected static class InitializeMolecules extends PhaseActionAdapter {
+    protected static class InitializeMolecules extends BoxActionAdapter {
 
         private static final long serialVersionUID = 1L;
 
         public void actionPerformed() {
-            config.initializeCoordinates(phase);
+            config.initializeCoordinates(box);
         }
         
         public void setConfiguration(Configuration newConfig) {

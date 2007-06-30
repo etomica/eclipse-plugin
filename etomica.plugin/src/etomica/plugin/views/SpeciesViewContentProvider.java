@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Sep 20, 2004 by kofke
- */
 package etomica.plugin.views;
 
 import java.util.LinkedList;
@@ -15,7 +11,7 @@ import etomica.atom.AtomType;
 import etomica.atom.AtomTypeGroup;
 import etomica.atom.ISpeciesAgent;
 import etomica.atom.SpeciesAgent;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.plugin.editors.SimulationObjects;
 import etomica.plugin.wrappers.ArrayWrapper;
 import etomica.plugin.wrappers.PropertySourceWrapper;
@@ -109,10 +105,10 @@ public class SpeciesViewContentProvider implements ITreeContentProvider {
             return getChildren(inputElement);
         }
         Species species = (Species)((PropertySourceWrapper)inputElement).getObject();
-        Phase[] phases = simObjects.simulation.getPhases();
-        ISpeciesAgent[] agents = new SpeciesAgent[phases.length];
-        for (int i=0; i<phases.length; i++) {
-            agents[i] = phases[i].getAgent(species);
+        Box[] boxes = simObjects.simulation.getBoxs();
+        ISpeciesAgent[] agents = new SpeciesAgent[boxes.length];
+        for (int i=0; i<boxes.length; i++) {
+            agents[i] = boxes[i].getAgent(species);
         }
         PropertySourceWrapper[] wrappers = new PropertySourceWrapper[3];
         wrappers[0] = PropertySourceWrapper.makeWrapper(agents,simObjects);

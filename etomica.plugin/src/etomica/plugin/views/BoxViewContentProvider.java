@@ -6,13 +6,13 @@ import org.eclipse.jface.viewers.Viewer;
 import etomica.atom.Atom;
 import etomica.atom.AtomGroup;
 import etomica.atom.AtomSet;
-import etomica.phase.Phase;
+import etomica.box.Box;
 import etomica.plugin.wrappers.PropertySourceWrapper;
 
 
-public class PhaseViewContentProvider implements ITreeContentProvider {
+public class BoxViewContentProvider implements ITreeContentProvider {
 
-    public PhaseViewContentProvider() {}
+    public BoxViewContentProvider() {}
 
     public Object[] getChildren(Object wrappedElement) {
         // wrapped element is an atom.  If it's a parent, return the children
@@ -30,8 +30,8 @@ public class PhaseViewContentProvider implements ITreeContentProvider {
     //the call to viewer.setInput in createPartControl causes the list of
     //simulation instances to be the input element in this method
     public Object[] getElements(Object inputElement) {
-        Phase phase = (Phase)((PropertySourceWrapper)inputElement).getObject();
-        AtomSet agentList = phase.getSpeciesMaster().getAgentList();
+        Box box = (Box)((PropertySourceWrapper)inputElement).getObject();
+        AtomSet agentList = box.getSpeciesMaster().getAgentList();
         return wrapAtomList(agentList);
     }
     

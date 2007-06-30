@@ -1,7 +1,3 @@
-/*
- * History
- * Created on Sep 20, 2004 by kofke
- */
 package etomica.plugin.views;
 
 import org.eclipse.jface.viewers.ISelection;
@@ -16,22 +12,21 @@ import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
 
-import etomica.phase.Phase;
-import etomica.plugin.wrappers.PhaseWrapper;
+import etomica.box.Box;
 import etomica.plugin.wrappers.PropertySourceWrapper;
 
 /**
  * View for listing the species hierarchy via a tree.
  */
-public class PhaseView extends ViewPart {
+public class BoxView extends ViewPart {
 
-    public PhaseView() {
+    public BoxView() {
         super();
     }
 
     public void createPartControl(Composite parent) {
         viewer = new TreeViewer(parent);
-        vcp = new PhaseViewContentProvider();
+        vcp = new BoxViewContentProvider();
         viewer.setContentProvider(vcp);
         viewer.setLabelProvider(new LabelProvider());
         hookPageSelection();
@@ -75,15 +70,15 @@ public class PhaseView extends ViewPart {
             return;
         }
         Object obj = ((PropertySourceWrapper)firstElement).getObject();
-        if (obj instanceof Phase && obj != phase) {
-            phase = (Phase)obj;
+        if (obj instanceof Box && obj != box) {
+            box = (Box)obj;
             viewer.setInput(firstElement);
         }
     }
     
-    public void setPhase(Phase newPhase) {
-        phase = newPhase;
-        viewer.setInput(new PhaseWrapper(phase,null));
+    public void setBox(Box newBox) {
+        box = newBox;
+        viewer.setInput(PropertySourceWrapper.makeWrapper(box));
     }
 
     public void setFocus() {
@@ -103,7 +98,7 @@ public class PhaseView extends ViewPart {
     }
 	
     protected TreeViewer viewer;
-    private PhaseViewContentProvider vcp;
+    private BoxViewContentProvider vcp;
     private ISelectionListener pageSelectionListener;
-    private Phase phase;
+    private Box box;
 }
