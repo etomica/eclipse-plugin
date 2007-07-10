@@ -150,7 +150,7 @@
       <view
             allowMultiple="false"
             category="etomica.plugin"
-            class="etomica.plugin.views.PhaseView"
+            class="etomica.plugin.views.BoxView"
             icon="icons/sample.gif"
             id="etomica.plugin.views.PhaseView"
             name="Phase"/>
