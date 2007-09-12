@@ -73,7 +73,7 @@
             id="etomica.plugin">
       </category>
       <wizard
-            icon="icons/sample.gif"
+            icon="icons/etomica.jpg"
             class="etomica.plugin.wizards.NewEtomicaProject"
             descriptionImage="src/etomica/plugin/icons/element.gif"
             category="etomica.plugin"
@@ -84,7 +84,7 @@
 	        
       </wizard>
       <wizard
-            icon="icons/sample.gif"
+            icon="icons/etomica.jpg"
             class="etomica.plugin.wizards.NewSimulationWizard"
             descriptionImage="src/etomica/plugin/icons/element.gif"
             category="etomica.plugin"
@@ -142,7 +142,7 @@
       </category>
       <view
             allowMultiple="false"
-            icon="icons/sample.gif"
+            icon="icons/etomica.jpg"
             class="etomica.plugin.views.SpeciesView"
             category="etomica.plugin"
             name="Species"
@@ -151,28 +151,28 @@
             allowMultiple="false"
             category="etomica.plugin"
             class="etomica.plugin.views.BoxView"
-            icon="icons/sample.gif"
+            icon="icons/etomica.jpg"
             id="etomica.plugin.views.PhaseView"
             name="Phase"/>
       <view
             allowMultiple="false"
             category="etomica.plugin"
             class="etomica.plugin.views.ConfigurationViewDP"
-            icon="icons/sample.gif"
+            icon="icons/etomica.jpg"
             id="etomica.plugin.views.ConfigurationViewDP"
             name="DisplayPhase"/>
       <view
             allowMultiple="true"
             category="etomica.plugin"
             class="etomica.plugin.views.DataTableView"
-            icon="icons/sample.gif"
+            icon="icons/etomica.jpg"
             id="etomica.plugin.views.DataTableView"
             name="Data Table"/>
       <view
             allowMultiple="true"
             category="etomica.plugin"
             class="etomica.plugin.views.DataPlotView"
-            icon="icons/sample.gif"
+            icon="icons/etomica.jpg"
             id="etomica.plugin.views.DataPlotView"
             name="Data Plot"/>
    </extension>
@@ -180,7 +180,7 @@
          point="org.eclipse.ui.editors">
       <editor
             class="etomica.plugin.editors.EtomicaEditor"
-            icon="icons/sample.gif"
+            icon="icons/etomica.jpg"
             default="true"
             name="Etomica Editor"
             id="etomica.plugin.editors.EtomicaEditor"
@@ -189,7 +189,7 @@
             class="etomica.plugin.editors.EtomicaInputEditor"
             default="true"
             extensions="inp"
-            icon="icons/sample.gif"
+            icon="icons/etomica.jpg"
             id="etomica.plugin.editors.EtomicaInputEditor"
             name="Etomica Input Editor"/>
    </extension>
