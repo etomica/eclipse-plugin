@@ -103,6 +103,11 @@ public class SimulationParametersPage extends WizardPage implements IPageChanged
      * IllegalArgumentException is thrown.
      */
     public ParameterBase getSimulationParameters() throws IllegalArgumentException {
+
+    	if(parameters == null) {
+    		return null;
+    	}
+
         Field[] fields = parameters.getClass().getFields();
         for (int i=0; i<fields.length; i++) {
             String value = "";
