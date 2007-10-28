@@ -63,7 +63,7 @@ public class BoxWrapper extends PropertySourceWrapper implements OpenerWrapper {
             lattice = new LatticeOrthorhombicHexagonal();
         }
         else {
-            lattice = new LatticeCubicSimple(1, 1.0);
+            lattice = new LatticeCubicSimple(simObjects.simulation.getSpace(), 1.0);
         }
         initializeMolecules.setConfiguration(new ConfigurationLattice(lattice));
         MenuItemCascadeWrapper actionItemWrapper = new ActionListItemWrapper();
