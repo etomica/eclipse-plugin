@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Etomica Plug-in
+Bundle-SymbolicName: Etomica;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Activator: etomica.plugin.EtomicaPlugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.help,
+ org.eclipse.core.resources,
+ org.eclipse.ui.ide,
+ org.eclipse.jface.text,
+ org.eclipse.ui.editors,
+ org.eclipse.ui.workbench.texteditor,
+ org.eclipse.ui.views,
+ org.eclipse.jdt.core,
+ org.eclipse.jdt.ui
+Eclipse-LazyStart: true
+Bundle-ClassPath: etomica_core.jar,
+ g3d.jar,
+ g3dsys.jar,
+ Jama.jar,
+ ptolemy.jar,
+ vecmath1.2-1.14.jar,
+ .

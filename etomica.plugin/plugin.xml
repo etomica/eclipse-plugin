@@ -1,46 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
-<plugin
-   id="etomica.plugin"
-   name="Etomica Plug-in"
-   version="1.0.0"
-   provider-name=""
-   class="etomica.plugin.EtomicaPlugin">
-
-   <runtime>
-      <library name="resolver.jar">
-         <export name="*"/>
-      </library>
-      <library name="etomica_core.jar">
-         <export name="*"/>
-      </library>
-      <library name="ptolemy.jar">
-         <export name="*"/>
-      </library>
-      <library name="g3d.jar">
-         <export name="*"/>
-      </library>
-      <library name="vecmath1.2-1.14.jar">
-         <export name="*"/>
-      </library>
-      <library name="g3dsys.jar">
-         <export name="*"/>
-      </library>
-   </runtime>
-
-   <requires>
-      <import plugin="org.eclipse.ui"/>
-      <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.eclipse.help"/>
-      <import plugin="org.eclipse.core.resources"/>
-      <import plugin="org.eclipse.ui.ide"/>
-      <import plugin="org.eclipse.jface.text"/>
-      <import plugin="org.eclipse.ui.editors"/>
-      <import plugin="org.eclipse.ui.workbench.texteditor"/>
-      <import plugin="org.eclipse.ui.views"/>
-      <import plugin="org.eclipse.jdt.core"/>
-      <import plugin="org.eclipse.jdt.ui"/>
-   </requires>
+<plugin>
 
    <extension
          point="org.eclipse.help.toc">
