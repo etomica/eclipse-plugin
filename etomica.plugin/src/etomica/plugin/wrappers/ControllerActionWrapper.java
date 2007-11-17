@@ -8,14 +8,14 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 
 import etomica.action.Action;
-import etomica.simulation.Simulation;
+import etomica.plugin.editors.SimulationObjects;
 
 /**
  * This doesn't work as a PropertySourceWrapper.  Might just need to go away
  */
 public class ControllerActionWrapper { //extends PropertySourceWrapper {
 
-    public ControllerActionWrapper(Action object, Simulation sim) {
+    public ControllerActionWrapper(Action object, SimulationObjects simObjects) {
 //        super(object,sim);
     }
 
