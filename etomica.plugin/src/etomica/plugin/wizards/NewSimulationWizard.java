@@ -33,7 +33,6 @@ import org.eclipse.ui.IWorkbenchWizard;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.internal.WorkbenchPlugin;
 
 import etomica.plugin.editors.SimulationObjects;
 import etomica.simulation.ISimulation;
@@ -253,7 +252,7 @@ public class NewSimulationWizard extends Wizard implements INewWizard {
                 }
             }
             catch (RuntimeException e) {
-                WorkbenchPlugin.getDefault().getLog().log(
+                etomica.plugin.EtomicaPlugin.getDefault().getLog().log(
                         new Status(IStatus.ERROR, PlatformUI.PLUGIN_ID, 0, e.getMessage(), e.getCause()));
             }                
             return null;//new Simulation();
