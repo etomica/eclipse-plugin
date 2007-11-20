@@ -81,7 +81,7 @@ public class ClassDiscovery {
         while( enums.hasMoreElements() )
         {
 		    String entry = (String) enums.nextElement();
-		    if (entry.endsWith( "/") && !entry.equals("/bin/")) 
+		    if (entry.endsWith( "/") && !entry.equals("bin/")) 
 		        continue;
 
 		    //IPath path = plugin_root.append( entry );
